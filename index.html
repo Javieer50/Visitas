@@ -40,7 +40,7 @@ svg.i{width:20px;height:20px;flex:none;vertical-align:-4px;fill:none;stroke:curr
 
 /* Barra superior */
 /* La barra superior incluye el espacio de la barra de estado del iPhone */
-.topbar{position:sticky;top:0;z-index:25;background:var(--verde);color:#fff;padding-top:env(safe-area-inset-top,0px);transition:box-shadow .2s}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:25;background:var(--verde);color:#fff;padding-top:env(safe-area-inset-top,0px);transition:box-shadow .2s}
 .topbar.scrolled{box-shadow:0 .5px 0 rgba(0,0,0,.25)}
 .topbar .in{height:46px;display:flex;align-items:center;gap:10px;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));max-width:760px;margin:0 auto}
 .topbar .lgA{height:34px;width:auto}
@@ -49,7 +49,7 @@ svg.i{width:20px;height:20px;flex:none;vertical-align:-4px;fill:none;stroke:curr
 #barra{min-width:34px;display:flex;justify-content:flex-end}
 #btnGuardar{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:999px;padding:7px 14px;font:600 16px var(--f)}
 #btnGuardar:active{background:rgba(255,255,255,.32)}
-.hero{background:var(--verde);color:#fff;padding:2px max(16px,env(safe-area-inset-right,0px)) 30px max(16px,env(safe-area-inset-left,0px))}
+.hero{background:var(--verde);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 52px) max(16px,env(safe-area-inset-right,0px)) 30px max(16px,env(safe-area-inset-left,0px))}
 .hero .in{max-width:760px;margin:0 auto;display:flex;align-items:flex-end;gap:12px}
 .hero .in>div{flex:1;min-width:0}
 .hero h1{margin:0;font:700 34px/1.12 var(--f);letter-spacing:.01em}
@@ -119,6 +119,30 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 #btnManual[aria-expanded="true"]{background:var(--verde2);color:#fff}
 #btnManual svg{transition:transform .2s}#btnManual[aria-expanded="true"] svg{transform:rotate(45deg)}
 [hidden]{display:none!important}
+.iacc{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--sep)}
+.ib{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--acc);font:500 11px var(--f);cursor:pointer}
+.ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;box-sizing:content-box;padding:10px;border-radius:50%;background:var(--tintbg);transition:transform .1s}
+.ib:active svg{transform:scale(.9)}
+.ib span{color:var(--txt2)}
+.ib.prim svg{background:var(--verde2);color:#fff}
+.ib.on svg{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.ib.roj{color:var(--rojo)}.ib.roj svg{background:var(--rojobg)}
+.hojafondo{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;padding:0 8px calc(8px + env(safe-area-inset-bottom,0px));animation:entra .15s}
+.hojaacc{width:100%;max-width:440px;display:grid;gap:8px;animation:sube .28s cubic-bezier(.2,.8,.2,1)}
+.hgrp,.hcancel{background:var(--barbg);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-radius:14px;overflow:hidden}
+.hcab{padding:14px 16px 12px;text-align:center;border-bottom:.5px solid var(--sep)}
+.hcab .ht{font-size:13px;font-weight:600;color:var(--txt2)}.hcab .hs{font-size:13px;color:var(--txt2);margin-top:2px}
+.hg a,.hg button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:none;border:0;border-bottom:.5px solid var(--sep);color:var(--acc);font:20px var(--f);text-decoration:none}
+.hg>*:last-child{border-bottom:0}
+.hg svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hcancel{width:100%;border:0;padding:16px;font:600 20px var(--f);color:var(--acc)}
+.dlgfondo{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:24px;animation:entra .15s}
+.dlg{width:100%;max-width:290px;background:var(--barbg);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-radius:16px;text-align:center;overflow:hidden}
+.dlg h3{margin:18px 16px 4px;font-size:17px;font-weight:600}
+.dlg p{margin:0 16px 16px;font-size:14px;color:var(--txt);line-height:1.35}
+.dlgb{display:flex;border-top:.5px solid var(--sep)}
+.dlgb button{flex:1;background:none;border:0;padding:12px 6px;font:17px var(--f);color:var(--acc)}
+.dlgb button+button{border-left:.5px solid var(--sep);font-weight:600}
 .hist{margin-top:12px;border-radius:12px;padding:12px;background:var(--tintbg);font-size:15px}
 .hist b{color:var(--acc)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
@@ -361,6 +385,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
+  <p class="nota" style="text-align:center;margin-top:24px">Visitas AGROLEON · versión 1.7</p>
 </section>
 </main>
 
@@ -375,12 +400,18 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 <div class="modal" id="mRec"><div class="hoja" style="padding:12px">
   <img id="recImg" alt="Receta">
   <div class="acciones">
-    <button class="btn" id="btnShare">Enviar por WhatsApp</button>
+    <button class="btn full" id="btnWaProd" style="background:#1DA851;flex:1 1 100%"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 2.5 2.5 5 5 5l1.2-1.2-1.8-1-1 .8a4 4 0 0 1-2-2l.8-1-1-1.8z" stroke-width="1.4"/></svg><span id="waTxt">Enviar al productor por WhatsApp</span></button>
+    <button class="btn sec2" id="btnShare">Compartir imagen</button>
     <button class="btn sec2" id="btnRecCerrar">Cerrar</button>
   </div>
-  <p class="nota">En "Enviar" elija WhatsApp y el contacto del productor. También puede mantener presionada la imagen para guardarla en Fotos.</p>
+  <p class="nota" id="waNota">Se abre el chat del productor con un mensaje listo y la receta copiada: toque el campo de mensaje, elija <b>Pegar</b> y envíe.</p>
 </div></div>
 <div class="toast" id="toast"></div>
+<div class="hojafondo" id="hojaAcc" hidden onclick="if(event.target===this)cerrarHoja()"><div class="hojaacc">
+  <div class="hgrp"><div class="hcab"><div class="ht"></div><div class="hs"></div></div><div class="hg"></div></div>
+  <button class="hcancel" onclick="cerrarHoja()">Cancelar</button></div></div>
+<div class="dlgfondo" id="dlg" hidden><div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT">
+  <h3 id="dlgT"></h3><p id="dlgM"></p><div class="dlgb" id="dlgB"></div></div></div>
 
 <script>
 if(navigator.standalone||matchMedia("(display-mode: standalone)").matches)document.documentElement.classList.add("pwa");
@@ -637,20 +668,30 @@ function pintarLista(){const l=filtradas();
    <div class="m">${esc(v.sucursal)}${v.canton?' · '+esc(v.canton):''}${v.comunidad?' · '+esc(v.comunidad.split('\n')[0]):''}</div>
    ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(c.area)+' ha':''}</span>`).join('')}
    ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
-   <div class="acc">${mapBtns(v,1)}<button class="btn sec2 peq" data-a="ubi" data-id="${v.id}">${v.lat?'Actualizar ubicación':'Agregar ubicación'}</button></div>
-   <div class="acc"><button class="btn peq" data-a="rec" data-id="${v.id}">Receta (imagen)</button>
-   <button class="btn sec2 peq" data-a="ver" data-id="${v.id}">Ver ficha</button>
-   <button class="btn sec2 peq" data-a="edit" data-id="${v.id}">Editar</button>
-   <button class="btn sec2 peq" data-a="dup" data-id="${v.id}">Nueva visita</button>
-   <button class="btn rojo peq" data-a="del" data-id="${v.id}">Eliminar</button></div></div>`}).join('')
+   <div class="iacc">
+    <button class="ib${v.lat?' on':''}" data-a="ubi" data-id="${v.id}" aria-label="Ubicación">${IC.pin}<span>Ubicación</span></button>
+    <button class="ib" data-a="ver" data-id="${v.id}" aria-label="Ficha">${IC.ficha}<span>Ficha</span></button>
+    <button class="ib prim" data-a="rec" data-id="${v.id}" aria-label="Receta">${IC.receta}<span>Receta</span></button>
+    <button class="ib" data-a="edit" data-id="${v.id}" aria-label="Editar">${IC.edit}<span>Editar</span></button>
+    <button class="ib" data-a="dup" data-id="${v.id}" aria-label="Nueva visita">${IC.nueva}<span>Nueva</span></button>
+    <button class="ib roj" data-a="del" data-id="${v.id}" aria-label="Eliminar">${IC.del}<span>Eliminar</span></button>
+   </div></div>`}).join('')
    :'<div class="vacio">No hay visitas que coincidan.<br>Registre una en la pestaña Nueva visita.</div>';
   $('#cards').querySelectorAll('button[data-a]').forEach(b=>b.onclick=async()=>{const v=cache.find(x=>x.id==b.dataset.id);
    if(b.dataset.a==='rec')abrirReceta(v);
    if(b.dataset.a==='ver')ficha(v);
    if(b.dataset.a==='edit')cargar(v);
-   if(b.dataset.a==='ubi'){cargar(v);setTimeout(()=>{$('#ubic').scrollIntoView({behavior:'smooth',block:'start'});abrirManual(true);if(!v.lat)$('#lat').focus()},350)}
+   if(b.dataset.a==='ubi'){const upd=()=>{cargar(v);setTimeout(()=>{$('#ubic').scrollIntoView({behavior:'smooth',block:'start'});abrirManual(true);if(!v.lat)$('#lat').focus()},350)};
+     hojaAcciones(v.productor,v.lat?`${v.lat}, ${v.lon}`:'Sin ubicación registrada',
+       v.lat?[[IC.pin+'Ver en mapa',mapUrl(v)],[IC.ruta+'Cómo llegar',rutaUrl(v)],[IC.edit+'Actualizar ubicación',upd]]:[[IC.pin+'Agregar ubicación',upd]])}
    if(b.dataset.a==='dup'){limpiar();$('#productor').value=v.productor;mostrarHist(true);irA('nueva')}
-   if(b.dataset.a==='del'&&confirm(`¿Eliminar la visita a ${v.productor} del ${fmtF(v.fecha)}? No se puede deshacer.`)){await borrarDB(v.id);await recargar();pintarLista();toast('Visita eliminada')}})}
+   if(b.dataset.a==='del')dialogo('¿Eliminar visita?',`Se borrará la visita a ${v.productor} del ${fmtF(v.fecha)}. No se puede deshacer.`,[['Cancelar'],['Eliminar',async()=>{await borrarDB(v.id);await recargar();pintarLista();toast('Visita eliminada')}]])})}
+function hojaAcciones(titulo,sub,items){const h=$('#hojaAcc');
+  h.querySelector('.ht').textContent=titulo;h.querySelector('.hs').textContent=sub;const g=h.querySelector('.hg');g.innerHTML='';
+  items.forEach(([html,acc])=>{const el=document.createElement(typeof acc==='string'?'a':'button');el.innerHTML=html;
+    if(typeof acc==='string'){el.href=acc;el.target='_blank';el.rel='noopener';el.onclick=()=>cerrarHoja()}else el.onclick=()=>{cerrarHoja();acc()};g.appendChild(el)});
+  h.hidden=false}
+function cerrarHoja(){$('#hojaAcc').hidden=true}
 
 /* ---------- Ficha ---------- */
 function ficha(v){const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';const dm=minutos(v.horaInicio,v.horaFin);
@@ -715,7 +756,30 @@ function dibujarReceta(v){
   x.fillStyle=V;font(30,1);x.fillText('Ing. Javier Rivas Cañar',P,y);x.textAlign='right';font(28);x.fillText('WhatsApp 0959014370',W-P,y);x.textAlign='left';y+=40;
   const o=document.createElement('canvas');o.width=W;o.height=y+30;const ox=o.getContext('2d');ox.fillStyle='#fff';ox.fillRect(0,0,W,o.height);ox.drawImage(c,0,0);
   ox.fillStyle=V;ox.fillRect(0,o.height-14,W,14);return o}
-function abrirReceta(v){const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
+const IC={pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+ ruta:'<svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
+ ficha:'<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+ receta:'<svg viewBox="0 0 24 24"><path d="M6 19c6 0 12-5 12-14C9 5 4 9 4 15"/><path d="M4 21c2-6 6-9 10-11"/></svg>',
+ edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+ nueva:'<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
+ del:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'};
+let recVisit=null;
+function dialogo(t,m,botones){$('#dlgT').textContent=t;$('#dlgM').textContent=m;const b=$('#dlgB');b.innerHTML='';
+  botones.forEach(([txt,fn])=>{const x=document.createElement('button');x.textContent=txt;x.onclick=()=>{$('#dlg').hidden=true;fn&&fn()};b.appendChild(x)});$('#dlg').hidden=false}
+function telWa(t){let d=String(t||'').replace(/\D/g,'');if(!d)return'';
+  if(d.startsWith('593'))d=d;else if(d.startsWith('0'))d='593'+d.slice(1);else if(d.length===9)d='593'+d;
+  return /^593\d{8,9}$/.test(d)?d:'invalido'}
+$('#btnWaProd').onclick=async()=>{const v=recVisit;if(!v)return;const tel=telWa(v.telefono);
+  const irEditar=()=>{$('#mRec').style.display='none';cargar(v);setTimeout(()=>{$('#telefono').scrollIntoView({behavior:'smooth',block:'center'});$('#telefono').focus()},350)};
+  if(!tel)return dialogo('Sin número registrado',`${v.productor} no tiene número de WhatsApp registrado. Agréguelo en la visita para poder enviarle la receta.`,[['Cancelar'],['Agregar número',irEditar]]);
+  if(tel==='invalido')return dialogo('Número no válido',`El número "${v.telefono}" no parece un celular de Ecuador. Corríjalo con el formato 09XXXXXXXX.`,[['Cancelar'],['Corregir',irEditar]]);
+  if(!recFile)return toast('Preparando la receta, intente de nuevo');
+  let copiada=false;try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({'image/png':Promise.resolve(recFile)})]);copiada=true}}catch(e){}
+  const nom=String(v.productor||'').split(' ')[0];
+  const msg=`Buen día ${nom}, le envío la recomendación técnica de la visita del ${fmtF(v.fecha)}. Cualquier consulta estoy a las órdenes.\nIng. Javier Rivas – AGROLEON`;
+  toast(copiada?'Receta copiada: en el chat toque Pegar':'Abriendo WhatsApp…');
+  setTimeout(()=>{location.href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`},copiada?700:200)};
+function abrirReceta(v){recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar al productor por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
   const nombre=`Receta_${(v.productor||'productor').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g,'_')}_${v.fecha}.png`;
   cv.toBlob(b=>{recFile=new File([b],nombre,{type:'image/png'})},'image/png');
   $('#mRec').style.display='block';$('#mRec').scrollTop=0}
@@ -810,7 +874,10 @@ $('#impJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{cons
 /* ---------- Inicio ---------- */
 (async()=>{try{await abrirDB();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();await recargar()}
  catch(e){alert('Este navegador no permite guardar datos: '+e.message)}limpiar()})();
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  let recargado=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!recargado){recargado=true;location.reload()}})}
+addEventListener('load',()=>setTimeout(()=>scrollTo(0,0),50));
 </script>
 </body>
 </html>
