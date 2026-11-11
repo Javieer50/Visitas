@@ -119,6 +119,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 #btnManual[aria-expanded="true"]{background:var(--verde2);color:#fff}
 #btnManual svg{transition:transform .2s}#btnManual[aria-expanded="true"] svg{transform:rotate(45deg)}
 [hidden]{display:none!important}
+.area{display:flex;gap:0}.area input{border-radius:11px 0 0 11px;min-width:0}
+.area select{flex:none;width:68px;border-radius:0 11px 11px 0;padding:11px 22px 11px 9px;background-position:right 7px center;border-left:.5px solid var(--sep)}
+.c-aeq{margin-top:4px;font-size:12px}
+.fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
 .iacc{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--sep)}
 .ib{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--acc);font:500 11px var(--f);cursor:pointer}
 .ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;box-sizing:content-box;padding:10px;border-radius:50%;background:var(--tintbg);transition:transform .1s}
@@ -385,7 +389,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">Visitas AGROLEON · versión 1.7</p>
+  <p class="nota" style="text-align:center;margin-top:24px">Visitas AGROLEON · versión 1.8</p>
 </section>
 </main>
 
@@ -428,6 +432,8 @@ const VARS={'Pitahaya':['Amarilla (Palora)','Roja','Blanca'],'Cacao':['CCN-51','
   'Naranjilla':['Híbrido Puyo','Baeza'],'Maíz':['Duro amarillo','Suave'],'Yuca':['Blanca','Amarilla'],'Guanábana':['Común','Gigante']};
 const normCult=c=>{if(c&&/^pitahaya (amarilla|roja)$/i.test(c.cultivo||'')){const v=/roja/i.test(c.cultivo)?'Roja':'Amarilla (Palora)';
   c.variedad=c.variedad&&!/^palora$/i.test(c.variedad)?c.variedad:v;c.cultivo='Pitahaya'}return c};
+const fmtArea=c=>c&&c.area?`${String(c.area).replace('.',',')} ${c.areaU||'ha'}`:'';
+const haDe=c=>{const a=parseFloat(c&&c.area)||0;return (c&&c.areaU)==='m²'?a/10000:a};
 const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima / estrés'];
 
 /* ---------- Base de datos local (IndexedDB) ---------- */
@@ -483,7 +489,7 @@ function addCultivo(c={}){normCult(c);const _nv=++_nvC;
   <div class="c-otroW" style="display:none"><label>¿Cuál cultivo?</label><input class="c-otro" value="${esc(c.otro)}"></div>
   <div class="c-varW"><label>Variedad / material</label><input class="c-var" list="dlv-${_nv}" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
   <div class="c-varW2" style="display:none"><label>Variedad / material</label><input class="c-var2"></div>
-  <div class="fila3"><div><label>Área (ha)</label><input class="c-area" type="number" step="0.01" inputmode="decimal" value="${esc(c.area)}"></div>
+  <div class="fila3 fa"><div><label>Área</label><div class="area"><input class="c-area" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(c.area)}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
   <div><label>Edad</label><input class="c-edad" placeholder="2 años" value="${esc(c.edad)}"></div>
   <div><label>N.º plantas</label><input class="c-pl" type="number" inputmode="numeric" value="${esc(c.plantas)}"></div></div>
   <div class="fila"><div><label>Etapa fenológica</label><select class="c-eta"><option value="">—</option>${opts(['Vivero / almácigo','Establecimiento','Desarrollo vegetativo','Prefloración','Floración','Cuajado','Desarrollo de fruto','Cosecha','Poscosecha / reposo'],c.etapa)}</select></div>
@@ -496,6 +502,9 @@ function addCultivo(c={}){normCult(c);const _nv=++_nvC;
   <label>Manejo actual del productor</label><textarea class="c-manejo">${esc(c.manejo)}</textarea>
   <label>Observaciones del cultivo</label><textarea class="c-obs">${esc(c.obs)}</textarea>
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
+  const eq=()=>{const a=parseFloat(d.querySelector('.c-area').value),u=d.querySelector('.c-au').value;
+    d.querySelector('.c-aeq').textContent=a?(u==='m²'?`= ${(a/10000).toLocaleString('es-EC',{maximumFractionDigits:4})} ha`:`= ${Math.round(a*10000).toLocaleString('es-EC')} m²`):''};
+  d.querySelector('.c-area').addEventListener('input',eq);d.querySelector('.c-au').addEventListener('change',eq);setTimeout(eq);
   const sel=d.querySelector('.c-cul');const dlv=d.querySelector('datalist');
   const updVar=()=>{dlv.innerHTML=(VARS[sel.value]||[]).map(x=>`<option>${x}</option>`).join('')};
   const upd=()=>{const o=sel.value==='Otro';d.querySelector('.c-otroW').style.display=o?'':'none';d.querySelector('.c-varW').style.display=o?'none':'';
@@ -556,7 +565,7 @@ function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
   c.querySelector('.tit').textContent=`Cultivo ${i+1}: ${n}`;
   const k={};c.querySelectorAll('.trat').forEach(t=>{const pr=t.dataset.prob||'Tratamiento';k[pr]=(k[pr]||0)+1;t.querySelector('.tt').textContent=pr==='Tratamiento'?`Tratamiento ${k[pr]}`:`${pr} · Tratamiento ${k[pr]}`})})}
 function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{const q=s=>c.querySelector(s).value.trim();const otro=q('.c-cul')==='Otro';
-  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:q('.c-area'),edad:q('.c-edad'),plantas:q('.c-pl'),
+  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:q('.c-area'),areaU:q('.c-au'),edad:q('.c-edad'),plantas:q('.c-pl'),
   etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:[...c.querySelectorAll('.chk input:checked')].map(x=>x.value),agente:q('.c-agente'),
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>({problema:t.dataset.prob||'',objetivo:t.querySelector('.t-obj').value.trim(),aplicacion:t.querySelector('.t-apl').value,
@@ -584,7 +593,7 @@ function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTM
   box.innerHTML=`<div class="hist"><b>Productor registrado</b> · ${P.vs.length} visita${P.vs.length>1?'s':''} · última ${fmtF(u.fecha)}
    ${u.lat?`<div class="acc" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${mapBtns(u,1)}</div>`:''}
    <div class="nota" style="margin-top:4px">Toque el cultivo que va a revisar hoy:</div>
-   <div class="chips">${Object.entries(P.cul).map(([n,c])=>`<button type="button" class="chip${ya.has(n)?' on':''}" data-c="${esc(n)}">${ya.has(n)?'✓ ':'+ '}${esc(n)}${c.area?' · '+esc(c.area)+' ha':''}</button>`).join('')}</div>
+   <div class="chips">${Object.entries(P.cul).map(([n,c])=>`<button type="button" class="chip${ya.has(n)?' on':''}" data-c="${esc(n)}">${ya.has(n)?'✓ ':'+ '}${esc(n)}${c.area?' · '+esc(fmtArea(c)):''}</button>`).join('')}</div>
    <details><summary>Ver historial de visitas</summary>${P.vs.map(v=>`<div class="hv"><b>${fmtF(v.fecha)}</b> · ${esc(v.sucursal||'')}
     ${(v.cultivos||[]).map(c=>`<div>${esc(nomCult(c))}: ${(c.tratamientos||[]).length?c.tratamientos.map(t=>esc((t.problema||'')+(t.objetivo?' '+t.objetivo:'')+' → '+t.productos.map(p=>p.nom+' '+p.dosis).join(' + '))).join('; '):'sin tratamientos'}</div>`).join('')}</div>`).join('')}</details></div>`;
   box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.classList.contains('on'))return;
@@ -666,7 +675,7 @@ function pintarLista(){const l=filtradas();
    return`<div class="card"><h3>${esc(v.productor)}</h3>
    <div class="m">${fmtF(v.fecha)} · ${esc(v.horaInicio)}${v.horaFin?' – '+esc(v.horaFin):''}${dm?' ('+fmtDur(dm)+')':''}</div>
    <div class="m">${esc(v.sucursal)}${v.canton?' · '+esc(v.canton):''}${v.comunidad?' · '+esc(v.comunidad.split('\n')[0]):''}</div>
-   ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(c.area)+' ha':''}</span>`).join('')}
+   ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(fmtArea(c)):''}</span>`).join('')}
    ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
    <div class="iacc">
     <button class="ib${v.lat?' on':''}" data-a="ubi" data-id="${v.id}" aria-label="Ubicación">${IC.pin}<span>Ubicación</span></button>
@@ -700,7 +709,7 @@ function ficha(v){const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';const dm=m
   <h4>Productor</h4>${r('Nombre',v.productor)}${r('Teléfono',v.telefono)}${r('Cantón',v.canton)}${r('Comunidad / Referencias',v.comunidad)}
   ${v.lat?`<p><b>GPS:</b> ${v.lat}, ${v.lon}${v.alt?' · '+v.alt+' msnm':''}</p><div class="acciones noprint" style="margin-top:6px">${mapBtns(v,1)}</div>`:''}
   ${(v.cultivos||[]).map((c,i)=>`<h4>Cultivo ${i+1}: ${esc(nomCult(c))}</h4>
-   ${r('Variedad',c.variedad)}${r('Área',c.area?c.area+' ha':'')}${r('Edad',c.edad)}${r('N.º plantas',c.plantas)}${r('Etapa',c.etapa)}${r('Manejo',c.sistema)}
+   ${r('Variedad',c.variedad)}${r('Área',fmtArea(c)+(c.areaU==='m²'&&c.area?' ('+haDe(c).toLocaleString('es-EC',{maximumFractionDigits:4})+' ha)':''))}${r('Edad',c.edad)}${r('N.º plantas',c.plantas)}${r('Etapa',c.etapa)}${r('Manejo',c.sistema)}
    ${r('Problemas',(c.problemas||[]).join(', '))}${r('Identificado',c.agente)}${r('Manejo actual',c.manejo)}${r('Observaciones',c.obs)}
    ${c.tratamientos.map((t,j)=>`<h5>${esc(t.problema||'Tratamiento '+(j+1))}${t.objetivo?': '+esc(t.objetivo):''} · ${esc(t.aplicacion)}</h5>
     ${t.productos.length?`<table><tr><th>Producto</th><th>Dosis</th></tr>${t.productos.map(p=>`<tr><td>${esc(p.nom)}</td><td>${esc(p.dosis)} ${esc(p.para)}</td></tr>`).join('')}</table>`:''}
@@ -739,7 +748,7 @@ function dibujarReceta(v){
   if(!cs.length){x.fillStyle='#6b7a70';font(30);x.fillText('Sin tratamientos registrados.',P,y);y+=50}
   cs.forEach(c=>{
     x.fillStyle=V;x.fillRect(P-20,y-10,W-2*P+40,64);x.fillStyle='#fff';font(36,1);
-    x.fillText(nomCult(c)+(c.area?`  ·  ${c.area} ha`:''),P,y+36);y+=100;
+    x.fillText(nomCult(c)+(c.area?`  ·  ${fmtArea(c)}`:''),P,y+36);y+=100;
     if(c.agente){x.fillStyle='#1d2a22';font(28,1);x.fillText('Diagnóstico:',P,y);const kw=x.measureText('Diagnóstico: ').width;font(28);y=wrap(c.agente,P+kw,y,W-2*P-kw,38)+14}
     c.tratamientos.forEach((t,j)=>{
       x.fillStyle=V;font(32,1);y=wrap(`${t.problema||'Tratamiento '+(j+1)}${t.objetivo?': '+t.objetivo:''}  ·  ${t.aplicacion}`,P,y,W-2*P,42)+6;
@@ -801,7 +810,7 @@ function pintarResumen(){const suc={},cul={};cache.forEach(v=>{suc[v.sucursal||'
 /* ---------- Informe mensual ---------- */
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const nomMes=m=>{const[a,b]=m.split('-');return MESES[+b-1]+' '+a};
-const n1=x=>(Math.round(x*10)/10).toLocaleString('es-EC');
+const n1=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
 $('#mesInf').value=hoy().slice(0,7);
 $('#btnCsvMes').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');csvDe(cache.filter(v=>v.fecha.startsWith(m)),`Visitas_AGROLEON_${m}.csv`)};
 $('#btnInf').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');informe(m)};
@@ -814,7 +823,7 @@ function informe(mes){
   const nuevos=[...prods].filter(k=>primera[k]&&primera[k].startsWith(mes)).length;
   const horas=L.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)/60;
   const dias=new Set(L.map(v=>v.fecha)).size;
-  const area={},sucDe={};L.forEach(v=>{sucDe[key(v.productor)]=v.sucursal||'—';(v.cultivos||[]).forEach(c=>{const k=key(v.productor)+'|'+nomCult(c);area[k]=Math.max(area[k]||0,parseFloat(c.area)||0)})});
+  const area={},sucDe={};L.forEach(v=>{sucDe[key(v.productor)]=v.sucursal||'—';(v.cultivos||[]).forEach(c=>{const k=key(v.productor)+'|'+nomCult(c);area[k]=Math.max(area[k]||0,haDe(c))})});
   const haTot=Object.values(area).reduce((a,b)=>a+b,0);
   const suc={},cul={},prob={},ag={},pro={};
   L.forEach(v=>{const s=v.sucursal||'—';suc[s]=suc[s]||{v:0,p:new Set(),ha:0};suc[s].v++;suc[s].p.add(key(v.productor));
@@ -841,7 +850,7 @@ function informe(mes){
   ${Object.keys(ag).length?`<p style="margin-top:8px"><b>Principales agentes identificados</b></p>${tb(['Identificado','Casos','Cultivos'],ord(ag).slice(0,12).map(([k,o])=>[k,o.n,[...o.c].join(', ')]))}`:''}
   ${H('Productos recomendados')}${tb(['Producto','Recomendaciones','Productores','Cultivos'],ord(pro).map(([k,o])=>[k,o.n,o.p.size,[...o.c].join(', ')]))}
   ${H('Detalle de visitas')}${tb(['Fecha','Horario','Productor','Sucursal / comunidad','Cultivos','Tratamientos'],L.map(v=>[fmtF(v.fecha),(v.horaInicio||'')+(v.horaFin?'–'+v.horaFin:''),v.productor,
-     [v.sucursal,(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · '),(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' ('+c.area+' ha)':'')).join(', '),
+     [v.sucursal,(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · '),(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' ('+fmtArea(c)+')':'')).join(', '),
      (v.cultivos||[]).flatMap(c=>(c.tratamientos||[]).map(t=>(t.problema||'')+(t.objetivo?' '+t.objetivo:'')+': '+t.productos.map(p=>p.nom).join(' + '))).join(' | ')]))}
   ${prox.length?H('Visitas programadas para el próximo periodo')+tb(['Fecha','Productor','Sucursal'],prox.map(v=>[fmtF(v.proxima),v.productor,v.sucursal])):''}
   ${H('Conclusiones y acciones')}
@@ -858,11 +867,11 @@ $('#mInf').onclick=e=>{if(e.target.id==='mInf')e.target.style.display='none'};
 function descargar(nombre,contenido,tipo){const blob=contenido instanceof Blob?contenido:new Blob([contenido],{type:tipo});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 function csvDe(lista,nombre){if(!lista.length)return toast('No hay visitas');
   const cab=['Fecha','Hora inicio','Hora fin','Duración (min)','Sucursal','Tipo de visita','Acompañantes','Productor','Teléfono','Cantón','Comunidad / Referencias','Latitud','Longitud','Altitud (msnm)',
-   'Cultivo','Variedad','Área (ha)','Edad','N.º plantas','Etapa fenológica','Manejo','Problemas','Identificado','Manejo actual','Observaciones cultivo','Tratamientos','Labores culturales','Próxima visita','Compromisos','Observaciones generales','N.º fotos'];
+   'Cultivo','Variedad','Área','Unidad','Área en ha','Edad','N.º plantas','Etapa fenológica','Manejo','Problemas','Identificado','Manejo actual','Observaciones cultivo','Tratamientos','Labores culturales','Próxima visita','Compromisos','Observaciones generales','N.º fotos'];
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';const dec=s=>String(s||'').replace('.',',');
   const filas=[];lista.forEach(v=>(v.cultivos&&v.cultivos.length?v.cultivos:[null]).forEach(c=>{c=c||{tratamientos:[]};
    filas.push([fmtF(v.fecha),v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'',v.sucursal,v.tipo,v.acomp,v.productor,v.telefono,v.canton,v.comunidad,v.lat,v.lon,v.alt,
-    c.cultivo?nomCult(c):'',c.variedad,dec(c.area),c.edad,c.plantas,c.etapa,c.sistema,(c.problemas||[]).join(', '),c.agente,c.manejo,c.obs,
+    c.cultivo?nomCult(c):'',c.variedad,dec(c.area),c.area?(c.areaU||'ha'):'',c.area?String(+haDe(c).toFixed(4)).replace('.',','):'',c.edad,c.plantas,c.etapa,c.sistema,(c.problemas||[]).join(', '),c.agente,c.manejo,c.obs,
     c.tratamientos.map((t,j)=>`${t.problema||'T'+(j+1)}${t.objetivo?' ('+t.objetivo+')':''} ${t.aplicacion}: ${t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + ')}${t.numAplic?'; '+t.numAplic+' aplic.':''}${t.frecuencia?'; '+t.frecuencia:''}`).join(' | '),
     c.labores,fmtF(v.proxima),v.compromiso,v.obsGen,(v.fotos||[]).length].map(q).join(';'))}));
   descargar(nombre,'\ufeff'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')}
