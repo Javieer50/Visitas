@@ -127,6 +127,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .area{display:flex;gap:0}.area input{border-radius:11px 0 0 11px;min-width:0}
 .area select{flex:none;width:68px;border-radius:0 11px 11px 0;padding:11px 22px 11px 9px;background-position:right 7px center;border-left:.5px solid var(--sep)}
 .c-aeq{margin-top:4px;font-size:12px}
+.ocup:not(:empty){margin-top:10px;padding:8px 10px;border-radius:10px;background:var(--fill2);line-height:1.45}
+.ocup b{color:var(--acc)}
 .fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
 /* Menú de inicio estilo iPhone */
 .home{display:flex;flex-wrap:wrap;justify-content:center;gap:30px 5%;padding:30px 0 12px;min-height:calc(100vh - 360px);align-content:center}
@@ -316,6 +318,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
     <button type="button" class="btn sec2 peq" id="btnFin"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Terminar ahora</button>
   </div>
   <div class="nota" id="durTxt"></div>
+  <div class="nota ocup" id="ocupV"></div>
   <div class="fila">
     <div><label>Sucursal AGROLEON</label>
       <select id="sucursal" required>
@@ -431,7 +434,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.1</p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.2</p>
 </section>
 </main>
 
@@ -647,6 +650,27 @@ function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{co
 $('#addCult').onclick=()=>{const d=addCultivo({});d.scrollIntoView({behavior:'smooth'})};
 
 
+/* ---------- Control de horarios ocupados ---------- */
+const aMin=t=>{if(!t)return null;const[h,m]=String(t).split(':').map(Number);return isNaN(h)?null:h*60+(m||0)};
+const hhmm=n=>p2(Math.floor(n/60)%24)+':'+p2(n%60);
+function ocupados(fecha,excl={}){const o=[];
+  cache.forEach(v=>{if(v.fecha!==fecha||(excl.k==='v'&&v.id==excl.id))return;const i=aMin(v.horaInicio);if(i==null)return;
+    const f=aMin(v.horaFin);o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:v.horaInicio,hf:v.horaFin,txt:'Visita a '+v.productor})});
+  acts.forEach(a=>{if(a.fecha!==fecha||(excl.k==='a'&&a.id==excl.id))return;const i=aMin(a.hi);if(i==null)return;
+    const f=aMin(a.hf);const m=MODS[a.mod];o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:a.hi,hf:a.hf,txt:(m?m.t:'Actividad')+(a.sucursal?' · '+a.sucursal:'')})});
+  return o.sort((a,b)=>a.ini-b.ini)}
+function choque(fecha,hi,hf,excl){const i=aMin(hi);if(i==null)return null;const f0=aMin(hf),f=f0!=null&&f0>i?f0:i+1;
+  return ocupados(fecha,excl).find(o=>i<o.fin&&f>o.ini)||null}
+function validarHorario(fecha,hi,hf,excl){
+  if(hi&&hf&&aMin(hf)<=aMin(hi)){dialogo('Horario no válido','La hora de fin debe ser posterior a la hora de inicio.',[['Corregir']]);return false}
+  const c=choque(fecha,hi,hf,excl);
+  if(c){dialogo('Horario ocupado',`De ${c.hi}${c.hf?' a '+c.hf:''} ya registró: ${c.txt}. Elija un horario libre para esta actividad.`,[['Corregir horario']]);return false}
+  return true}
+function libreDesde(fecha,hora,excl){let i=aMin(hora);const L=ocupados(fecha,excl);let mov=true;
+  while(mov){mov=false;for(const o of L)if(i>=o.ini&&i<o.fin){i=o.fin;mov=true}}return hhmm(i)}
+function pintarOcup(el,fecha,excl){if(!el)return;const L=ocupados(fecha,excl);
+  el.innerHTML=L.length?'<b>Horario ocupado este día:</b> '+L.map(o=>`${o.hi}${o.hf?'–'+o.hf:''} ${esc(o.txt)}`).join(' · '):''}
+
 /* ---------- Módulos de actividades ---------- */
 const SUCS=['Sucúa (Matriz)','Tena','Puyo','Macas','Santa Ana (Macas)','Logroño','Méndez','Limón Indanza','Gualaquiza','Yantzaza'];
 const G={pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
@@ -708,10 +732,10 @@ function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',l
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
   return lab+`<input id="${id}" type="${t}"${t==='number'?' inputmode="numeric" min="0"':''} value="${esc(v)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}${req}>`}
 function nuevoMod(a){const m=MODS[modK];modEdit=a?a.id:null;modFotos=a?(a.fotos||[]).slice():[];
-  const val=k=>a?a[k]:(k==='fecha'?hoy():k==='hi'?ahora():undefined);
+  const val=k=>a?a[k]:(k==='fecha'?hoy():k==='hi'?libreDesde(hoy(),ahora(),{}):undefined);
   let html='',cs=m.campos,i=0;const grupos=[];
   while(i<cs.length){const f=cs[i];
-    if(f.k==='hi'){grupos.push(`<div class="horas"><div>${campoHTML(f,val('hi'))}</div><div>${campoHTML(cs[i+1],val('hf'))}</div></div><div class="row-btns"><button type="button" class="btn sec2 peq" data-h="hi">Inicio ahora</button><button type="button" class="btn sec2 peq" data-h="hf">Terminar ahora</button></div>`);i+=2;continue}
+    if(f.k==='hi'){grupos.push(`<div class="horas"><div>${campoHTML(f,val('hi'))}</div><div>${campoHTML(cs[i+1],val('hf'))}</div></div><div class="row-btns"><button type="button" class="btn sec2 peq" data-h="hi">Inicio ahora</button><button type="button" class="btn sec2 peq" data-h="hf">Terminar ahora</button></div><div class="nota ocup" id="ocupM"></div>`);i+=2;continue}
     if(f.half&&cs[i+1]&&cs[i+1].half){grupos.push(`<div class="fila"><div>${campoHTML(f,val(f.k))}</div><div>${campoHTML(cs[i+1],val(cs[i+1].k))}</div></div>`);i+=2;continue}
     grupos.push(campoHTML(f,val(f.k)));i++}
   html=`<form id="fm" onsubmit="return false" autocomplete="off"><fieldset><legend>${a?'Editar registro':'Datos'}</legend>${grupos.join('')}</fieldset>
@@ -720,6 +744,7 @@ function nuevoMod(a){const m=MODS[modK];modEdit=a?a.id:null;modFotos=a?(a.fotos|
    ${a?'<button type="button" class="btn sec2 full" id="mCancelar">Cancelar edición</button>':''}</div></form>`;
   $('#modForm').innerHTML=html;$('#btnGuardar').textContent=a?'Actualizar':'Guardar';
   $('#modForm').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{$('#m_'+b.dataset.h).value=ahora()});
+  const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
   $('#mGuardar').onclick=guardarMod;if(a)$('#mCancelar').onclick=()=>{nuevoMod();verVista('hist')};
   if(m.fotos){$('#mFoto').onchange=async e=>{for(const f of e.target.files){try{modFotos.push(await comprimir(f))}catch(x){}}e.target.value='';pintarMFotos()};pintarMFotos()}
   $('#segHist').textContent=`Historial (${acts.filter(x=>x.mod===modK).length})`}
@@ -728,7 +753,8 @@ function pintarMFotos(){const b=$('#mFotos');if(!b)return;b.innerHTML=modFotos.m
 async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity())return;
   const r={id:modEdit||Date.now(),mod:modK};
   m.campos.forEach(c=>{r[c.k]=c.ty==='chips'?[...document.querySelectorAll('#m_'+c.k+' input:checked')].map(x=>x.value):($('#m_'+c.k).value||'').trim()});
-  if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit)r.hf=ahora();
+  if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
+  if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
   try{await guardarA(r);await recargarA();toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
 function resumenAct(a){const m=MODS[a.mod];if(!m)return'';const x=[];
@@ -823,22 +849,25 @@ $('#btnBorrarUbi').onclick=()=>{['lat','lon','alt','prec'].forEach(k=>$('#'+k).v
 
 /* ---------- Formulario ---------- */
 function limpiar(){$('#f').reset();abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
-  $('#fecha').value=hoy();$('#horaInicio').value=ahora();$('#horaFin').value='';durTxt();
+  $('#fecha').value=hoy();$('#horaInicio').value=libreDesde(hoy(),ahora(),{});$('#horaFin').value='';durTxt();ocupV();
   $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();setGuardar(false)}
 $('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?'))limpiar()};
 $('#btnGuardar').onclick=()=>secAct==='mod'?guardarMod():guardarVisita();
 const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
   for(const c of document.querySelectorAll('.cult'))if(c.querySelector('.c-cul').value==='Otro'&&!c.querySelector('.c-otro').value.trim()){c.querySelector('.c-otro').focus();return toast('Escriba el nombre del cultivo')}
   if(!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
+  if(!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;
   const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());
   v.cultivos=leerCultivos();v.fotos=fotosTmp.slice();v.actualizado=new Date().toISOString();
   try{await guardarDB(v);
   const k=String(v.productor).trim().toLowerCase(),otras=cache.filter(o=>o.id!==v.id&&String(o.productor).trim().toLowerCase()===k&&v.lat&&(o.lat!==v.lat||o.lon!==v.lon));
   if(otras.length&&confirm(`¿Usar esta ubicación también en las otras ${otras.length} visita(s) de ${v.productor}?`))for(const o of otras)await guardarDB({...o,lat:v.lat,lon:v.lon,alt:v.alt||o.alt,prec:v.prec});
   toast('Visita guardada ✔');limpiar();await recargar()}catch(e){alert('Error al guardar: '+e.message)}};
+const ocupV=()=>pintarOcup($('#ocupV'),$('#fecha').value,{k:'v',id:+$('#id').value||-1});
+$('#fecha').addEventListener('change',ocupV);
 function cargar(v){limpiar();$('#id').value=v.id;CAMPOS.forEach(k=>{if($('#'+k))$('#'+k).value=v[k]??''});
   $('#cultivos').innerHTML='';(v.cultivos&&v.cultivos.length?v.cultivos:[{}]).forEach(addCultivo);
-  fotosTmp=(v.fotos||[]).slice();pintarFotos();mostrarGps();durTxt();setGuardar(true);irA('nueva')}
+  fotosTmp=(v.fotos||[]).slice();pintarFotos();mostrarGps();durTxt();setGuardar(true);ocupV();irA('nueva')}
 
 /* ---------- Lista ---------- */
 async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach(normCult);return v}).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
