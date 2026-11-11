@@ -125,8 +125,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 #btnManual svg{transition:transform .2s}#btnManual[aria-expanded="true"] svg{transform:rotate(45deg)}
 [hidden]{display:none!important}
 .area{display:flex;gap:0}.area input{border-radius:11px 0 0 11px;min-width:0}
-.area select{flex:none;width:68px;border-radius:0 11px 11px 0;padding:11px 22px 11px 9px;background-position:right 7px center;border-left:.5px solid var(--sep)}
-.c-aeq{margin-top:4px;font-size:12px}
+.area select{flex:none;width:80px;border-radius:0 11px 11px 0;padding:11px 22px 11px 9px;background-position:right 7px center;border-left:.5px solid var(--sep)}
+.c-aeq,.c-eeq{margin-top:4px;font-size:12px}
+.area select.c-eu{width:96px}
 .ocup:not(:empty){margin-top:10px;padding:8px 10px;border-radius:10px;background:var(--fill2);line-height:1.45}
 .ocup b{color:var(--acc)}
 .fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
@@ -434,7 +435,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.4<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.5<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -475,6 +476,19 @@ const normCult=c=>{if(c&&/^pitahaya (amarilla|roja)$/i.test(c.cultivo||'')){cons
   c.variedad=c.variedad&&!/^palora$/i.test(c.variedad)?c.variedad:v;c.cultivo='Pitahaya'}return c};
 const fmtArea=c=>c&&c.area?`${String(c.area).replace('.',',')} ${c.areaU||'ha'}`:'';
 const haDe=c=>{const a=parseFloat(c&&c.area)||0;return (c&&c.areaU)==='m²'?a/10000:a};
+const EDU={'días':1,'meses':30.4,'años':365};
+function normEdad(c){if(!c||c.edadU||!c.edad)return c;const m=String(c.edad).match(/(\d+(?:[.,]\d+)?)\s*([a-zñáéíóú]*)/i);
+  if(!m){c.edad='';return c}const n=parseFloat(m[1].replace(',','.')),u=(m[2]||'').toLowerCase();
+  c.edadU=u.startsWith('d')?'días':u.startsWith('m')?'meses':'años';c.edad=String(n);return c}
+const fmtEdad=c=>{normEdad(c);if(!c||!c.edad)return'';const n=+c.edad,u=c.edadU||'meses';
+  return `${String(n).replace('.',',')} ${n===1?{'días':'día','meses':'mes','años':'año'}[u]:u}`};
+// Al volver a visitar: suma el tiempo que pasó desde la última visita
+function edadActual(c,fechaUlt){normEdad(c);if(!c.edad||!fechaUlt)return c;
+  const dias=Math.round((new Date(hoy()+'T12:00')-new Date(fechaUlt+'T12:00'))/864e5);if(dias<=0)return c;
+  const total=(+c.edad)*EDU[c.edadU||'meses']+dias;let u=c.edadU||'meses';
+  if(u==='días'&&total>=90)u='meses';if(u==='meses'&&total>=730)u='años';
+  const n=u==='días'?Math.round(total):u==='meses'?Math.round(total/30.4):Math.round(total/365*10)/10;
+  return{...c,edad:String(n),edadU:u,_edadNota:`Actualizada: en la visita del ${fmtF(fechaUlt)} tenía ${fmtEdad(c)}`}}
 const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima / estrés'];
 
 /* ---------- Base de datos local (IndexedDB) ---------- */
@@ -530,18 +544,18 @@ $('#btnFin').onclick=()=>{$('#horaFin').value=ahora();durTxt();toast('Hora de fi
 
 /* ---------- Cultivos / tratamientos / productos ---------- */
 let _nvC=0;
-function addCultivo(c={}){normCult(c);const _nv=++_nvC;
+function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   const d=document.createElement('div');d.className='cult';
   d.innerHTML=`<div class="tit">Cultivo</div><button type="button" class="x" title="Quitar cultivo">×</button>
   <div class="fila"><div><label>Cultivo *</label><select class="c-cul">${opts(CULTIVOS,c.cultivo||'Pitahaya')}</select></div>
   <div class="c-otroW" style="display:none"><label>¿Cuál cultivo?</label><input class="c-otro" value="${esc(c.otro)}"></div>
   <div class="c-varW"><label>Variedad / material</label><input class="c-var" list="dlv-${_nv}" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
   <div class="c-varW2" style="display:none"><label>Variedad / material</label><input class="c-var2"></div>
-  <div class="fila3 fa"><div><label>Área</label><div class="area"><input class="c-area" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(c.area)}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
-  <div><label>Edad</label><input class="c-edad" placeholder="2 años" value="${esc(c.edad)}"></div>
-  <div><label>N.º plantas</label><input class="c-pl" type="number" inputmode="numeric" value="${esc(c.plantas)}"></div></div>
-  <div class="fila"><div><label>Etapa fenológica</label><select class="c-eta"><option value="">—</option>${opts(['Vivero / almácigo','Establecimiento','Desarrollo vegetativo','Prefloración','Floración','Cuajado','Desarrollo de fruto','Cosecha','Poscosecha / reposo'],c.etapa)}</select></div>
-  <div><label>Manejo</label><select class="c-sis"><option value="">—</option>${opts(['Convencional','Tecnificado','Orgánico / agroecológico','Tradicional / mínimo'],c.sistema)}</select></div></div>
+  <div class="fila"><div><label>Área</label><div class="area"><input class="c-area" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(c.area)}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
+  <div><label>Edad del cultivo</label><div class="area"><input class="c-edad" type="number" min="0" step="1" inputmode="numeric" value="${esc(c.edad)}"><select class="c-eu" aria-label="Unidad de edad">${opts(["días","meses","años"],c.edadU||"meses")}</select></div><div class="nota c-eeq">${c._edadNota||''}</div></div></div>
+  <div class="fila"><div><label>N.º plantas</label><input class="c-pl" type="number" inputmode="numeric" value="${esc(c.plantas)}"></div>
+  <div><label>Etapa fenológica</label><select class="c-eta"><option value="">—</option>${opts(['Vivero / almácigo','Establecimiento','Desarrollo vegetativo','Prefloración','Floración','Cuajado','Desarrollo de fruto','Cosecha','Poscosecha / reposo'],c.etapa)}</select></div></div>
+  <label>Manejo</label><div><select class="c-sis"><option value="">—</option>${opts(['Convencional','Tecnificado','Orgánico / agroecológico','Tradicional / mínimo'],c.sistema)}</select></div>
   <div class="sub">Diagnóstico y tratamientos</div>
   <div class="nota" style="margin:2px 0 4px">Marque el problema y se abrirá su tratamiento.</div>
   <div class="chk">${PROBS.map(p=>`<label><input type="checkbox" value="${p}"${(c.problemas||[]).includes(p)?' checked':''}>${p}</label>`).join('')}</div>
@@ -552,6 +566,10 @@ function addCultivo(c={}){normCult(c);const _nv=++_nvC;
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
   const eq=()=>{const a=parseFloat(d.querySelector('.c-area').value),u=d.querySelector('.c-au').value;
     d.querySelector('.c-aeq').textContent=a?(u==='m²'?`= ${(a/10000).toLocaleString('es-EC',{maximumFractionDigits:4})} ha`:`= ${Math.round(a*10000).toLocaleString('es-EC')} m²`):''};
+  const eqE=()=>{const n=parseFloat(d.querySelector('.c-edad').value),u=d.querySelector('.c-eu').value;const el=d.querySelector('.c-eeq');if(el.dataset.fija)return;
+    el.textContent=n?(u==='días'&&n>=60?`≈ ${Math.round(n/30.4)} meses`:u==='meses'&&n>=12?`≈ ${(n/12).toLocaleString('es-EC',{maximumFractionDigits:1})} años`:u==='años'?`≈ ${Math.round(n*12)} meses`:''):''};
+  if(d.querySelector('.c-eeq').textContent)d.querySelector('.c-eeq').dataset.fija='1';
+  d.querySelector('.c-edad').addEventListener('input',()=>{delete d.querySelector('.c-eeq').dataset.fija;eqE()});d.querySelector('.c-eu').addEventListener('change',()=>{delete d.querySelector('.c-eeq').dataset.fija;eqE()});
   d.querySelector('.c-area').addEventListener('input',eq);d.querySelector('.c-au').addEventListener('change',eq);setTimeout(eq);
   const sel=d.querySelector('.c-cul');const dlv=d.querySelector('datalist');
   const updVar=()=>{dlv.innerHTML=(VARS[sel.value]||[]).map(x=>`<option>${x}</option>`).join('')};
@@ -640,7 +658,7 @@ function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
   c.querySelector('.tit').textContent=`Cultivo ${i+1}: ${n}`;
   c.querySelectorAll('.trat').forEach((t,j)=>{const ps=probsDe(t);t.querySelector('.tt').textContent=`Tratamiento ${j+1}`+(ps.length?' · '+ps.join(' + '):'');t.querySelectorAll('.prod').forEach((q,n,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(n+1):'Producto')})})}
 function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{const q=s=>c.querySelector(s).value.trim();const otro=q('.c-cul')==='Otro';
-  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:q('.c-area'),areaU:q('.c-au'),edad:q('.c-edad'),plantas:q('.c-pl'),
+  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:q('.c-area'),areaU:q('.c-au'),edad:q('.c-edad'),edadU:q('.c-eu'),plantas:q('.c-pl'),
   etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:[...c.querySelectorAll('.chk input:checked')].map(x=>x.value),agente:q('.c-agente'),
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
@@ -813,7 +831,7 @@ function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTM
    <details><summary>Ver historial de visitas</summary>${P.vs.map(v=>`<div class="hv"><b>${fmtF(v.fecha)}</b> · ${esc(v.sucursal||'')}
     ${(v.cultivos||[]).map(c=>`<div>${esc(nomCult(c))}: ${(c.tratamientos||[]).length?c.tratamientos.map(t=>esc((t.problema||'')+(t.objetivo?' '+t.objetivo:'')+' → '+t.productos.map(p=>p.nom+' '+p.dosis).join(' + '))).join('; '):'sin tratamientos'}</div>`).join('')}</div>`).join('')}</details></div>`;
   box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.classList.contains('on'))return;
-    const{problemas,tratamientos,obs,manejo,labores,etapa,agente,...base}=P.cul[b.dataset.c];
+    const{problemas,tratamientos,obs,manejo,labores,etapa,agente,...base0}=P.cul[b.dataset.c];const base=edadActual({...base0},base0._ult&&base0._ult.fecha);
     document.querySelectorAll('.cult[data-vacio="1"]').forEach(x=>x.remove());
     const d=addCultivo(base);renumerar();mostrarHist(true);if(!b.dataset.auto)d.scrollIntoView({behavior:'smooth',block:'start'})});
   const nc=Object.keys(P.cul).length,vacio=![...document.querySelectorAll('.cult')].some(c=>!c.dataset.vacio);
@@ -932,7 +950,7 @@ function ficha(v){const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';const dm=m
   <h4>Productor</h4>${r('Nombre',v.productor)}${r('Teléfono',v.telefono)}${r('Cantón',v.canton)}${r('Comunidad / Referencias',v.comunidad)}
   ${v.lat?`<p><b>GPS:</b> ${v.lat}, ${v.lon}${v.alt?' · '+v.alt+' msnm':''}</p><div class="acciones noprint" style="margin-top:6px">${mapBtns(v,1)}</div>`:''}
   ${(v.cultivos||[]).map((c,i)=>`<h4>Cultivo ${i+1}: ${esc(nomCult(c))}</h4>
-   ${r('Variedad',c.variedad)}${r('Área',fmtArea(c)+(c.areaU==='m²'&&c.area?' ('+haDe(c).toLocaleString('es-EC',{maximumFractionDigits:4})+' ha)':''))}${r('Edad',c.edad)}${r('N.º plantas',c.plantas)}${r('Etapa',c.etapa)}${r('Manejo',c.sistema)}
+   ${r('Variedad',c.variedad)}${r('Área',fmtArea(c)+(c.areaU==='m²'&&c.area?' ('+haDe(c).toLocaleString('es-EC',{maximumFractionDigits:4})+' ha)':''))}${r('Edad',fmtEdad(c))}${r('N.º plantas',c.plantas)}${r('Etapa',c.etapa)}${r('Manejo',c.sistema)}
    ${r('Problemas',(c.problemas||[]).join(', '))}${r('Identificado',c.agente)}${r('Manejo actual',c.manejo)}${r('Observaciones',c.obs)}
    ${c.tratamientos.map((t,j)=>`<h5>${esc(t.problema||'Tratamiento '+(j+1))}${t.objetivo?': '+esc(t.objetivo):''} · ${esc(t.aplicacion)}</h5>
     ${t.productos.length?`<table><tr><th>Producto</th><th>Dosis</th></tr>${t.productos.map(p=>`<tr><td>${esc(p.nom)}</td><td>${esc(p.dosis)} ${esc(p.para)}</td></tr>`).join('')}</table>`:''}
@@ -1104,7 +1122,7 @@ function csvDe(lista,nombre){if(!lista.length)return toast('No hay visitas');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';const dec=s=>String(s||'').replace('.',',');
   const filas=[];lista.forEach(v=>(v.cultivos&&v.cultivos.length?v.cultivos:[null]).forEach(c=>{c=c||{tratamientos:[]};
    filas.push([fmtF(v.fecha),v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'',v.sucursal,v.tipo,v.acomp,v.productor,v.telefono,v.canton,v.comunidad,v.lat,v.lon,v.alt,
-    c.cultivo?nomCult(c):'',c.variedad,dec(c.area),c.area?(c.areaU||'ha'):'',c.area?String(+haDe(c).toFixed(4)).replace('.',','):'',c.edad,c.plantas,c.etapa,c.sistema,(c.problemas||[]).join(', '),c.agente,c.manejo,c.obs,
+    c.cultivo?nomCult(c):'',c.variedad,dec(c.area),c.area?(c.areaU||'ha'):'',c.area?String(+haDe(c).toFixed(4)).replace('.',','):'',fmtEdad(c),c.plantas,c.etapa,c.sistema,(c.problemas||[]).join(', '),c.agente,c.manejo,c.obs,
     c.tratamientos.map((t,j)=>`${t.problema||'T'+(j+1)}${t.objetivo?' ('+t.objetivo+')':''} ${t.aplicacion}: ${t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + ')}${t.numAplic?'; '+t.numAplic+' aplic.':''}${t.frecuencia?'; '+t.frecuencia:''}`).join(' | '),
     c.labores,fmtF(v.proxima),v.compromiso,v.obsGen,(v.fotos||[]).length].map(q).join(';'))}));
   descargar(nombre,'\ufeff'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')}
