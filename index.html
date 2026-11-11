@@ -112,6 +112,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .ult b{color:var(--acc)}
 
 /* Historial */
+#ubic{scroll-margin-top:80px}
+.manual{margin-top:6px;padding:2px 12px 14px;border-radius:12px;background:var(--fill2);animation:entra .2s ease-out}
+.manual input{background-color:var(--card)}
+#btnManual[aria-expanded="true"]{background:var(--verde2);color:#fff}
+#btnManual svg{transition:transform .2s}#btnManual[aria-expanded="true"] svg{transform:rotate(45deg)}
+[hidden]{display:none!important}
 .hist{margin-top:12px;border-radius:12px;padding:12px;background:var(--tintbg);font-size:15px}
 .hist b{color:var(--acc)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
@@ -263,10 +269,28 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   </div>
   <datalist id="dl-canton"><option>Sucúa</option><option>Morona</option><option>Logroño</option><option>Santiago</option><option>Limón Indanza</option><option>Gualaquiza</option><option>San Juan Bosco</option><option>Huamboya</option><option>Pablo Sexto</option><option>Palora</option><option>Taisha</option><option>Tiwintza</option><option>Pastaza</option><option>Tena</option><option>Yantzaza</option></datalist>
   <label>Comunidad / Referencias</label><textarea id="comunidad" placeholder="Comunidad, sector y cómo llegar a la finca"></textarea>
-  <label>Ubicación GPS</label>
-  <button type="button" class="btn sec2 peq" id="btnGps"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Capturar ubicación GPS</button>
+  <div id="ubic"></div>
+  <label>Ubicación de la finca</label>
+  <div class="row-btns" style="margin-top:0">
+    <button type="button" class="btn sec2 peq" id="btnGps"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Capturar con GPS</button>
+    <button type="button" class="btn sec2 peq" id="btnManual" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar</button>
+    <a class="btn sec2 peq" id="lnkMapa" href="#" target="_blank" rel="noopener" hidden>Ver en mapa</a>
+    <button type="button" class="btn rojo peq" id="btnBorrarUbi" hidden>Borrar</button>
+  </div>
   <div class="nota" id="gpsTxt"></div>
-  <input type="hidden" id="lat"><input type="hidden" id="lon"><input type="hidden" id="alt"><input type="hidden" id="prec">
+  <div id="manualBox" class="manual" hidden>
+  <div class="fila">
+    <div><label>Latitud</label><input id="lat" inputmode="text" autocomplete="off" placeholder="-2.718000"></div>
+    <div><label>Longitud</label><input id="lon" inputmode="text" autocomplete="off" placeholder="-78.316000"></div>
+  </div>
+  <div class="fila"><div><label>Altitud (m s. n. m.)</label><input id="alt" inputmode="numeric" placeholder="650"></div><div></div></div>
+  <label>O pegue coordenadas o un enlace de Google Maps</label>
+  <div style="display:flex;gap:8px">
+    <input id="pegar" autocomplete="off" placeholder="-2.718, -78.316  ó  2°43'05&quot;S 78°18'58&quot;W">
+    <button type="button" class="btn sec2" id="btnPegar" style="flex:none;min-height:46px">Usar</button>
+  </div>
+  </div>
+  <input type="hidden" id="prec">
 </fieldset>
 
 <div id="cultivos"></div>
@@ -363,9 +387,13 @@ const LOGO_E="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAggAAACjCAYAAADvuOZn
 const IMG_A=new Image(),IMG_E=new Image();IMG_A.src=LOGO_A;IMG_E.src=LOGO_E;
 document.querySelectorAll('.topbar .lgA').forEach(i=>i.src=LOGO_A);document.querySelectorAll('.hero .lgE').forEach(i=>i.src=LOGO_E);
 /* ---------- Catálogos ---------- */
-const CULTIVOS=['Pitahaya amarilla','Pitahaya roja','Cacao','Guanábana','Naranjilla','Papa china','Maíz','Maracuyá','Caña de azúcar','Plátano','Yuca','Pastos','Cítricos','Hortalizas','Otro'];
+const CULTIVOS=['Pitahaya','Cacao','Guanábana','Naranjilla','Papa china','Maíz','Maracuyá','Caña de azúcar','Plátano','Yuca','Pastos','Cítricos','Hortalizas','Otro'];
 const APLIC=['Foliar','Drench','Al suelo','Fertirriego','Al tronco / pincelado','Herbicida dirigido'];
 const PARA=['para 1 litro','para 20 litros','para 200 litros'];
+const VARS={'Pitahaya':['Amarilla (Palora)','Roja','Blanca'],'Cacao':['CCN-51','Nacional fino de aroma'],'Plátano':['Barraganete','Dominico','Maqueño'],
+  'Naranjilla':['Híbrido Puyo','Baeza'],'Maíz':['Duro amarillo','Suave'],'Yuca':['Blanca','Amarilla'],'Guanábana':['Común','Gigante']};
+const normCult=c=>{if(c&&/^pitahaya (amarilla|roja)$/i.test(c.cultivo||'')){const v=/roja/i.test(c.cultivo)?'Roja':'Amarilla (Palora)';
+  c.variedad=c.variedad&&!/^palora$/i.test(c.variedad)?c.variedad:v;c.cultivo='Pitahaya'}return c};
 const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima / estrés'];
 
 /* ---------- Base de datos local (IndexedDB) ---------- */
@@ -413,12 +441,13 @@ $('#btnIni').onclick=()=>{$('#horaInicio').value=ahora();durTxt()};
 $('#btnFin').onclick=()=>{$('#horaFin').value=ahora();durTxt();toast('Hora de fin registrada')};
 
 /* ---------- Cultivos / tratamientos / productos ---------- */
-function addCultivo(c={}){
+let _nvC=0;
+function addCultivo(c={}){normCult(c);const _nv=++_nvC;
   const d=document.createElement('div');d.className='cult';
   d.innerHTML=`<div class="tit">Cultivo</div><button type="button" class="x" title="Quitar cultivo">×</button>
-  <div class="fila"><div><label>Cultivo *</label><select class="c-cul">${opts(CULTIVOS,c.cultivo||'Pitahaya amarilla')}</select></div>
+  <div class="fila"><div><label>Cultivo *</label><select class="c-cul">${opts(CULTIVOS,c.cultivo||'Pitahaya')}</select></div>
   <div class="c-otroW" style="display:none"><label>¿Cuál cultivo?</label><input class="c-otro" value="${esc(c.otro)}"></div>
-  <div class="c-varW"><label>Variedad / material</label><input class="c-var" value="${esc(c.variedad)}"></div></div>
+  <div class="c-varW"><label>Variedad / material</label><input class="c-var" list="dlv-${_nv}" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
   <div class="c-varW2" style="display:none"><label>Variedad / material</label><input class="c-var2"></div>
   <div class="fila3"><div><label>Área (ha)</label><input class="c-area" type="number" step="0.01" inputmode="decimal" value="${esc(c.area)}"></div>
   <div><label>Edad</label><input class="c-edad" placeholder="2 años" value="${esc(c.edad)}"></div>
@@ -433,9 +462,10 @@ function addCultivo(c={}){
   <label>Manejo actual del productor</label><textarea class="c-manejo">${esc(c.manejo)}</textarea>
   <label>Observaciones del cultivo</label><textarea class="c-obs">${esc(c.obs)}</textarea>
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
-  const sel=d.querySelector('.c-cul');
+  const sel=d.querySelector('.c-cul');const dlv=d.querySelector('datalist');
+  const updVar=()=>{dlv.innerHTML=(VARS[sel.value]||[]).map(x=>`<option>${x}</option>`).join('')};
   const upd=()=>{const o=sel.value==='Otro';d.querySelector('.c-otroW').style.display=o?'':'none';d.querySelector('.c-varW').style.display=o?'none':'';
-    d.querySelector('.c-varW2').style.display=o?'':'none';renumerar()};
+    d.querySelector('.c-varW2').style.display=o?'':'none';updVar();renumerar()};
   sel.onchange=()=>{const o=sel.value==='Otro';if(o)d.querySelector('.c-var2').value=d.querySelector('.c-var').value;else d.querySelector('.c-var').value=d.querySelector('.c-var2').value;upd()};
   if(c.cultivo==='Otro')d.querySelector('.c-var2').value=c.variedad||'';
   d.querySelector('.c-otro').oninput=renumerar;
@@ -542,10 +572,33 @@ $('#btnGps').onclick=()=>{if(!navigator.geolocation)return toast('GPS no disponi
   navigator.geolocation.getCurrentPosition(p=>{const c=p.coords;$('#lat').value=c.latitude.toFixed(6);$('#lon').value=c.longitude.toFixed(6);
     $('#alt').value=c.altitude!=null?Math.round(c.altitude):'';$('#prec').value=Math.round(c.accuracy);mostrarGps()},
    e=>{$('#gpsTxt').textContent='No se pudo obtener la ubicación. Revise que la ubicación esté permitida.'},{enableHighAccuracy:true,timeout:60000,maximumAge:0})};
-function mostrarGps(){const la=$('#lat').value;$('#gpsTxt').textContent=la?`Lat ${la}, Lon ${$('#lon').value}`+($('#alt').value?` · ${$('#alt').value} msnm`:'')+` · ±${$('#prec').value} m`:'Sin coordenadas. El GPS funciona sin señal.'}
+function mostrarGps(){const la=$('#lat').value.trim(),lo=$('#lon').value.trim(),ok=la&&lo;
+  $('#gpsTxt').textContent=ok?`${la}, ${lo}${$('#alt').value?' · '+$('#alt').value+' m':''} · `+($('#prec').value?`GPS ±${$('#prec').value} m`:'ingresada manualmente'):'Sin coordenadas. Use el GPS (funciona sin señal) o toque Agregar para escribirlas.';
+  $('#lnkMapa').hidden=$('#btnBorrarUbi').hidden=!ok;if(ok)$('#lnkMapa').href=mapUrl({lat:la,lon:lo})}
+const numCoord=x=>{x=String(x).trim().replace(/\s/g,'');if(/^-?\d+,\d+$/.test(x))x=x.replace(',','.');return x};
+function fijarCoord(la,lo,manual){la=parseFloat(la);lo=parseFloat(lo);
+  if(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180){toast('Coordenadas no válidas');return false}
+  if(lo>0&&lo>70&&lo<82)lo=-lo;
+  $('#lat').value=la.toFixed(6);$('#lon').value=lo.toFixed(6);if(manual)$('#prec').value='';mostrarGps();
+  if(la>2||la<-5.1||lo<-81.2||lo>-75)toast('Revise: la ubicación queda fuera de Ecuador');return true}
+function leerCoord(t){t=String(t);
+  const d=t.match(/(\d{1,2})\s*°\s*(\d{1,2})\s*['′]\s*([\d.,]+)?\s*(?:"|″|'')?\s*([NS])[\s,]*(\d{1,3})\s*°\s*(\d{1,2})\s*['′]\s*([\d.,]+)?\s*(?:"|″|'')?\s*([EWO])/i);
+  if(d){const g=(a,b,c)=>+a+ +b/60+(parseFloat(String(c||0).replace(',','.'))||0)/3600;
+    return[g(d[1],d[2],d[3])*(/s/i.test(d[4])?-1:1),g(d[5],d[6],d[7])*(/[wo]/i.test(d[8])?-1:1)]}
+  const m=t.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||t.match(/[?&](?:q|query|ll|destination|daddr)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/i)||t.match(/(-?\d{1,2}\.\d+)\s*[,;\s]\s*(-?\d{1,3}\.\d+)/);
+  return m?[m[1],m[2]]:null}
+$('#btnPegar').onclick=()=>{const t=$('#pegar').value;if(!t.trim())return toast('Pegue primero las coordenadas');
+  if(/goo\.gl|maps\.app/i.test(t)&&!leerCoord(t))return toast('Ese enlace corto no trae coordenadas. En Maps toque el punto y copie las coordenadas.');
+  const c=leerCoord(t);if(!c)return toast('No se reconocieron coordenadas');if(fijarCoord(c[0],c[1],true)){$('#pegar').value='';toast('Ubicación actualizada')}};
+['#lat','#lon'].forEach(id=>$(id).addEventListener('change',()=>{$(id).value=numCoord($(id).value);const la=$('#lat').value,lo=$('#lon').value;
+  if(la&&lo)fijarCoord(la,lo,true);else{$('#prec').value='';mostrarGps()}}));
+function abrirManual(on){$('#manualBox').hidden=!on;$('#btnManual').setAttribute('aria-expanded',on);
+  $('#btnManual').lastChild.textContent=on?'Cerrar':'Agregar'}
+$('#btnManual').onclick=()=>{const on=$('#manualBox').hidden;abrirManual(on);if(on)$('#lat').focus()};
+$('#btnBorrarUbi').onclick=()=>{['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');mostrarGps()};
 
 /* ---------- Formulario ---------- */
-function limpiar(){$('#f').reset();$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
+function limpiar(){$('#f').reset();abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
   $('#fecha').value=hoy();$('#horaInicio').value=ahora();$('#horaFin').value='';durTxt();
   $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();setGuardar(false)}
 $('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?'))limpiar()};
@@ -554,13 +607,16 @@ $('#btnGuardar').onclick=async()=>{const f=$('#f');if(!f.reportValidity())return
   if(!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
   const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());
   v.cultivos=leerCultivos();v.fotos=fotosTmp.slice();v.actualizado=new Date().toISOString();
-  try{await guardarDB(v);toast('Visita guardada ✔');limpiar();await recargar()}catch(e){alert('Error al guardar: '+e.message)}};
+  try{await guardarDB(v);
+  const k=String(v.productor).trim().toLowerCase(),otras=cache.filter(o=>o.id!==v.id&&String(o.productor).trim().toLowerCase()===k&&v.lat&&(o.lat!==v.lat||o.lon!==v.lon));
+  if(otras.length&&confirm(`¿Usar esta ubicación también en las otras ${otras.length} visita(s) de ${v.productor}?`))for(const o of otras)await guardarDB({...o,lat:v.lat,lon:v.lon,alt:v.alt||o.alt,prec:v.prec});
+  toast('Visita guardada ✔');limpiar();await recargar()}catch(e){alert('Error al guardar: '+e.message)}};
 function cargar(v){limpiar();$('#id').value=v.id;CAMPOS.forEach(k=>{if($('#'+k))$('#'+k).value=v[k]??''});
   $('#cultivos').innerHTML='';(v.cultivos&&v.cultivos.length?v.cultivos:[{}]).forEach(addCultivo);
   fotosTmp=(v.fotos||[]).slice();pintarFotos();mostrarGps();durTxt();setGuardar(true);irA('nueva')}
 
 /* ---------- Lista ---------- */
-async function recargar(){cache=(await todas()).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
+async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach(normCult);return v}).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
   $('#dl-prod').innerHTML=[...new Set(cache.map(v=>v.productor))].sort().map(p=>`<option>${esc(p)}</option>`).join('');
   const sel=(id,arr,t)=>{const cur=$(id).value;$(id).innerHTML=`<option value="">${t}</option>`+arr.map(x=>`<option>${esc(x)}</option>`).join('');$(id).value=cur};
   sel('#fSuc',[...new Set(cache.map(v=>v.sucursal))].sort(),'Todas las sucursales');
@@ -578,7 +634,7 @@ function pintarLista(){const l=filtradas();
    <div class="m">${esc(v.sucursal)}${v.canton?' · '+esc(v.canton):''}${v.comunidad?' · '+esc(v.comunidad.split('\n')[0]):''}</div>
    ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(c.area)+' ha':''}</span>`).join('')}
    ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
-   <div class="acc">${mapBtns(v,1)}${v.lat?'':'<span class="nota" style="margin:0">Sin ubicación GPS</span>'}</div>
+   <div class="acc">${mapBtns(v,1)}<button class="btn sec2 peq" data-a="ubi" data-id="${v.id}">${v.lat?'Actualizar ubicación':'Agregar ubicación'}</button></div>
    <div class="acc"><button class="btn peq" data-a="rec" data-id="${v.id}">Receta (imagen)</button>
    <button class="btn sec2 peq" data-a="ver" data-id="${v.id}">Ver ficha</button>
    <button class="btn sec2 peq" data-a="edit" data-id="${v.id}">Editar</button>
@@ -589,6 +645,7 @@ function pintarLista(){const l=filtradas();
    if(b.dataset.a==='rec')abrirReceta(v);
    if(b.dataset.a==='ver')ficha(v);
    if(b.dataset.a==='edit')cargar(v);
+   if(b.dataset.a==='ubi'){cargar(v);setTimeout(()=>{$('#ubic').scrollIntoView({behavior:'smooth',block:'start'});abrirManual(true);if(!v.lat)$('#lat').focus()},350)}
    if(b.dataset.a==='dup'){limpiar();$('#productor').value=v.productor;mostrarHist(true);irA('nueva')}
    if(b.dataset.a==='del'&&confirm(`¿Eliminar la visita a ${v.productor} del ${fmtF(v.fecha)}? No se puede deshacer.`)){await borrarDB(v.id);await recargar();pintarLista();toast('Visita eliminada')}})}
 
