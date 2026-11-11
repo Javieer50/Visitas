@@ -308,34 +308,15 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 <section id="nueva" class="sec">
 <form id="f" autocomplete="off" onsubmit="return false">
 <input type="hidden" id="id">
-<fieldset><legend>Datos de la visita</legend>
-  <label>Fecha</label><input type="date" id="fecha" required>
-  <div class="horas">
-    <div><label>Hora de inicio</label><input type="time" id="horaInicio" required></div>
-    <div><label>Hora de fin</label><input type="time" id="horaFin"></div>
-  </div>
-  <div class="row-btns">
-    <button type="button" class="btn sec2 peq" id="btnIni"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Inicio ahora</button>
-    <button type="button" class="btn sec2 peq" id="btnFin"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Terminar ahora</button>
-  </div>
-  <div class="nota" id="durTxt"></div>
-  <div class="nota ocup" id="ocupV"></div>
-  <div class="fila">
-    <div><label>Sucursal AGROLEON</label>
-      <select id="sucursal" required>
-        <option value="">— Seleccione —</option>
-        <option>Sucúa (Matriz)</option><option>Tena</option><option>Puyo</option><option>Macas</option>
-        <option>Santa Ana (Macas)</option><option>Logroño</option><option>Méndez</option>
-        <option>Limón Indanza</option><option>Gualaquiza</option><option>Yantzaza</option>
-      </select></div>
-    <div><label>Tipo de visita</label>
-      <select id="tipo">
-        <option>Seguimiento técnico</option><option>Primera visita</option><option>Diagnóstico</option>
-        <option>Parcela demostrativa</option><option>Día de campo / charla</option>
-        <option>Desarrollo de producto</option><option>Atención a reclamo</option>
-      </select></div>
-  </div>
-  <label>Acompañante(s)</label><input id="acomp" placeholder="Ej.: ATC, vendedor, técnico MAG">
+<fieldset><legend>Sucursal</legend>
+  <label for="sucursal">Sucursal AGROLEON *</label>
+  <select id="sucursal" required>
+    <option value="">— Seleccione —</option>
+    <option>Sucúa (Matriz)</option><option>Tena</option><option>Puyo</option><option>Macas</option>
+    <option>Santa Ana (Macas)</option><option>Logroño</option><option>Méndez</option>
+    <option>Limón Indanza</option><option>Gualaquiza</option><option>Yantzaza</option>
+  </select>
+  <div class="nota" id="sucNota"></div>
 </fieldset>
 
 <fieldset><legend>Productor</legend>
@@ -371,6 +352,28 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   </div>
   <input type="hidden" id="prec">
 </fieldset>
+
+<fieldset><legend>Datos de la visita</legend>
+  <label>Fecha</label><input type="date" id="fecha" required>
+  <div class="horas">
+    <div><label>Hora de inicio</label><input type="time" id="horaInicio" required></div>
+    <div><label>Hora de fin</label><input type="time" id="horaFin"></div>
+  </div>
+  <div class="row-btns">
+    <button type="button" class="btn sec2 peq" id="btnIni"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Inicio ahora</button>
+    <button type="button" class="btn sec2 peq" id="btnFin"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Terminar ahora</button>
+  </div>
+  <div class="nota" id="durTxt"></div>
+  <div class="nota ocup" id="ocupV"></div>
+  <div><label>Tipo de visita</label>
+      <select id="tipo">
+        <option>Seguimiento técnico</option><option>Primera visita</option><option>Diagnóstico</option>
+        <option>Parcela demostrativa</option><option>Día de campo / charla</option>
+        <option>Desarrollo de producto</option><option>Atención a reclamo</option>
+      </select></div>
+  <label>Acompañante(s)</label><input id="acomp" placeholder="Ej.: ATC, vendedor, técnico MAG">
+</fieldset>
+
 
 <div id="cultivos"></div>
 <button type="button" class="btn sec2 full" id="addCult" style="margin-top:14px"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar otro cultivo de la finca</button>
@@ -435,7 +438,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.5<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.6<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -805,6 +808,13 @@ const rutaUrl=v=>v.lat&&v.lon?`https://www.google.com/maps/dir/?api=1&destinatio
 const mapBtns=(v,peq)=>v.lat&&v.lon?`<a class="btn sec2${peq?' peq':''}" href="${mapUrl(v)}" target="_blank" rel="noopener">Ver en mapa</a><a class="btn sec2${peq?' peq':''}" href="${rutaUrl(v)}" target="_blank" rel="noopener">Cómo llegar</a>`:'';
 /* ---------- Historial del productor ---------- */
 const nomBloque=c=>{const s=c.querySelector('.c-cul').value;return s==='Otro'?(c.querySelector('.c-otro').value.trim()||'Otro'):s};
+function sugerirProd(){const sc=$('#sucursal').value,ult={};
+  [...cache].sort((a,b)=>(a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio)).forEach(v=>ult[normNom(v.productor)]={n:v.productor,s:v.sucursal});
+  const todos=Object.values(ult),de=sc?todos.filter(x=>x.s===sc):todos;
+  const L=(de.length?de:todos).map(x=>x.n).sort((a,b)=>a.localeCompare(b,'es'));
+  $('#dl-prod').innerHTML=L.map(p=>`<option>${esc(p)}</option>`).join('');
+  const el=$('#sucNota');if(el)el.textContent=sc?(de.length?`${de.length} productor${de.length>1?'es':''} registrado${de.length>1?'s':''} en ${sc}. Aparecerán como sugerencia al escribir el nombre.`:`Aún no hay productores registrados en ${sc}.`):''}
+$('#sucursal').addEventListener('change',sugerirProd);
 const normNom=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
 function perfil(nombre){const k=normNom(nombre);if(!k)return null;
   const vs=cache.filter(v=>normNom(v.productor)===k&&v.id!=+$('#id').value).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
@@ -880,7 +890,7 @@ $('#btnBorrarUbi').onclick=()=>{['lat','lon','alt','prec'].forEach(k=>$('#'+k).v
 /* ---------- Formulario ---------- */
 function limpiar(){$('#f').reset();delete $('#tipo').dataset.manual;$('#hist').dataset.auto='';abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
   $('#fecha').value=hoy();$('#horaInicio').value=libreDesde(hoy(),ahora(),{});$('#horaFin').value='';durTxt();ocupV();
-  $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();ajustarTipo(null);setGuardar(false)}
+  $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();sugerirProd();ajustarTipo(null);setGuardar(false)}
 $('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?'))limpiar()};
 $('#btnGuardar').onclick=()=>secAct==='mod'?guardarMod():guardarVisita();
 const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
@@ -901,7 +911,7 @@ function cargar(v){limpiar();$('#id').value=v.id;CAMPOS.forEach(k=>{if($('#'+k))
 
 /* ---------- Lista ---------- */
 async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach(normCult);return v}).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
-  $('#dl-prod').innerHTML=[...new Set(cache.map(v=>v.productor))].sort().map(p=>`<option>${esc(p)}</option>`).join('');
+  sugerirProd();
   const sel=(id,arr,t)=>{const cur=$(id).value;$(id).innerHTML=`<option value="">${t}</option>`+arr.map(x=>`<option>${esc(x)}</option>`).join('');$(id).value=cur};
   sel('#fSuc',[...new Set(cache.map(v=>v.sucursal))].sort(),'Todas las sucursales');
   sel('#fMes',[...new Set(cache.map(v=>(v.fecha||'').slice(0,7)))].filter(Boolean).sort().reverse(),'Todos los meses');
