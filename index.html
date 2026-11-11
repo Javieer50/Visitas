@@ -159,6 +159,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .inf .act:first-of-type{border-top:0}
 .inf .act .h{color:var(--txt2);font-variant-numeric:tabular-nums}
 .inf .act b{font-weight:600}
+#f.remota .solo-visita{display:none}
+.aviso.borr{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#FFF4D6;color:#5C4500}
+.aviso.borr[hidden]{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .aviso.borr{background:#3A3016;color:#F5DFA0}}
+.falta{margin-top:8px;padding:8px 10px;border-radius:10px;background:#FFF4D6;color:#5C4500;font-size:13px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .falta{background:#3A3016;color:#F5DFA0}}
+.pend{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:.5px solid var(--sep);font-size:15px}
+.aviso{margin-top:6px;padding:12px 14px;border-radius:14px;background:var(--tintbg);font-size:14px;line-height:1.4}
+.aviso b{color:var(--acc)}
+.tag.rem{background:#d9efe9;color:#136456;font-weight:600}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.rem{background:#13443b;color:#7fe0c8}}
+.pcard{cursor:pointer}.pcard h3{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pcard h3 small{font-size:13px;color:var(--txt2);font-weight:500;white-space:nowrap}
+.pnum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+.pnum div{background:var(--fill2);border-radius:12px;padding:10px 6px;text-align:center}
+.pnum b{display:block;font-size:22px;color:var(--acc);font-variant-numeric:tabular-nums}.pnum span{font-size:12px;color:var(--txt2)}
+.tl{position:relative;margin-top:8px;padding-left:18px;border-left:2px solid var(--sep)}
+.tl .ev{position:relative;margin:0 0 14px;padding:10px 12px;border-radius:12px;background:var(--fill2)}
+.tl .ev::before{content:"";position:absolute;left:-26px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--verde2);box-shadow:0 0 0 3px var(--card)}
+.tl .ev.rem::before{background:#1F8F7A}.tl .ev.ens::before{background:#7A4FB5}
+.tl .ev .cab2{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:15px}
+.tl .ev .cab2 span{font-weight:500;color:var(--txt2);font-size:13px}
+.tl .ev .lin{font-size:13px;margin-top:4px;line-height:1.4}
+.tl .ev .row-btns{margin-top:8px}
+.pfotos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pfotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
 .iacc{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--sep)}
 .ib{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--acc);font:500 11px var(--f);cursor:pointer}
 .ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;box-sizing:content-box;padding:10px;border-radius:50%;background:var(--tintbg);transition:transform .1s}
@@ -295,7 +320,15 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 <!-- ============ INICIO (menú) ============ -->
 <section id="inicio" class="sec act">
   <div class="home" id="home"></div>
+  <div class="hoy" id="pendRes" hidden></div>
   <div class="hoy" id="hoyRes"></div>
+</section>
+
+<!-- ============ PRODUCTORES ============ -->
+<section id="productores" class="sec">
+  <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscarP" type="search" placeholder="Buscar productor, comunidad o cultivo"></div>
+  <div class="filtros"><select id="fSucP"><option value="">Todas las sucursales</option></select></div>
+  <div id="listaP"></div>
 </section>
 
 <!-- ============ MÓDULO GENÉRICO ============ -->
@@ -308,6 +341,8 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 <section id="nueva" class="sec">
 <form id="f" autocomplete="off" onsubmit="return false">
 <input type="hidden" id="id">
+<div class="aviso borr" id="borrV" hidden><span></span><button type="button" class="btn sec2 peq" id="borrVDesc">Descartar</button></div>
+<div class="aviso" id="avisoRem" hidden><b>Receta a distancia</b> · Para clientes que le escriben por WhatsApp. No ocupa horario ni cuenta como visita de campo; al guardar se abre la receta para enviarla.</div>
 <fieldset><legend>Sucursal</legend>
   <label for="sucursal">Sucursal AGROLEON *</label>
   <select id="sucursal" required>
@@ -329,6 +364,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   </div>
   <datalist id="dl-canton"><option>Sucúa</option><option>Morona</option><option>Logroño</option><option>Santiago</option><option>Limón Indanza</option><option>Gualaquiza</option><option>San Juan Bosco</option><option>Huamboya</option><option>Pablo Sexto</option><option>Palora</option><option>Taisha</option><option>Tiwintza</option><option>Pastaza</option><option>Tena</option><option>Yantzaza</option></datalist>
   <label>Comunidad / Referencias</label><textarea id="comunidad" placeholder="Comunidad, sector y cómo llegar a la finca"></textarea>
+  <div class="solo-visita">
   <div id="ubic"></div>
   <label>Ubicación de la finca</label>
   <div class="row-btns" style="margin-top:0">
@@ -351,10 +387,12 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   </div>
   </div>
   <input type="hidden" id="prec">
+  </div>
 </fieldset>
 
-<fieldset><legend>Datos de la visita</legend>
+<fieldset id="fsDatos"><legend id="lgDatos">Datos de la visita</legend>
   <label>Fecha</label><input type="date" id="fecha" required>
+  <div class="solo-visita">
   <div class="horas">
     <div><label>Hora de inicio</label><input type="time" id="horaInicio" required></div>
     <div><label>Hora de fin</label><input type="time" id="horaFin"></div>
@@ -372,6 +410,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <option>Desarrollo de producto</option><option>Atención a reclamo</option>
       </select></div>
   <label>Acompañante(s)</label><input id="acomp" placeholder="Ej.: ATC, vendedor, técnico MAG">
+  </div>
 </fieldset>
 
 
@@ -386,7 +425,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   <label>Observaciones generales</label><textarea id="obsGen"></textarea>
 </fieldset>
 
-<fieldset><legend>Fotos</legend>
+<fieldset><legend id="lgFotos">Fotos</legend>
   <label class="btn sec2 full" style="margin-top:12px;color:var(--acc)"><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar o elegir fotos<input type="file" id="inFoto" accept="image/*" multiple hidden></label>
   <div class="fotos" id="fotos"></div>
 </fieldset>
@@ -438,12 +477,13 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.6<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.8<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
 
 
+<div class="modal" id="mProd"><div class="hoja" id="perfilP"></div></div>
 <div class="modal" id="mInf"><div class="hoja" id="informe"></div></div>
 <div class="modal" id="mFicha"><div class="hoja" id="ficha"></div></div>
 <div class="modal" id="mRec"><div class="hoja" style="padding:12px">
@@ -497,8 +537,8 @@ const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima
 /* ---------- Base de datos local (IndexedDB) ---------- */
 const DBN='visitasAgroleon',ST='visitas';
 let db,fotosTmp=[],cache=[],recFile=null;
-function abrirDB(){return new Promise((ok,err)=>{const r=indexedDB.open(DBN,2);
-  r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST,{keyPath:'id'});if(!d.objectStoreNames.contains('acts'))d.createObjectStore('acts',{keyPath:'id'})};
+function abrirDB(){return new Promise((ok,err)=>{const r=indexedDB.open(DBN,3);
+  r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST,{keyPath:'id'});if(!d.objectStoreNames.contains('acts'))d.createObjectStore('acts',{keyPath:'id'});if(!d.objectStoreNames.contains('borr'))d.createObjectStore('borr',{keyPath:'k'})};
   r.onsuccess=e=>{db=e.target.result;ok()};r.onerror=()=>err(r.error)})}
 const tx=m=>db.transaction(ST,m).objectStore(ST);
 const todas=()=>new Promise(ok=>{const r=tx('readonly').getAll();r.onsuccess=()=>ok(r.result)});
@@ -506,6 +546,11 @@ const txA=m=>db.transaction('acts',m).objectStore('acts');
 const todasA=()=>new Promise(ok=>{const r=txA('readonly').getAll();r.onsuccess=()=>ok(r.result)});
 const guardarA=v=>new Promise((ok,err)=>{const r=txA('readwrite').put(v);r.onsuccess=ok;r.onerror=()=>err(r.error)});
 const borrarA=id=>new Promise(ok=>{const r=txA('readwrite').delete(id);r.onsuccess=ok});
+const txB=m=>db.transaction('borr',m).objectStore('borr');
+const borrGuardar=(k,o)=>new Promise(ok=>{try{const r=txB('readwrite').put({...o,k});r.onsuccess=ok;r.onerror=ok}catch(e){ok()}});
+const borrLeer=k=>new Promise(ok=>{try{const r=txB('readonly').get(k);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>ok(null)}catch(e){ok(null)}});
+const borrBorrar=k=>new Promise(ok=>{try{const r=txB('readwrite').delete(k);r.onsuccess=ok;r.onerror=ok}catch(e){ok()}});
+const borrTodos=()=>new Promise(ok=>{try{const r=txB('readonly').getAll();r.onsuccess=()=>ok(r.result||[]);r.onerror=()=>ok([])}catch(e){ok([])}});
 let acts=[];const recargarA=async()=>{acts=(await todasA()).sort((a,b)=>((b.fecha||'')+(b.hi||'')).localeCompare((a.fecha||'')+(a.hi||'')))};
 const guardarDB=v=>new Promise((ok,err)=>{const r=tx('readwrite').put(v);r.onsuccess=ok;r.onerror=()=>err(r.error)});
 const borrarDB=id=>new Promise(ok=>{const r=tx('readwrite').delete(id);r.onsuccess=ok});
@@ -525,18 +570,21 @@ const opts=(arr,sel)=>arr.map(x=>`<option${x===sel?' selected':''}>${x}</option>
 const CAMPOS=['fecha','horaInicio','horaFin','sucursal','tipo','acomp','productor','telefono','canton','comunidad','lat','lon','alt','prec','proxima','compromiso','obsGen'];
 
 /* ---------- Pestañas ---------- */
-const TIT={inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
-let secAct='inicio';
+const TIT={productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
+let secAct='inicio',modoV='visita';
+function setModo(m){modoV=m;const r=m==='remota';$('#f').classList.toggle('remota',r);$('#avisoRem').hidden=!r;
+  $('#horaInicio').required=!r;$('#lgDatos').textContent=r?'Fecha de la consulta':'Datos de la visita';
+  $('#lgFotos').textContent=r?'Fotos enviadas por el productor':'Fotos';setGuardar(!!$('#id').value)}
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 {const d=new Date();const dd=DIAS[d.getDay()];$('#hoyTxt').textContent=`${dd[0].toUpperCase()+dd.slice(1)}, ${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`}
 addEventListener('scroll',()=>$('#topbar').classList.toggle('scrolled',scrollY>40),{passive:true});
-const setGuardar=ed=>{$('#btnGuardar').textContent=ed?'Actualizar':'Guardar';$('#btnGuardar2').textContent=ed?'Actualizar visita':'Guardar visita'};
+const setGuardar=ed=>{const r=typeof modoV!=='undefined'&&modoV==='remota';$('#btnGuardar').textContent=ed?'Actualizar':'Guardar';$('#btnGuardar2').textContent=r?(ed?'Actualizar y ver receta':'Guardar y enviar receta'):(ed?'Actualizar visita':'Guardar visita')};
 $('#btnGuardar2').onclick=()=>$('#btnGuardar').click();
 function irA(t,titulo){secAct=t;$('#tbTitle').textContent=titulo||TIT[t];$('#lgTitle').textContent=t==='inicio'?'Hola, Javier':(titulo||TIT[t]);
   document.querySelectorAll('.sec').forEach(x=>x.classList.toggle('act',x.id===t));
   $('#btnBack').hidden=t==='inicio';
   $('#barra').style.visibility=(t==='nueva'||(t==='mod'&&modVista==='form'))?'visible':'hidden';
-  if(t==='inicio')pintarInicio();if(t==='lista')pintarLista();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
+  if(t==='inicio')pintarInicio();if(t==='productores')pintarProductores();if(t==='lista')pintarLista();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
 $('#btnBack').onclick=()=>irA('inicio');
 
 /* ---------- Horas ---------- */
@@ -702,7 +750,9 @@ const G={pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21
  ensayo:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/>',
  activ:'<path d="M3 10v4l11 5V5z"/><path d="M14 8a4 4 0 0 1 0 8M6 14v4a2 2 0 0 0 4 0v-2.5"/>',
  evento:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6"/>',
- inf:'<path d="M4 20V10M10 20V4M16 20v-7M20.5 20h-17"/>'};
+ inf:'<path d="M4 20V10M10 20V4M16 20v-7M20.5 20h-17"/>',
+ remota:'<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3M9 8.5h6M9 11.5h4"/>',
+ prods:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/>'};
 const F_FH=[{k:'fecha',l:'Fecha',ty:'date',req:1},{k:'hi',l:'Hora de inicio',ty:'time',req:1},{k:'hf',l:'Hora de fin',ty:'time'}];
 const MODS={
  percha:{t:'Atención en percha',g:'percha',c:'#2E7D4F,#1F5C38',titulo:a=>'Percha · '+(a.sucursal||''),
@@ -729,18 +779,35 @@ const MODS={
   campos:[...F_FH,{k:'titulo',l:'Nombre del evento',ty:'text',req:1},
    {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión interna / empresa','Capacitación recibida','Otro'],half:1},{k:'asist',l:'Asistentes',ty:'num',half:1},
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},{k:'obs',l:'Descripción / observaciones',ty:'area'}]}};
-const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47']];
+const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['productores','Productores','prods','#9A7B3F,#6E5526'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47']];
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
 function pintarInicio(){
   $('#home').innerHTML=APPS.map(([k,t,g,c])=>{const m=MODS[k];t=t||m.t;g=g||m.g;c=(c||m.c).split(',');
     return`<button type="button" class="app" data-k="${k}"><span class="ico" style="background:linear-gradient(160deg,${c[0]},${c[1]})">${svgG(g)}</span><span>${t}</span></button>`}).join('');
-  $('#home').querySelectorAll('.app').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(MODS[k])abrirMod(k);else{if(k==='nueva'&&!$('#id').value)limpiar();irA(k)}});
+  $('#home').querySelectorAll('.app').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(MODS[k])return abrirMod(k);
+    if(k==='nueva'||k==='remota'){const m=k==='nueva'?'visita':'remota';if(modoV!==m||$('#id').value)limpiar();setModo(m);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita');
+      if(!$('#productor').value.trim())restaurarBorradorV(m);return}
+    irA(k)});
   const h=hoy(),vh=cache.filter(v=>v.fecha===h),ah=acts.filter(a=>a.fecha===h);
-  const filas=[['Visitas de campo',vh.length],...Object.keys(MODS).map(k=>[MODS[k].t,ah.filter(a=>a.mod===k).length]).filter(x=>x[1])];
+  const filas=[['Visitas de campo',vh.filter(v=>!v.remota).length],['Recetas a distancia',vh.filter(v=>v.remota).length],...Object.keys(MODS).map(k=>[MODS[k].t,ah.filter(a=>a.mod===k).length]).filter(x=>x[1])];
   const min=vh.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+ah.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
+  borrTodos().then(L=>{const box=$('#pendRes');if(!box)return;L=L.filter(d=>d.k.startsWith('m-')||d.util);
+    box.hidden=!L.length;box.innerHTML=L.length?'<h3>Sin terminar</h3>'+L.map(d=>{const t=d.k==='v-visita'?'Nueva visita':d.k==='v-remota'?'Receta a distancia':(MODS[d.k.slice(2)]||{}).t;
+      const det=d.campos?d.campos.productor:(d.vals&&(d.vals.tema||d.vals.nombre||d.vals.titulo||d.vals.prods||d.vals.sucursal))||'';
+      return`<div class="pend"><span><b>${esc(t)}</b>${det?' · '+esc(det):''}</span><button type="button" class="btn peq" data-p="${esc(d.k)}">Continuar</button></div>`}).join(''):'';
+    box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const k=b.dataset.p;if(k.startsWith('m-'))return abrirMod(k.slice(2));const m=k==='v-visita'?'visita':'remota';
+      setModo(m);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita');restaurarBorradorV(m)})});
   $('#hoyRes').innerHTML=`<h3>Hoy</h3>${filas.map(([t,n])=>`<div class="r"><span>${t}</span><b>${n}</b></div>`).join('')}<div class="r"><span>Tiempo registrado</span><b>${fmtDur(min)||'0 min'}</b></div>`}
 let modK=null,modEdit=null,modFotos=[],modVista='form';
-function abrirMod(k){modK=k;modVista='form';irA('mod',MODS[k].t);nuevoMod();verVista('form')}
+let tBorrM=null;
+function guardarBorradorM(){if(secAct!=='mod'||modVista!=='form'||!$('#fm'))return;const m=MODS[modK],vals={};let util=false;
+  m.campos.forEach(c=>{const el=$('#m_'+c.k);if(!el)return;vals[c.k]=c.ty==='chips'?[...el.querySelectorAll('input:checked')].map(x=>x.value):el.value;
+    if(!['fecha','hi','hf','sucursal','estado','tipoA','tipoE'].includes(c.k)&&(Array.isArray(vals[c.k])?vals[c.k].length:String(vals[c.k]||'').trim()))util=true});
+  if(util||modFotos.length)borrGuardar('m-'+modK,{vals,fotos:modFotos.slice(),edit:modEdit,t:Date.now()})}
+const programarBorradorM=()=>{clearTimeout(tBorrM);tBorrM=setTimeout(guardarBorradorM,600)};
+async function abrirMod(k){modK=k;modVista='form';irA('mod',MODS[k].t);nuevoMod();verVista('form');
+  const d=await borrLeer('m-'+k);if(!d)return;nuevoMod({...d.vals,id:d.edit,fotos:d.fotos});
+  const h=new Date(d.t);$('#borrM').querySelector('span').innerHTML=`<b>Registro recuperado</b> · quedó sin guardar a las ${p2(h.getHours())}:${p2(h.getMinutes())}`;$('#borrM').hidden=false}
 function verVista(v){modVista=v;document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $('#modForm').hidden=v!=='form';$('#modHist').hidden=v!=='hist';$('#barra').style.visibility=v==='form'?'visible':'hidden';if(v==='hist')pintarHist()}
 document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>verVista(b.dataset.v));
@@ -752,22 +819,24 @@ function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',l
   if(f.ty==='cult')return lab+`<input id="${id}" list="dl-cultm" value="${esc(v)}">`;
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
   return lab+`<input id="${id}" type="${t}"${t==='number'?' inputmode="numeric" min="0"':''} value="${esc(v)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}${req}>`}
-function nuevoMod(a){const m=MODS[modK];modEdit=a?a.id:null;modFotos=a?(a.fotos||[]).slice():[];
+function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:null;modFotos=a?(a.fotos||[]).slice():[];
   const val=k=>a?a[k]:(k==='fecha'?hoy():k==='hi'?libreDesde(hoy(),ahora(),{}):undefined);
   let html='',cs=m.campos,i=0;const grupos=[];
   while(i<cs.length){const f=cs[i];
     if(f.k==='hi'){grupos.push(`<div class="horas"><div>${campoHTML(f,val('hi'))}</div><div>${campoHTML(cs[i+1],val('hf'))}</div></div><div class="row-btns"><button type="button" class="btn sec2 peq" data-h="hi">Inicio ahora</button><button type="button" class="btn sec2 peq" data-h="hf">Terminar ahora</button></div><div class="nota ocup" id="ocupM"></div>`);i+=2;continue}
     if(f.half&&cs[i+1]&&cs[i+1].half){grupos.push(`<div class="fila"><div>${campoHTML(f,val(f.k))}</div><div>${campoHTML(cs[i+1],val(cs[i+1].k))}</div></div>`);i+=2;continue}
     grupos.push(campoHTML(f,val(f.k)));i++}
-  html=`<form id="fm" onsubmit="return false" autocomplete="off"><fieldset><legend>${a?'Editar registro':'Datos'}</legend>${grupos.join('')}</fieldset>
+  html=`<div class="aviso borr" id="borrM" hidden><span></span><button type="button" class="btn sec2 peq" id="borrMDesc">Descartar</button></div><form id="fm" onsubmit="return false" autocomplete="off"><fieldset><legend>${ed?'Editar registro':'Datos'}</legend>${grupos.join('')}</fieldset>
    ${m.fotos?`<fieldset><legend>Fotos</legend><label class="btn sec2 full" style="margin-top:12px;color:var(--acc)">Tomar o elegir fotos<input type="file" id="mFoto" accept="image/*" multiple hidden></label><div class="fotos" id="mFotos"></div></fieldset>`:''}
-   <div style="display:grid;gap:10px;margin-top:24px"><button type="button" class="btn full" id="mGuardar">${a?'Actualizar':'Guardar'} registro</button>
-   ${a?'<button type="button" class="btn sec2 full" id="mCancelar">Cancelar edición</button>':''}</div></form>`;
-  $('#modForm').innerHTML=html;$('#btnGuardar').textContent=a?'Actualizar':'Guardar';
+   <div style="display:grid;gap:10px;margin-top:24px"><button type="button" class="btn full" id="mGuardar">${ed?'Actualizar':'Guardar'} registro</button>
+   ${ed?'<button type="button" class="btn sec2 full" id="mCancelar">Cancelar edición</button>':''}</div></form>`;
+  $('#modForm').innerHTML=html;$('#btnGuardar').textContent=ed?'Actualizar':'Guardar';
   $('#modForm').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{$('#m_'+b.dataset.h).value=ahora()});
   const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
-  $('#mGuardar').onclick=guardarMod;if(a)$('#mCancelar').onclick=()=>{nuevoMod();verVista('hist')};
+  $('#mGuardar').onclick=guardarMod;if(ed)$('#mCancelar').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();verVista('hist')};
   if(m.fotos){$('#mFoto').onchange=async e=>{for(const f of e.target.files){try{modFotos.push(await comprimir(f))}catch(x){}}e.target.value='';pintarMFotos()};pintarMFotos()}
+  ['input','change','click'].forEach(ev=>$('#modForm').addEventListener(ev,programarBorradorM));
+  $('#borrMDesc').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();toast('Borrador descartado')};
   $('#segHist').textContent=`Historial (${acts.filter(x=>x.mod===modK).length})`}
 function pintarMFotos(){const b=$('#mFotos');if(!b)return;b.innerHTML=modFotos.map((s,i)=>`<div><img src="${s}" alt=""><button type="button" data-i="${i}">×</button></div>`).join('');
   b.querySelectorAll('button').forEach(x=>x.onclick=()=>{modFotos.splice(+x.dataset.i,1);pintarMFotos()})}
@@ -777,7 +846,7 @@ async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity()
   if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
   if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
-  try{await guardarA(r);await recargarA();toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
+  try{await guardarA(r);await recargarA();borrBorrar('m-'+modK);toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
 function resumenAct(a){const m=MODS[a.mod];if(!m)return'';const x=[];
   if(a.mod==='percha'){if((a.acts||[]).length)x.push(a.acts.join(', '));if(a.clientes)x.push(a.clientes+' clientes');if(a.consultas)x.push(a.consultas+' consultas')}
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
@@ -802,6 +871,55 @@ function pintarHist(){const L=acts.filter(a=>a.mod===modK),m=MODS[modK];
   $('#modHist').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const o=acts.find(x=>x.id==b.dataset.d);
     dialogo('¿Eliminar registro?',`Se borrará "${m.titulo(o)}" del ${fmtF(o.fecha)}. No se puede deshacer.`,[['Cancelar'],['Eliminar',async()=>{await borrarA(o.id);await recargarA();pintarHist();$('#segHist').textContent=`Historial (${acts.filter(x=>x.mod===modK).length})`;toast('Registro eliminado')}]])})}
 
+/* ---------- Historial por productor ---------- */
+function grupos(){const G={};
+  [...cache].sort((a,b)=>(b.fecha+(b.horaInicio||'')).localeCompare(a.fecha+(a.horaInicio||''))).forEach(v=>{const k=normNom(v.productor);if(!k)return;
+    (G[k]=G[k]||{k,nombre:v.productor,regs:[],ens:[]}).regs.push(v)});
+  acts.filter(a=>a.mod==='ensayo'&&a.productor).forEach(a=>{const k=normNom(a.productor);if(G[k])G[k].ens.push(a)});
+  return Object.values(G)}
+function cultivosDe(g){const cul={};g.regs.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);if(!cul[n])cul[n]={c:edadActual({...c},v.fecha),f:v.fecha}}));return cul}
+$('#buscarP').oninput=pintarProductores;$('#fSucP').onchange=pintarProductores;
+function pintarProductores(){const q=normNom($('#buscarP').value),sc=$('#fSucP').value,G=grupos();
+  const cur=$('#fSucP').value;$('#fSucP').innerHTML='<option value="">Todas las sucursales</option>'+[...new Set(G.map(g=>g.regs[0].sucursal).filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');$('#fSucP').value=cur;
+  const L=G.filter(g=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g));return(!sc||u.sucursal===sc)&&(!q||normNom([g.nombre,u.comunidad,u.canton,...cul].join(' ')).includes(q))});
+  $('#listaP').innerHTML=L.length?`<p class="nota" style="margin:0 0 8px">${L.length} productor${L.length>1?'es':''}</p>`+L.map(g=>{const u=g.regs[0],cul=cultivosDe(g),nv=g.regs.filter(v=>!v.remota).length,nr=g.regs.length-nv;
+    return`<div class="card pcard" data-k="${esc(g.k)}" role="button" tabindex="0"><h3>${esc(g.nombre)}<small>${fmtF(u.fecha)}</small></h3>
+    <div class="m">${esc(u.sucursal||'')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}</div>
+    ${Object.entries(cul).map(([n,o])=>`<span class="tag">${esc(n)}${o.c.area?' · '+esc(fmtArea(o.c)):''}</span>`).join('')}
+    <div class="m" style="margin-top:8px">${nv} visita${nv!==1?'s':''}${nr?' · '+nr+' receta'+(nr>1?'s':'')+' a distancia':''}${g.ens.length?' · '+g.ens.length+' ensayo'+(g.ens.length>1?'s':''):''}</div></div>`}).join('')
+   :'<div class="vacio">No hay productores que coincidan.<br>Se agregan solos al registrar una visita o una receta a distancia.</div>';
+  $('#listaP').querySelectorAll('.pcard').forEach(c=>c.onclick=()=>abrirProductor(c.dataset.k))}
+function lineasTrat(c){return(c.tratamientos||[]).map(t=>{normTrat(t);return`${esc(t.problema||'Tratamiento')}${t.objetivo?': '+esc(t.objetivo):''} → ${esc(t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + '))}${t.frecuencia?' · '+esc(t.frecuencia):''}`}).join('<br>')}
+function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const u=g.regs[0],cul=cultivosDe(g);
+  const nv=g.regs.filter(v=>!v.remota).length,nr=g.regs.length-nv,prim=g.regs[g.regs.length-1];
+  const tel=telWa(u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono),gps=g.regs.find(v=>v.lat);
+  const prods={};g.regs.forEach(v=>(v.cultivos||[]).forEach(c=>(c.tratamientos||[]).forEach(t=>t.productos.forEach(p=>{if(p.nom)prods[p.nom]=(prods[p.nom]||0)+1}))));
+  const ev=[...g.regs.map(v=>({f:v.fecha,h:v.horaInicio,t:v.remota?'rem':'vis',v})),...g.ens.map(a=>({f:a.fecha,h:a.hi,t:'ens',a}))].sort((a,b)=>(b.f+(b.h||'')).localeCompare(a.f+(a.h||'')));
+  const fotos=g.regs.flatMap(v=>v.fotos||[]).slice(0,12);const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';
+  $('#perfilP').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(g.nombre)}</h2><div style="font-size:13px">${esc(u.sucursal||'')}${u.canton?' · '+esc(u.canton):''}</div></div></div>
+  <div class="cuerpo">
+   <div class="acciones noprint" style="margin-top:6px"><button class="btn" id="pNueva">Nueva visita</button><button class="btn sec2" id="pRem">Receta a distancia</button></div>
+   <div class="pnum"><div><b>${nv}</b><span>Visitas</span></div><div><b>${nr}</b><span>Recetas a distancia</span></div><div><b>${g.ens.length}</b><span>Ensayos</span></div></div>
+   <h4>Datos del productor</h4>${r('Teléfono',u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono)}${r('Comunidad / referencias',u.comunidad)}${r('Cantón',u.canton)}${r('Sucursal',u.sucursal)}
+   ${r('Cliente desde',fmtF(prim.fecha))}${r('Último registro',fmtF(u.fecha))}
+   <div class="acciones noprint" style="margin-top:8px">${tel&&tel!=='invalido'?`<a class="btn sec2 peq" href="https://wa.me/${tel}" target="_blank" rel="noopener">WhatsApp</a>`:''}${gps?mapBtns(gps,1):''}</div>
+   <h4>Cultivos actuales</h4>${Object.entries(cul).map(([n,o])=>`<p><b>${esc(n)}</b>${o.c.variedad?' · '+esc(o.c.variedad):''}${o.c.area?' · '+esc(fmtArea(o.c)):''}${o.c.edad?' · '+esc(fmtEdad(o.c)):''}${o.c.plantas?' · '+esc(o.c.plantas)+' plantas':''}</p>`).join('')||'<p class="nota">Sin cultivos registrados.</p>'}
+   ${Object.keys(prods).length?`<h4>Productos recomendados</h4><p>${Object.entries(prods).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`${esc(n)} <span class="nota">(${c})</span>`).join(' · ')}</p>`:''}
+   <h4>Historial</h4><div class="tl">${ev.map(e=>{
+     if(e.t==='ens'){const a=e.a;return`<div class="ev ens"><div class="cab2">Ensayo: ${esc(a.nombre)}<span>${fmtF(a.fecha)}</span></div><div class="lin">${esc(resumenAct(a))}${a.resultado?'<br>'+esc(a.resultado):''}</div></div>`}
+     const v=e.v;return`<div class="ev ${e.t==='rem'?'rem':''}"><div class="cab2">${v.remota?'Receta a distancia':esc(v.tipo||'Visita de campo')}<span>${fmtF(v.fecha)}${v.horaInicio?' · '+esc(v.horaInicio):''}</span></div>
+      ${(v.cultivos||[]).map(c=>`<div class="lin"><b>${esc(nomCult(c))}</b>${c.area?' · '+esc(fmtArea(c)):''}${(c.tratamientos||[]).length?'<br>'+lineasTrat(c):''}${c.obs?'<br><span class="nota">'+esc(c.obs)+'</span>':''}</div>`).join('')}
+      ${v.obsGen?`<div class="lin nota">${esc(v.obsGen)}</div>`:''}
+      <div class="row-btns noprint"><button class="btn sec2 peq" data-f="${v.id}">Ficha</button><button class="btn sec2 peq" data-r="${v.id}">Receta</button></div></div>`}).join('')}</div>
+   ${fotos.length?`<h4>Fotos</h4><div class="pfotos">${fotos.map(x=>`<img src="${x}" alt="">`).join('')}</div>`:''}
+   <div class="acciones noprint"><button class="btn sec2" onclick="$('#mProd').style.display='none'">Cerrar</button></div></div>`;
+  const ir=m=>{$('#mProd').style.display='none';limpiar();setModo(m);$('#sucursal').value=u.sucursal||'';sugerirProd();$('#productor').value=g.nombre;mostrarHist(true);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita')};
+  $('#pNueva').onclick=()=>ir('visita');$('#pRem').onclick=()=>ir('remota');
+  $('#perfilP').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{$('#mProd').style.display='none';ficha(cache.find(x=>x.id==b.dataset.f))});
+  $('#perfilP').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{$('#mProd').style.display='none';abrirReceta(cache.find(x=>x.id==b.dataset.r))});
+  $('#mProd').style.display='block';$('#mProd').scrollTop=0}
+$('#mProd').onclick=e=>{if(e.target.id==='mProd')e.target.style.display='none'};
+
 /* ---------- Google Maps ---------- */
 const mapUrl=v=>v.lat&&v.lon?`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lon}`:'';
 const rutaUrl=v=>v.lat&&v.lon?`https://www.google.com/maps/dir/?api=1&destination=${v.lat},${v.lon}`:'';
@@ -823,7 +941,7 @@ function perfil(nombre){const k=normNom(nombre);if(!k)return null;
 [...$('#tipo').options].forEach(o=>{o.value=o.value});
 function ajustarTipo(P){const sel=$('#tipo'),op=[...sel.options].find(o=>o.value==='Primera visita');if(!op)return;
   if($('#id').value){op.disabled=false;op.textContent='Primera visita';return}
-  if(P){op.disabled=true;op.textContent='Primera visita (ya visitado)';if(sel.value==='Primera visita')sel.value='Seguimiento técnico'}
+  if(P&&P.vs.some(v=>!v.remota)){op.disabled=true;op.textContent='Primera visita (ya visitado)';if(sel.value==='Primera visita')sel.value='Seguimiento técnico'}
   else{op.disabled=false;op.textContent='Primera visita';if(!sel.dataset.manual&&normNom($('#productor').value))sel.value='Primera visita';else if(!sel.dataset.manual)sel.value='Seguimiento técnico'}}
 $('#tipo').addEventListener('change',()=>{$('#tipo').dataset.manual='1'});
 function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTML='';box.dataset.k='';ajustarTipo(null);return}
@@ -834,10 +952,12 @@ function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTM
   ['telefono','canton','comunidad','lat','lon','alt','prec'].forEach(k=>{if(!$('#'+k).value&&u[k])$('#'+k).value=u[k]});
   if(!$('#sucursal').value&&u.sucursal)$('#sucursal').value=u.sucursal;mostrarGps();
   const ya=new Set([...document.querySelectorAll('.cult')].filter(c=>!c.dataset.vacio).map(nomBloque));
-  box.innerHTML=`<div class="hist"><b>Productor registrado</b> · ${P.vs.length} visita${P.vs.length>1?'s':''} · última ${fmtF(u.fecha)}
+  const falta=[!P.vs.some(v=>v.lat)&&'ubicación GPS',!P.vs.some(v=>v.telefono)&&'teléfono',!P.vs.some(v=>v.comunidad)&&'comunidad / referencias',!P.vs.some(v=>v.canton)&&'cantón'].filter(Boolean);
+  box.innerHTML=`<div class="hist"><b>Productor registrado</b> · ${(n=>n+' visita'+(n!==1?'s':''))(P.vs.filter(v=>!v.remota).length)}${(n=>n?' · '+n+' receta'+(n>1?'s':'')+' a distancia':'')(P.vs.filter(v=>v.remota).length)} · último registro ${fmtF(u.fecha)}
    ${u.lat?`<div class="acc" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${mapBtns(u,1)}</div>`:''}
    <div class="nota" style="margin-top:4px">${Object.keys(P.cul).length>1?"Tiene varios cultivos: toque el que va a revisar hoy (puede elegir más de uno).":"Su cultivo registrado:"}</div>
    <div class="chips">${Object.entries(P.cul).map(([n,c])=>`<button type="button" class="chip${ya.has(n)?' on':''}" data-c="${esc(n)}">${ya.has(n)?'✓ ':'+ '}${esc(n)}${c.area?' · '+esc(fmtArea(c)):''}</button>`).join('')}</div>
+   ${falta.length?`<div class="falta"><b>Faltan datos:</b> ${falta.join(', ')}. ${modoV==='remota'?'Puede completarlos en la próxima visita.':'Complételos ahora; se guardarán también en sus registros anteriores.'}</div>`:''}
    <details><summary>Ver historial de visitas</summary>${P.vs.map(v=>`<div class="hv"><b>${fmtF(v.fecha)}</b> · ${esc(v.sucursal||'')}
     ${(v.cultivos||[]).map(c=>`<div>${esc(nomCult(c))}: ${(c.tratamientos||[]).length?c.tratamientos.map(t=>esc((t.problema||'')+(t.objetivo?' '+t.objetivo:'')+' → '+t.productos.map(p=>p.nom+' '+p.dosis).join(' + '))).join('; '):'sin tratamientos'}</div>`).join('')}</div>`).join('')}</details></div>`;
   box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.classList.contains('on'))return;
@@ -888,26 +1008,50 @@ $('#btnManual').onclick=()=>{const on=$('#manualBox').hidden;abrirManual(on);if(
 $('#btnBorrarUbi').onclick=()=>{['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');mostrarGps()};
 
 /* ---------- Formulario ---------- */
-function limpiar(){$('#f').reset();delete $('#tipo').dataset.manual;$('#hist').dataset.auto='';abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
+function limpiar(){$('#f').reset();if($('#borrV')&&!restaurando)$('#borrV').hidden=true;delete $('#tipo').dataset.manual;$('#hist').dataset.auto='';abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
   $('#fecha').value=hoy();$('#horaInicio').value=libreDesde(hoy(),ahora(),{});$('#horaFin').value='';durTxt();ocupV();
   $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();sugerirProd();ajustarTipo(null);setGuardar(false)}
-$('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?'))limpiar()};
+$('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?')){borrBorrar('v-'+modoV);limpiar();$('#borrV').hidden=true}};
 $('#btnGuardar').onclick=()=>secAct==='mod'?guardarMod():guardarVisita();
 const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
   for(const c of document.querySelectorAll('.cult'))if(c.querySelector('.c-cul').value==='Otro'&&!c.querySelector('.c-otro').value.trim()){c.querySelector('.c-otro').focus();return toast('Escriba el nombre del cultivo')}
-  if(!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
-  if(!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;
+  const rem=modoV==='remota';
+  if(rem){if(!leerCultivos().some(c=>c.tratamientos.length))return dialogo('Falta el tratamiento','Marque el problema y agregue al menos un producto para generar la receta.',[['Entendido']]);}
+  else{if(!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
+  if(!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;}
   const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());
   v.cultivos=leerCultivos();v.fotos=fotosTmp.slice();v.actualizado=new Date().toISOString();
+  v.remota=rem;if(rem){v.tipo='Receta a distancia';v.horaInicio='';v.horaFin='';['lat','lon','alt','prec'].forEach(k=>{if(!v[k]){const P=perfil(v.productor);if(P)v[k]=P.vs[0][k]||''}})}
   try{await guardarDB(v);
+  borrBorrar('v-'+modoV);$('#borrV').hidden=true;
   const k=String(v.productor).trim().toLowerCase(),otras=cache.filter(o=>o.id!==v.id&&String(o.productor).trim().toLowerCase()===k&&v.lat&&(o.lat!==v.lat||o.lon!==v.lon));
-  if(otras.length&&confirm(`¿Usar esta ubicación también en las otras ${otras.length} visita(s) de ${v.productor}?`))for(const o of otras)await guardarDB({...o,lat:v.lat,lon:v.lon,alt:v.alt||o.alt,prec:v.prec});
-  toast('Visita guardada ✔');limpiar();await recargar()}catch(e){alert('Error al guardar: '+e.message)}};
+  const usarUbi=otras.filter(o=>o.lat).length>0&&confirm(`¿Usar esta ubicación también en las otras visitas de ${v.productor}?`);
+  for(const o of cache.filter(o=>o.id!==v.id&&normNom(o.productor)===normNom(v.productor))){let cambio=false;const n={...o};
+    ['telefono','canton','comunidad'].forEach(f=>{if(!n[f]&&v[f]){n[f]=v[f];cambio=true}});
+    if(v.lat&&(!n.lat||(usarUbi&&(n.lat!==v.lat||n.lon!==v.lon)))){Object.assign(n,{lat:v.lat,lon:v.lon,alt:v.alt||n.alt,prec:v.prec});cambio=true}
+    if(cambio)await guardarDB(n)}
+  toast(rem?'Receta guardada ✔':'Visita guardada ✔');limpiar();await recargar();if(rem)abrirReceta(v)}catch(e){alert('Error al guardar: '+e.message)}};
+/* ---------- Borradores automáticos ---------- */
+let tBorr=null,restaurando=false;
+function datosBorradorV(){const d={modo:modoV,id:$('#id').value,campos:{},cultivos:leerCultivos(),fotos:fotosTmp.slice(),t:Date.now()};
+  CAMPOS.forEach(k=>d.campos[k]=$('#'+k).value);d.util=!!(d.campos.productor.trim()||d.cultivos.some(c=>c.tratamientos.length)||d.fotos.length);return d}
+function guardarBorradorV(){if(secAct!=='nueva'||restaurando)return;const d=datosBorradorV();if(d.util)borrGuardar('v-'+d.modo,d)}
+const programarBorradorV=()=>{clearTimeout(tBorr);tBorr=setTimeout(guardarBorradorV,600)};
+['input','change','click'].forEach(ev=>$('#f').addEventListener(ev,programarBorradorV));
+async function restaurarBorradorV(m){const d=await borrLeer('v-'+m);if(!d||!d.util)return false;
+  restaurando=true;limpiar();setModo(m);$('#id').value=d.id||'';CAMPOS.forEach(k=>{if($('#'+k)&&d.campos[k]!=null)$('#'+k).value=d.campos[k]});
+  $('#cultivos').innerHTML='';(d.cultivos&&d.cultivos.length?d.cultivos:[{}]).forEach(addCultivo);fotosTmp=(d.fotos||[]).slice();pintarFotos();
+  mostrarGps();durTxt();setGuardar(!!d.id);ocupV();ajustarTipo(perfil($('#productor').value));
+  const h=new Date(d.t);$('#borrV').querySelector('span').innerHTML=`<b>Registro recuperado</b> · quedó sin guardar a las ${p2(h.getHours())}:${p2(h.getMinutes())} del ${h.getDate()}/${h.getMonth()+1}`;
+  $('#borrV').hidden=false;restaurando=false;return true}
+$('#borrVDesc').onclick=()=>dialogo('¿Descartar borrador?','Se borrará lo que había escrito y quedará el formulario vacío.',[['Cancelar'],['Descartar',async()=>{await borrBorrar('v-'+modoV);limpiar();$('#borrV').hidden=true;toast('Borrador descartado')}]]);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){guardarBorradorV();guardarBorradorM()}});
+addEventListener('pagehide',()=>{guardarBorradorV();guardarBorradorM()});
 const ocupV=()=>pintarOcup($('#ocupV'),$('#fecha').value,{k:'v',id:+$('#id').value||-1});
 $('#fecha').addEventListener('change',ocupV);
-function cargar(v){limpiar();$('#id').value=v.id;CAMPOS.forEach(k=>{if($('#'+k))$('#'+k).value=v[k]??''});
+function cargar(v){limpiar();setModo(v.remota?'remota':'visita');$('#id').value=v.id;CAMPOS.forEach(k=>{if($('#'+k))$('#'+k).value=v[k]??''});
   $('#cultivos').innerHTML='';(v.cultivos&&v.cultivos.length?v.cultivos:[{}]).forEach(addCultivo);
-  fotosTmp=(v.fotos||[]).slice();pintarFotos();mostrarGps();durTxt();setGuardar(true);ocupV();irA('nueva')}
+  fotosTmp=(v.fotos||[]).slice();pintarFotos();mostrarGps();durTxt();setGuardar(true);ocupV();irA('nueva',v.remota?'Receta a distancia':'Nueva visita')}
 
 /* ---------- Lista ---------- */
 async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach(normCult);return v}).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
@@ -924,7 +1068,7 @@ function filtradas(){const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value
 function pintarLista(){const l=filtradas();
   $('#cards').innerHTML=l.length?l.map(v=>{const cs=v.cultivos||[],nt=cs.reduce((s,c)=>s+c.tratamientos.length,0),dm=minutos(v.horaInicio,v.horaFin);
    return`<div class="card"><h3>${esc(v.productor)}</h3>
-   <div class="m">${fmtF(v.fecha)} · ${esc(v.horaInicio)}${v.horaFin?' – '+esc(v.horaFin):''}${dm?' ('+fmtDur(dm)+')':''}</div>
+   <div class="m">${fmtF(v.fecha)}${v.remota?' · <span class="tag rem" style="margin:0">Receta a distancia</span>':' · '+esc(v.horaInicio)+(v.horaFin?' – '+esc(v.horaFin):'')+(dm?' ('+fmtDur(dm)+')':'')}</div>
    <div class="m">${esc(v.sucursal)}${v.canton?' · '+esc(v.canton):''}${v.comunidad?' · '+esc(v.comunidad.split('\n')[0]):''}</div>
    ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(fmtArea(c)):''}</span>`).join('')}
    ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
@@ -985,7 +1129,7 @@ function dibujarReceta(v){
   // Cabecera
   x.fillStyle=V;x.fillRect(0,0,W,230);
   const ah=180,aw=IMG_A.width?IMG_A.width*ah/IMG_A.height:0;if(aw)x.drawImage(IMG_A,30,25,aw,ah);
-  const tx=40+aw+16;x.fillStyle='#fff';font(54,1);x.fillText('AGROLEON',tx,105);font(30);x.fillText('Recomendación técnica',tx,152);
+  const tx=40+aw+16;x.fillStyle='#fff';font(54,1);x.fillText('AGROLEON',tx,105);font(30);x.fillText(v.remota?'Recomendación a distancia':'Recomendación técnica',tx,152);
   const ew=270,eh=IMG_E.width?IMG_E.height*ew/IMG_E.width:0;if(eh)x.drawImage(IMG_E,W-P-ew,40,ew,eh);
   x.textAlign='right';font(28,1);x.fillText(fmtF(v.fecha),W-P,175);font(24);x.fillText(v.sucursal||'',W-P,208);x.textAlign='left';
   let y=290;
@@ -1015,6 +1159,7 @@ function dibujarReceta(v){
     y+=30});
   if(v.proxima){x.fillStyle=V;font(30,1);x.fillText('Próxima visita: '+fmtF(v.proxima),P,y);y+=50}
   y+=10;x.strokeStyle='#cfdcd3';x.lineWidth=2;x.beginPath();x.moveTo(P,y);x.lineTo(W-P,y);x.stroke();y+=44;
+  if(v.remota){x.fillStyle='#136456';font(24,1);y=wrap('Recomendación a distancia, según la información y fotos enviadas por el productor. Se confirmará en la próxima visita.',P,y,W-2*P,32)+12}
   x.fillStyle='#6b7a70';font(24);y=wrap('Lea la etiqueta antes de usar. Use equipo de protección personal y respete el periodo de carencia.',P,y,W-2*P,32)+20;
   x.fillStyle=V;font(30,1);x.fillText('Ing. Javier Rivas Cañar',P,y);x.textAlign='right';font(28);x.fillText('WhatsApp 0959014370',W-P,y);x.textAlign='left';y+=40;
   const o=document.createElement('canvas');o.width=W;o.height=y+30;const ox=o.getContext('2d');ox.fillStyle='#fff';ox.fillRect(0,0,W,o.height);ox.drawImage(c,0,0);
@@ -1054,18 +1199,18 @@ $('#mRec').onclick=e=>{if(e.target.id==='mRec')e.target.style.display='none'};
 
 /* ---------- Resumen ---------- */
 function tabla(obj,h){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return e.length?`<table><tr><th>${h}</th><th>N.º</th></tr>${e.map(([k,n])=>`<tr><td>${esc(k)}</td><td>${n}</td></tr>`).join('')}</table>`:'<p class="nota">Sin datos</p>'}
-function datosMes(mes){const V=cache.filter(v=>(v.fecha||'').startsWith(mes)),A=acts.filter(a=>(a.fecha||'').startsWith(mes));
-  const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
-  V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
+function datosMes(mes){const T=cache.filter(v=>(v.fecha||'').startsWith(mes)),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>(a.fecha||'').startsWith(mes));
+  const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,remota:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
+  V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
   const dias=new Set([...V.map(v=>v.fecha),...A.map(a=>a.fecha)]);
   const min=V.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+A.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
   const n=k=>A.filter(a=>a.mod===k);
-  return{V,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minutos(a.hi,a.hf),0),
+  return{V,R,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minutos(a.hi,a.hf),0),
     charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length}}
 function tablaSuc(D,full){const e=Object.entries(D.suc).sort((a,b)=>b[1].min-a[1].min);
   if(!e.length)return'<p class="nota">Sin registros este mes.</p>';
-  return`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Percha (h)</th><th class="n">Visitas</th><th class="n">Charlas</th>${full?'<th class="n">Ensayos</th><th class="n">Activ.</th><th class="n">Eventos</th>':''}<th class="n">Horas</th></tr>
-   ${e.map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.percha?n1(o.mperc/60)+' h':'—'}</td><td class="n">${o.nueva}</td><td class="n">${o.charla}</td>${full?`<td class="n">${o.ensayo}</td><td class="n">${o.activ}</td><td class="n">${o.evento}</td>`:''}<td class="n">${n1(o.min/60)}</td></tr>`).join('')}</table></div>`}
+  return`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Percha (h)</th><th class="n">Visitas</th><th class="n">Recetas dist.</th><th class="n">Charlas</th>${full?'<th class="n">Ensayos</th><th class="n">Activ.</th><th class="n">Eventos</th>':''}<th class="n">Horas</th></tr>
+   ${e.map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.percha?n1(o.mperc/60)+' h':'—'}</td><td class="n">${o.nueva}</td><td class="n">${o.remota}</td><td class="n">${o.charla}</td>${full?`<td class="n">${o.ensayo}</td><td class="n">${o.activ}</td><td class="n">${o.evento}</td>`:''}<td class="n">${n1(o.min/60)}</td></tr>`).join('')}</table></div>`}
 function pintarResumen(){const D=datosMes(hoy().slice(0,7));
   $('#statMes').innerHTML=`<div><b>${D.V.length}</b><span>Visitas</span></div><div><b>${D.percha}</b><span>Turnos en percha</span></div><div><b>${n1(D.min/60)} h</b><span>Registradas</span></div>`;
   $('#tSuc').innerHTML=tablaSuc(D,false)}
@@ -1076,16 +1221,16 @@ const nomMes=m=>{const[a,b]=m.split('-');return MESES[+b-1]+' '+a};
 const n1=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
 $('#mesInf').value=hoy().slice(0,7);
 $('#btnCsvMes').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');const D=datosMes(m);
-  if(!D.V.length&&!D.A.length)return toast('No hay registros en ese mes');
+  if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese mes');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
-  const filas=[...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
+  const filas=[...D.R.map(v=>[v.fecha,'','','','Receta a distancia',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', '),v.comunidad,v.obsGen]),...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
     ...D.A.map(a=>[a.fecha,a.hi,a.hf,minutos(a.hi,a.hf)||'',MODS[a.mod]?MODS[a.mod].t:a.mod,a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
     .sort((a,b)=>(a[0]+(a[1]||'')).localeCompare(b[0]+(b[1]||''))).map(r=>{r[0]=fmtF(r[0]);return r.map(q).join(';')});
   const cab=['Fecha','Hora inicio','Hora fin','Minutos','Actividad','Sucursal','Productor / título','Detalle','Lugar / comunidad','Observaciones'];
   descargar(`Actividades_AGROLEON_${m}.csv`,'﻿'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')};
 $('#btnInf').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');informe(m)};
 function informe(mes){
-  const D=datosMes(mes);if(!D.V.length&&!D.A.length)return toast('No hay registros en '+nomMes(mes));
+  const D=datosMes(mes);if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en '+nomMes(mes));
   const key=s=>String(s||'').trim().toLowerCase();
   const primera={};cache.forEach(v=>{const k=key(v.productor);if(!primera[k]||v.fecha<primera[k])primera[k]=v.fecha});
   const prods=new Set(D.V.map(v=>key(v.productor)));const nuevos=[...prods].filter(k=>primera[k]&&primera[k].startsWith(mes)).length;
@@ -1094,7 +1239,7 @@ function informe(mes){
   const cul={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);cul[n]=cul[n]||{v:0,p:new Set(),ha:0};cul[n].v++;cul[n].p.add(key(v.productor))}));
   Object.entries(area).forEach(([k,ha])=>{const c=k.split('|')[1];if(cul[c])cul[c].ha+=ha});
   // registro diario
-  const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
+  const items=[...D.R.map(v=>({f:v.fecha,hi:'',hf:'',tipo:'Receta a distancia (WhatsApp)',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', ')].filter(Boolean).join(' · ')})),...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
     ...D.A.map(a=>({f:a.fecha,hi:a.hi,hf:a.hf,tipo:MODS[a.mod]?MODS[a.mod].t:'',suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
@@ -1109,7 +1254,7 @@ function informe(mes){
   <div class="kpi">${kpi(D.dias,'Días trabajados')}${kpi(n1(D.min/60),'Horas registradas')}${kpi(n1(D.mperc/60),'Horas en percha')}
    ${kpi(D.V.length,'Visitas de campo')}${kpi(prods.size,'Productores atendidos')}${kpi(nuevos,'Productores nuevos')}
    ${kpi(n1(haTot),'Hectáreas atendidas')}${kpi(D.charlas,'Charlas técnicas')}${kpi(D.asist,'Asistentes a charlas')}
-   ${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}</div>
+   ${kpi(D.R.length,'Recetas a distancia')}${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}</div>
   ${H('Actividades por sucursal')}${tablaSuc(D,true)}
   ${Object.keys(cul).length?H('Cultivos atendidos en visitas')+`<div class="tw"><table><tr><th>Cultivo</th><th class="n">Visitas</th><th class="n">Productores</th><th class="n">Hectáreas</th></tr>${Object.entries(cul).sort((a,b)=>b[1].v-a[1].v).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.v}</td><td class="n">${o.p.size}</td><td class="n">${n1(o.ha)}</td></tr>`).join('')}</table></div>`:''}
   ${H('Registro diario de actividades')}
