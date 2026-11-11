@@ -434,7 +434,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.2</p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.4<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -787,27 +787,39 @@ const rutaUrl=v=>v.lat&&v.lon?`https://www.google.com/maps/dir/?api=1&destinatio
 const mapBtns=(v,peq)=>v.lat&&v.lon?`<a class="btn sec2${peq?' peq':''}" href="${mapUrl(v)}" target="_blank" rel="noopener">Ver en mapa</a><a class="btn sec2${peq?' peq':''}" href="${rutaUrl(v)}" target="_blank" rel="noopener">Cómo llegar</a>`:'';
 /* ---------- Historial del productor ---------- */
 const nomBloque=c=>{const s=c.querySelector('.c-cul').value;return s==='Otro'?(c.querySelector('.c-otro').value.trim()||'Otro'):s};
-function perfil(nombre){const k=String(nombre||'').trim().toLowerCase();if(!k)return null;
-  const vs=cache.filter(v=>String(v.productor).trim().toLowerCase()===k).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
+const normNom=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+function perfil(nombre){const k=normNom(nombre);if(!k)return null;
+  const vs=cache.filter(v=>normNom(v.productor)===k&&v.id!=+$('#id').value).sort((a,b)=>(b.fecha+b.horaInicio).localeCompare(a.fecha+a.horaInicio));
   if(!vs.length)return null;const cul={};
   vs.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);if(!cul[n])cul[n]={...c,_ult:{fecha:v.fecha,trats:c.tratamientos||[]}}}));return{vs,cul}}
-function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTML='';box.dataset.k='';return}
-  const k=$('#productor').value.trim().toLowerCase();if(!force&&box.dataset.k===k&&box.innerHTML)return;box.dataset.k=k;
-  const P=perfil($('#productor').value);if(!P){box.innerHTML='';return}const u=P.vs[0];
+[...$('#tipo').options].forEach(o=>{o.value=o.value});
+function ajustarTipo(P){const sel=$('#tipo'),op=[...sel.options].find(o=>o.value==='Primera visita');if(!op)return;
+  if($('#id').value){op.disabled=false;op.textContent='Primera visita';return}
+  if(P){op.disabled=true;op.textContent='Primera visita (ya visitado)';if(sel.value==='Primera visita')sel.value='Seguimiento técnico'}
+  else{op.disabled=false;op.textContent='Primera visita';if(!sel.dataset.manual&&normNom($('#productor').value))sel.value='Primera visita';else if(!sel.dataset.manual)sel.value='Seguimiento técnico'}}
+$('#tipo').addEventListener('change',()=>{$('#tipo').dataset.manual='1'});
+function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTML='';box.dataset.k='';ajustarTipo(null);return}
+  const k=normNom($('#productor').value);if(!force&&box.dataset.k===k&&box.innerHTML)return;box.dataset.k=k;
+  const P=perfil($('#productor').value);ajustarTipo(P);if(!P){box.innerHTML='';box.dataset.auto='';return}const u=P.vs[0];
+  // Si escribió el nombre con otra forma, usar el nombre tal como está registrado
+  if($('#productor').value!==u.productor&&document.activeElement!==$('#productor'))$('#productor').value=u.productor;
   ['telefono','canton','comunidad','lat','lon','alt','prec'].forEach(k=>{if(!$('#'+k).value&&u[k])$('#'+k).value=u[k]});
   if(!$('#sucursal').value&&u.sucursal)$('#sucursal').value=u.sucursal;mostrarGps();
   const ya=new Set([...document.querySelectorAll('.cult')].filter(c=>!c.dataset.vacio).map(nomBloque));
   box.innerHTML=`<div class="hist"><b>Productor registrado</b> · ${P.vs.length} visita${P.vs.length>1?'s':''} · última ${fmtF(u.fecha)}
    ${u.lat?`<div class="acc" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${mapBtns(u,1)}</div>`:''}
-   <div class="nota" style="margin-top:4px">Toque el cultivo que va a revisar hoy:</div>
+   <div class="nota" style="margin-top:4px">${Object.keys(P.cul).length>1?"Tiene varios cultivos: toque el que va a revisar hoy (puede elegir más de uno).":"Su cultivo registrado:"}</div>
    <div class="chips">${Object.entries(P.cul).map(([n,c])=>`<button type="button" class="chip${ya.has(n)?' on':''}" data-c="${esc(n)}">${ya.has(n)?'✓ ':'+ '}${esc(n)}${c.area?' · '+esc(fmtArea(c)):''}</button>`).join('')}</div>
    <details><summary>Ver historial de visitas</summary>${P.vs.map(v=>`<div class="hv"><b>${fmtF(v.fecha)}</b> · ${esc(v.sucursal||'')}
     ${(v.cultivos||[]).map(c=>`<div>${esc(nomCult(c))}: ${(c.tratamientos||[]).length?c.tratamientos.map(t=>esc((t.problema||'')+(t.objetivo?' '+t.objetivo:'')+' → '+t.productos.map(p=>p.nom+' '+p.dosis).join(' + '))).join('; '):'sin tratamientos'}</div>`).join('')}</div>`).join('')}</details></div>`;
   box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.classList.contains('on'))return;
     const{problemas,tratamientos,obs,manejo,labores,etapa,agente,...base}=P.cul[b.dataset.c];
     document.querySelectorAll('.cult[data-vacio="1"]').forEach(x=>x.remove());
-    const d=addCultivo(base);renumerar();mostrarHist(true);d.scrollIntoView({behavior:'smooth',block:'start'})})}
+    const d=addCultivo(base);renumerar();mostrarHist(true);if(!b.dataset.auto)d.scrollIntoView({behavior:'smooth',block:'start'})});
+  const nc=Object.keys(P.cul).length,vacio=![...document.querySelectorAll('.cult')].some(c=>!c.dataset.vacio);
+  if(nc===1&&vacio&&box.dataset.auto!==k){box.dataset.auto=k;const b=box.querySelector('.chip');b.dataset.auto='1';b.click();toast('Datos de la plantación cargados')}}
 $('#productor').addEventListener('input',()=>mostrarHist());$('#productor').addEventListener('change',()=>mostrarHist());
+$('#productor').addEventListener('change',()=>{if($('#id').value)return;const P=perfil($('#productor').value);if(P&&$('#productor').value!==P.vs[0].productor)$('#productor').value=P.vs[0].productor});
 
 /* ---------- Fotos ---------- */
 $('#inFoto').onchange=async e=>{for(const f of e.target.files){try{fotosTmp.push(await comprimir(f))}catch(x){}}e.target.value='';pintarFotos()};
@@ -848,9 +860,9 @@ $('#btnManual').onclick=()=>{const on=$('#manualBox').hidden;abrirManual(on);if(
 $('#btnBorrarUbi').onclick=()=>{['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');mostrarGps()};
 
 /* ---------- Formulario ---------- */
-function limpiar(){$('#f').reset();abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
+function limpiar(){$('#f').reset();delete $('#tipo').dataset.manual;$('#hist').dataset.auto='';abrirManual(false);$('#id').value='';['lat','lon','alt','prec'].forEach(k=>$('#'+k).value='');
   $('#fecha').value=hoy();$('#horaInicio').value=libreDesde(hoy(),ahora(),{});$('#horaFin').value='';durTxt();ocupV();
-  $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();setGuardar(false)}
+  $('#cultivos').innerHTML='';addCultivo({});$('#hist').innerHTML='';$('#hist').dataset.k='';fotosTmp=[];pintarFotos();mostrarGps();ajustarTipo(null);setGuardar(false)}
 $('#btnLimpiar').onclick=()=>{if(confirm('¿Limpiar el formulario?'))limpiar()};
 $('#btnGuardar').onclick=()=>secAct==='mod'?guardarMod():guardarVisita();
 const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
@@ -1104,10 +1116,17 @@ $('#impJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{cons
 /* ---------- Inicio ---------- */
 (async()=>{try{await abrirDB();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();await recargar();await recargarA()}
  catch(e){alert('Este navegador no permite guardar datos: '+e.message)}limpiar();irA('inicio')})();
-if('serviceWorker' in navigator&&location.protocol==='https:'){
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
   let recargado=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!recargado){recargado=true;location.reload()}})}
 addEventListener('load',()=>setTimeout(()=>scrollTo(0,0),50));
+async function estadoOffline(){const el=$('#offEstado');if(!el)return;
+  try{if(!('serviceWorker' in navigator)||!window.caches){el.textContent='Este navegador no permite modo sin conexión';return}
+    await navigator.serviceWorker.ready;const ks=await caches.keys();let ok=false;
+    for(const k of ks){const c=await caches.open(k);if(await c.match(new URL('index.html',location.href).href)){ok=true;break}}
+    el.textContent=ok?'✓ Lista para usar sin conexión':'Abra la app con internet unos segundos para activar el modo sin conexión';
+    el.style.color=ok?'var(--acc)':'var(--rojo)'}catch(e){el.textContent='Modo sin conexión no disponible aquí'}}
+setTimeout(estadoOffline,2500);
 </script>
 </body>
 </html>
