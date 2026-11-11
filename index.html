@@ -35,15 +35,12 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
 body{margin:0;font:17px/1.35 var(--f);background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--verde);z-index:30}
-/* App instalada (pantalla de inicio): el contenido empieza debajo de la barra de estado */
-html.pwa body{padding-top:env(safe-area-inset-top,0px)}
-@media (display-mode: standalone){body{padding-top:env(safe-area-inset-top,0px)}}
-html.pwa,html.pwa body{background:var(--bg)}
+
 svg.i{width:20px;height:20px;flex:none;vertical-align:-4px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* Barra superior */
-.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:25;background:var(--verde);color:#fff;transition:box-shadow .2s}
+/* La barra superior incluye el espacio de la barra de estado del iPhone */
+.topbar{position:sticky;top:0;z-index:25;background:var(--verde);color:#fff;padding-top:env(safe-area-inset-top,0px);transition:box-shadow .2s}
 .topbar.scrolled{box-shadow:0 .5px 0 rgba(0,0,0,.25)}
 .topbar .in{height:46px;display:flex;align-items:center;gap:10px;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));max-width:760px;margin:0 auto}
 .topbar .lgA{height:34px;width:auto}
