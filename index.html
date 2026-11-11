@@ -106,7 +106,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .trat>.tt{background:var(--tintbg);color:var(--acc);margin:0 -12px 2px;padding:11px 46px 11px 12px;border-radius:14px 14px 0 0;font-weight:600;font-size:15px}
 .trat>.x{top:6px;right:8px;background:transparent;color:var(--txt2);font-size:22px}
 .trat input,.trat select{background-color:var(--card)}
-.prod{display:grid;grid-template-columns:1fr 1.25fr 32px;gap:0 8px;align-items:end;margin-top:10px;padding-top:2px;border-top:.5px solid var(--sep)}
+.prod{display:grid;grid-template-columns:1.15fr 1fr 32px;gap:0 8px;align-items:end;margin-top:10px;padding-top:2px;border-top:.5px solid var(--sep)}
 .prod>div{min-width:0}.prod>div:first-child{grid-column:1/-1}
 .prod .xp{width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}
 .t-probs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}.t-probs:empty{display:none}
@@ -128,6 +128,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .area select{flex:none;width:80px;border-radius:0 11px 11px 0;padding:11px 22px 11px 9px;background-position:right 7px center;border-left:.5px solid var(--sep)}
 .c-aeq,.c-eeq{margin-top:4px;font-size:12px}
 .area select.c-eu{width:96px}
+.area select.p-u{width:64px;padding-right:20px;padding-left:8px;background-position:right 6px center}
 .ocup:not(:empty){margin-top:10px;padding:8px 10px;border-radius:10px;background:var(--fill2);line-height:1.45}
 .ocup b{color:var(--acc)}
 .fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
@@ -477,7 +478,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.9<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.10<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -700,13 +701,19 @@ function addTrat(cont,t={}){normTrat(t);
   const pz=t.productos&&t.productos.length?t.productos:[{}];pz.forEach(p=>addProd(d.querySelector('.t-prods'),p));
   const cult=cont.closest('.cult');if(cult)refrescarChips(cult);
   renumerar();return d}
-function addProd(cont,p={}){
+const DOSU=['cc','L','g','kg'];
+// Separa dosis antiguas escritas a mano ("50 g", "1,5 kg", "10 cc", "1 litro")
+function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=String(p.dosis||'').trim();if(!t)return{cant:'',u:'cc'};
+  const m=t.match(/(\d+(?:[.,]\d+)?)\s*([a-zA-Z]*)/);if(!m)return{cant:'',u:'cc'};
+  const w=(m[2]||'').toLowerCase(),u=/^(kg|kilo)/.test(w)?'kg':/^(g|gr)/.test(w)?'g':/^(l|lt|lit)/.test(w)?'L':'cc';
+  return{cant:m[1].replace(',','.'),u}}
+function addProd(cont,p={}){const dq=partirDosis(p);
   const d=document.createElement('div');d.className='prod';
   d.innerHTML=`<div><label>Producto</label><input class="p-nom" list="dl-insumos" value="${esc(p.nom)}"></div>
-  <div><label>Dosis</label><input class="p-dos" value="${esc(p.dosis)}" placeholder="25 cc"></div>
-  <div><label>Unidad</label><select class="p-para">${opts(PARA,p.para||'para 20 litros')}</select></div>
+  <div><label>Dosis</label><div class="area"><input class="p-cant num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="25" value="${esc(String(dq.cant||'').replace('.',','))}"><select class="p-u" aria-label="Unidad de la dosis">${opts(DOSU,dq.u||'cc')}</select></div></div>
+  <div><label>Para</label><select class="p-para">${PARA.map(x=>`<option value="${x}"${x===(p.para||'para 20 litros')?' selected':''}>${x.replace('para ','').replace(' litros',' L').replace(' litro',' L')}</option>`).join('')}</select></div>
   <button type="button" class="xp" title="Quitar">×</button>`;
-  d.querySelector('.xp').onclick=()=>{if(cont.children.length>1){d.remove();renumerar()}else{d.querySelector('.p-nom').value='';d.querySelector('.p-dos').value=''}};
+  d.querySelector('.xp').onclick=()=>{if(cont.children.length>1){d.remove();renumerar()}else{d.querySelector('.p-nom').value='';d.querySelector('.p-cant').value=''}};
   cont.appendChild(d);renumerar()}
 function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
   const s=c.querySelector('.c-cul').value,n=s==='Otro'?(c.querySelector('.c-otro').value||'Otro'):s;
@@ -718,7 +725,7 @@ function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{co
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
     numAplic:t.querySelector('.t-num').value.trim(),frecuencia:t.querySelector('.t-fre').value.trim(),
-    productos:[...t.querySelectorAll('.prod')].map(p=>({nom:p.querySelector('.p-nom').value.trim(),dosis:p.querySelector('.p-dos').value.trim(),para:p.querySelector('.p-para').value})).filter(p=>p.nom)}})
+    productos:[...t.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+u:'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom)}})
     .filter(t=>t.productos.length||t.objetivo||t.problema)}})}
 $('#addCult').onclick=()=>{const d=addCultivo({});d.scrollIntoView({behavior:'smooth'})};
 
