@@ -477,7 +477,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.8<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.9<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -532,6 +532,10 @@ function edadActual(c,fechaUlt){normEdad(c);if(!c.edad||!fechaUlt)return c;
   if(u==='días'&&total>=90)u='meses';if(u==='meses'&&total>=730)u='años';
   const n=u==='días'?Math.round(total):u==='meses'?Math.round(total/30.4):Math.round(total/365*10)/10;
   return{...c,edad:String(n),edadU:u,_edadNota:`Actualizada: en la visita del ${fmtF(fechaUlt)} tenía ${fmtEdad(c)}`}}
+// Números con decimales: acepta coma o punto (teclado del iPhone en español usa coma)
+const aNum=x=>{x=String(x||'').trim().replace(/\s/g,'');if(!x)return'';x=x.replace(',','.');const n=parseFloat(x);return isNaN(n)?'':String(n)};
+document.addEventListener('input',e=>{const t=e.target;if(!t.classList||!t.classList.contains('num-dec'))return;
+  let v=t.value.replace(/[^0-9.,]/g,'');const i=v.search(/[.,]/);if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/[.,]/g,'');if(v!==t.value)t.value=v});
 const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima / estrés'];
 
 /* ---------- Base de datos local (IndexedDB) ---------- */
@@ -602,8 +606,8 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   <div class="c-otroW" style="display:none"><label>¿Cuál cultivo?</label><input class="c-otro" value="${esc(c.otro)}"></div>
   <div class="c-varW"><label>Variedad / material</label><input class="c-var" list="dlv-${_nv}" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
   <div class="c-varW2" style="display:none"><label>Variedad / material</label><input class="c-var2"></div>
-  <div class="fila"><div><label>Área</label><div class="area"><input class="c-area" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(c.area)}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
-  <div><label>Edad del cultivo</label><div class="area"><input class="c-edad" type="number" min="0" step="1" inputmode="numeric" value="${esc(c.edad)}"><select class="c-eu" aria-label="Unidad de edad">${opts(["días","meses","años"],c.edadU||"meses")}</select></div><div class="nota c-eeq">${c._edadNota||''}</div></div></div>
+  <div class="fila"><div><label>Área</label><div class="area"><input class="c-area num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej.: 1,5" value="${esc(String(c.area||'').replace('.',','))}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
+  <div><label>Edad del cultivo</label><div class="area"><input class="c-edad num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej.: 8" value="${esc(String(c.edad||'').replace('.',','))}"><select class="c-eu" aria-label="Unidad de edad">${opts(["días","meses","años"],c.edadU||"meses")}</select></div><div class="nota c-eeq">${c._edadNota||''}</div></div></div>
   <div class="fila"><div><label>N.º plantas</label><input class="c-pl" type="number" inputmode="numeric" value="${esc(c.plantas)}"></div>
   <div><label>Etapa fenológica</label><select class="c-eta"><option value="">—</option>${opts(['Vivero / almácigo','Establecimiento','Desarrollo vegetativo','Prefloración','Floración','Cuajado','Desarrollo de fruto','Cosecha','Poscosecha / reposo'],c.etapa)}</select></div></div>
   <label>Manejo</label><div><select class="c-sis"><option value="">—</option>${opts(['Convencional','Tecnificado','Orgánico / agroecológico','Tradicional / mínimo'],c.sistema)}</select></div>
@@ -615,9 +619,9 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   <label>Manejo actual del productor</label><textarea class="c-manejo">${esc(c.manejo)}</textarea>
   <label>Observaciones del cultivo</label><textarea class="c-obs">${esc(c.obs)}</textarea>
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
-  const eq=()=>{const a=parseFloat(d.querySelector('.c-area').value),u=d.querySelector('.c-au').value;
+  const eq=()=>{const a=parseFloat(aNum(d.querySelector('.c-area').value)),u=d.querySelector('.c-au').value;
     d.querySelector('.c-aeq').textContent=a?(u==='m²'?`= ${(a/10000).toLocaleString('es-EC',{maximumFractionDigits:4})} ha`:`= ${Math.round(a*10000).toLocaleString('es-EC')} m²`):''};
-  const eqE=()=>{const n=parseFloat(d.querySelector('.c-edad').value),u=d.querySelector('.c-eu').value;const el=d.querySelector('.c-eeq');if(el.dataset.fija)return;
+  const eqE=()=>{const n=parseFloat(aNum(d.querySelector('.c-edad').value)),u=d.querySelector('.c-eu').value;const el=d.querySelector('.c-eeq');if(el.dataset.fija)return;
     el.textContent=n?(u==='días'&&n>=60?`≈ ${Math.round(n/30.4)} meses`:u==='meses'&&n>=12?`≈ ${(n/12).toLocaleString('es-EC',{maximumFractionDigits:1})} años`:u==='años'?`≈ ${Math.round(n*12)} meses`:''):''};
   if(d.querySelector('.c-eeq').textContent)d.querySelector('.c-eeq').dataset.fija='1';
   d.querySelector('.c-edad').addEventListener('input',()=>{delete d.querySelector('.c-eeq').dataset.fija;eqE()});d.querySelector('.c-eu').addEventListener('change',()=>{delete d.querySelector('.c-eeq').dataset.fija;eqE()});
@@ -709,7 +713,7 @@ function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
   c.querySelector('.tit').textContent=`Cultivo ${i+1}: ${n}`;
   c.querySelectorAll('.trat').forEach((t,j)=>{const ps=probsDe(t);t.querySelector('.tt').textContent=`Tratamiento ${j+1}`+(ps.length?' · '+ps.join(' + '):'');t.querySelectorAll('.prod').forEach((q,n,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(n+1):'Producto')})})}
 function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{const q=s=>c.querySelector(s).value.trim();const otro=q('.c-cul')==='Otro';
-  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:q('.c-area'),areaU:q('.c-au'),edad:q('.c-edad'),edadU:q('.c-eu'),plantas:q('.c-pl'),
+  return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:aNum(q('.c-area')),areaU:q('.c-au'),edad:aNum(q('.c-edad')),edadU:q('.c-eu'),plantas:q('.c-pl'),
   etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:[...c.querySelectorAll('.chk input:checked')].map(x=>x.value),agente:q('.c-agente'),
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
