@@ -681,6 +681,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
     </div>
   </fieldset>
   <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión <span class="vers"></span><br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <div style="text-align:center;margin-top:8px"><button type="button" class="btn sec2" id="btnActApp" style="width:auto;padding:9px 18px;font-size:14px">↻ Buscar actualización</button></div>
 </section>
 </main>
 
@@ -1363,7 +1364,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='4.4';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='4.5';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1975,6 +1976,12 @@ $('#impJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{cons
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
   let recargado=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!recargado){recargado=true;location.reload()}})}
+$('#btnActApp').onclick=async()=>{if(!navigator.onLine)return toast('Necesita internet para actualizar');toast('Buscando actualización…');
+  try{const r=await fetch('index.html?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const t=await r.text();const m=t.match(/const VERSION='([^']+)'/);
+    if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}
+    const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)await reg.update().catch(()=>{});
+    toast(m&&m[1]!==VERSION?'Instalando versión '+m[1]+'…':'Ya tiene la última versión');setTimeout(()=>location.reload(),900)}
+  catch(e){toast('No se pudo conectar. Intente con mejor señal.')}};
 addEventListener('load',()=>setTimeout(()=>scrollTo(0,0),50));
 /* Bloquear el fondo mientras hay una hoja abierta (evita que el iPhone se trabe al deslizar) */
 let yBloq=0,bloq=false;

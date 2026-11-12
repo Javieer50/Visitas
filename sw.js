@@ -1,5 +1,5 @@
 // Visitas AGROLEON – funcionamiento sin conexión
-const C='agroleon-v56';
+const C='agroleon-v57';
 const BASE=new URL('./',self.location).href;
 const ARCH=['','index.html','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png'].map(f=>BASE+f);
 
@@ -21,11 +21,11 @@ self.addEventListener('fetch',e=>{
   const url=new URL(req.url);if(url.origin!==self.location.origin)return;
   const esPagina=req.mode==='navigate'||(req.headers.get('accept')||'').includes('text/html');
   if(esPagina){
-    // Página: intenta internet (máx. 3 s) para tener la última versión; si no hay señal, usa la guardada
+    // Página: intenta internet (máx. 7 s) para tener la última versión; si no hay señal, usa la guardada
     e.respondWith((async()=>{
       const c=await caches.open(C);
       const red=fetch(new Request(BASE+'index.html',{cache:'no-store'})).then(r=>{if(r.ok){c.put(BASE+'index.html',limpia(r.clone()));c.put(BASE,limpia(r.clone()))}return r});
-      try{const r=await conTiempo(red,3000);if(r.ok)return limpia(r)}catch(x){}
+      try{const r=await conTiempo(red,7000);if(r.ok)return limpia(r)}catch(x){}
       const g=await c.match(BASE+'index.html')||await c.match(BASE);
       if(g)return g;
       return red.catch(()=>new Response('<h1 style="font-family:sans-serif">Sin conexión</h1><p style="font-family:sans-serif">Abra la app una vez con internet para guardarla en el teléfono.</p>',{headers:{'Content-Type':'text/html; charset=utf-8'}}));
