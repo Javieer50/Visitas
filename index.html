@@ -113,6 +113,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .trat textarea.t-obsT{min-height:54px}
 .tp{border:0;border-radius:999px;padding:6px 11px;background:var(--card);color:var(--txt2);font:500 13px var(--f)}
 .tp.on{background:var(--verde2);color:#fff}
+.t-nuevo{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:50px;border:0;border-radius:13px;background:var(--verde2);color:#fff;font:600 17px var(--f)}
+.t-nuevo:active{opacity:.8}
 .t-addP{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;min-height:44px;border:1.5px dashed var(--acc);border-radius:12px;background:var(--card);color:var(--acc);font:600 15px var(--f)}
 .t-addP:active{background:var(--tintbg)}
 .ult{border-radius:12px;padding:10px 12px;margin:10px 0 4px;font-size:14px;background:var(--tintbg);line-height:1.4}
@@ -480,7 +482,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.13<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.14<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -614,11 +616,11 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   <div class="fila"><div><label>N.º plantas</label><input class="c-pl" type="number" inputmode="numeric" value="${esc(c.plantas)}"></div>
   <div><label>Etapa fenológica</label><select class="c-eta"><option value="">—</option>${opts(['Vivero / almácigo','Establecimiento','Desarrollo vegetativo','Prefloración','Floración','Cuajado','Desarrollo de fruto','Cosecha','Poscosecha / reposo'],c.etapa)}</select></div></div>
   <label>Manejo</label><div><select class="c-sis"><option value="">—</option>${opts(['Convencional','Tecnificado','Orgánico / agroecológico','Tradicional / mínimo'],c.sistema)}</select></div>
-  <div class="sub">Diagnóstico y tratamientos</div>
-  <div class="nota" style="margin:2px 0 4px">Marque el problema y se abrirá su tratamiento.</div>
-  <div class="chk">${PROBS.map(p=>`<label><input type="checkbox" value="${p}"${(c.problemas||[]).includes(p)?' checked':''}>${p}</label>`).join('')}</div>
+  <div class="sub">Tratamientos</div>
+  <div class="chk" hidden>${PROBS.map(p=>`<label><input type="checkbox" value="${p}"${(c.problemas||[]).includes(p)?' checked':''}>${p}</label>`).join('')}</div>
   <input type="hidden" class="c-agente" value="${esc(c.agente)}">
   <div class="c-trats"></div>
+  <button type="button" class="t-nuevo"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar tratamiento</button>
   <input type="hidden" class="c-manejo" value="${esc(c.manejo)}"><input type="hidden" class="c-obs" value="${esc(c.obs)}">
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
   const eq=()=>{const a=parseFloat(aNum(d.querySelector('.c-area').value)),u=d.querySelector('.c-au').value;
@@ -638,6 +640,7 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   d.querySelector('.x').onclick=()=>{if(document.querySelectorAll('.cult').length<2)return toast('Debe haber al menos un cultivo');
     if(confirm('¿Quitar este cultivo y sus tratamientos?')){d.remove();renumerar()}};
   const tr=d.querySelector('.c-trats');
+  d.querySelector('.t-nuevo').onclick=()=>{const n=addTrat(tr,{problemas:[]});n.scrollIntoView({behavior:'smooth',block:'start'})};
   d.querySelectorAll('.chk input').forEach(ch=>ch.onchange=()=>{const P=ch.value,ts=[...tr.querySelectorAll('.trat')];
     if(ch.checked){const nuevo=()=>{const t=addTrat(tr,{problemas:[P]});t.scrollIntoView({behavior:'smooth',block:'center'});const o=t.querySelector('.t-obj');if(o)o.focus()};
       if(!ts.length)return nuevo();refrescarChips(d);
@@ -675,11 +678,12 @@ function pintarIds(d){const ps=probsDe(d),box=d.querySelector('.t-ids'),prev={};
   box.querySelectorAll('input').forEach(i=>i.oninput=()=>{d._obj[i.dataset.p]=i.value})}
 function refrescarChips(cult){const marc=[...cult.querySelectorAll('.chk input:checked')].map(x=>x.value);
   cult.querySelectorAll('.trat').forEach(t=>{const ps=probsDe(t);
-    t.querySelector('.t-probs').innerHTML=`<span class="nota" style="margin:0 6px 0 0;width:100%">${ps.length?'Este tratamiento controla (toque para agregar o quitar):':'¿Qué controla este tratamiento? Elija uno o varios:'}</span>`+PROBS.map(P=>`<button type="button" class="tp${ps.includes(P)?' on':''}" data-p="${esc(P)}">${ps.includes(P)?'✓ ':''}${esc(P)}</button>`).join('');
+    t.querySelector('.t-probs').innerHTML=`<span class="nota" style="margin:0 6px 0 0;width:100%">${ps.length?'Controla (toque para agregar o quitar):':'Marque el problema y se abrirá su tratamiento:'}</span>`+PROBS.map(P=>`<button type="button" class="tp${ps.includes(P)?' on':''}" data-p="${esc(P)}">${ps.includes(P)?'✓ ':''}${esc(P)}</button>`).join('');
     t.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');ponerProb(t,b.dataset.p,on);if(on){const o=t.querySelector(`.t-obj[data-p="${b.dataset.p}"]`);if(o)o.focus()}})})}
 function ponerProb(t,P,on){let ps=probsDe(t);ps=on?[...new Set([...ps,P])]:ps.filter(x=>x!==P);
   const orden=PROBS.filter(x=>ps.includes(x));t.dataset.probs=JSON.stringify(orden);
-  const cult=t.closest('.cult');if(on){const ch=[...cult.querySelectorAll('.chk input')].find(x=>x.value===P);if(ch)ch.checked=true}
+  const cult=t.closest('.cult'),ch=[...cult.querySelectorAll('.chk input')].find(x=>x.value===P);
+  if(ch)ch.checked=on||[...cult.querySelectorAll('.trat')].some(x=>probsDe(x).includes(P));
   pintarIds(t);refrescarChips(cult);renumerar()}
 function addTrat(cont,t={}){normTrat(t);
   const ps=PROBS.filter(x=>t.problemas.includes(x)),pr=ps[0]||'';
@@ -693,12 +697,12 @@ function addTrat(cont,t={}){normTrat(t);
   <div class="fila"><div><label>N.º de aplicaciones</label><input class="t-num" type="number" min="1" inputmode="numeric" value="${esc(t.numAplic)}"></div>
   <div><label>Frecuencia</label><input class="t-fre" value="${esc(t.frecuencia)}" placeholder="Ej.: cada 8 días"></div></div>
   <label>Observación</label><textarea class="t-obsT" rows="2" placeholder="Ej.: aplicar en la tarde, agregar adherente, repetir si llueve">${esc(t.obs)}</textarea>
-  <button type="button" class="btn peq t-otro" style="margin-top:12px;width:100%">+ Otro tratamiento</button>`;
+`;
   d.querySelector('.x').onclick=()=>{const cult=cont.closest('.cult'),mis=probsDe(d);d.remove();
     mis.forEach(P=>{if(![...cont.querySelectorAll('.trat')].some(x=>probsDe(x).includes(P))){const ch=[...cult.querySelectorAll('.chk input')].find(c=>c.value===P);if(ch)ch.checked=false}});
     refrescarChips(cult);renumerar()};
   d.querySelector('.t-addP').onclick=()=>{addProd(d.querySelector('.t-prods'));const pp=d.querySelectorAll('.prod');const u=pp[pp.length-1];u.querySelector('.p-nom').focus();u.scrollIntoView({behavior:'smooth',block:'center'})};
-  d.querySelector('.t-otro').onclick=()=>{const n=addTrat(cont,{problemas:[]});d.after(n);renumerar();n.scrollIntoView({behavior:'smooth',block:'start'})};
+
   cont.appendChild(d);pintarIds(d);
   const pz=t.productos&&t.productos.length?t.productos:[{}];pz.forEach(p=>addProd(d.querySelector('.t-prods'),p));
   const cult=cont.closest('.cult');if(cult)refrescarChips(cult);
@@ -723,7 +727,7 @@ function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
   c.querySelectorAll('.trat').forEach((t,j)=>{const ps=probsDe(t);t.querySelector('.tt').textContent=`Tratamiento ${j+1}`+(ps.length?' · '+ps.join(' + '):'');t.querySelectorAll('.prod').forEach((q,n,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(n+1):'Producto')})})}
 function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{const q=s=>c.querySelector(s).value.trim();const otro=q('.c-cul')==='Otro';
   return{cultivo:q('.c-cul'),otro:otro?q('.c-otro'):'',variedad:otro?q('.c-var2'):q('.c-var'),area:aNum(q('.c-area')),areaU:q('.c-au'),edad:aNum(q('.c-edad')),edadU:q('.c-eu'),plantas:q('.c-pl'),
-  etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:[...c.querySelectorAll('.chk input:checked')].map(x=>x.value),agente:q('.c-agente'),
+  etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:PROBS.filter(P=>[...c.querySelectorAll('.trat')].some(t=>probsDe(t).includes(P))),agente:q('.c-agente'),
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
     numAplic:t.querySelector('.t-num').value.trim(),frecuencia:t.querySelector('.t-fre').value.trim(),obs:t.querySelector('.t-obsT').value.trim(),
