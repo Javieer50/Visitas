@@ -116,7 +116,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .sug{position:absolute;z-index:75;background:var(--card);border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22),0 0 0 .5px var(--sep);overflow:hidden;max-height:300px;overflow-y:auto}
 .sug button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 14px;border:0;border-bottom:.5px solid var(--sep);background:none;color:var(--txt);font:17px var(--f);text-align:left}
 .sug button:last-child{border-bottom:0}.sug button:active{background:var(--fill)}
-.sug b{font-weight:700;color:var(--acc)}.sug small{color:var(--txt2);font-size:12px;white-space:nowrap}
+.sug b{font-weight:700;color:var(--acc)}
+.sug .sp{align-items:center;padding:9px 14px}.sug .sp>span{display:flex;flex-direction:column;min-width:0;gap:2px}
+.sug .sp-n{font-size:17px}.sug .sp-d{color:var(--txt2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sug small{color:var(--txt2);font-size:12px;white-space:nowrap}
 .trat.ens .tt input{background:transparent;border:0;min-height:0;padding:0;font:600 16px var(--f);color:var(--acc);box-shadow:none;width:100%}
 .tst{display:flex!important;align-items:center;gap:10px;color:var(--txt)!important;font-size:15px!important;margin:12px 0 0!important}
 .tst input{width:22px;height:22px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;flex:none;accent-color:var(--verde2);background:none}
@@ -544,7 +546,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 </fieldset>
 
 <fieldset><legend>Productor</legend>
-  <label>Nombre del productor *</label><input id="productor" required list="dl-prod">
+  <label>Nombre del productor *</label><input id="productor" required autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Escriba las primeras letras">
   <datalist id="dl-prod"></datalist>
   <div id="hist"></div>
   <div class="fila">
@@ -925,6 +927,23 @@ function elegirSug(inp,m){inp.value=m.nom;$('#sug').hidden=true;const fila=inp.c
 document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('p-nom'))mostrarSug(e.target)});
 document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('p-nom')&&e.target.value)mostrarSug(e.target)});
 document.addEventListener('focusout',e=>{if(e.target===sugInput)setTimeout(()=>{$('#sug').hidden=true},150)});
+/* ---------- Autocompletar productores (historial de clientes) ---------- */
+function mostrarSugProd(inp){const q=normNom(inp.value),box=$('#sug');if(!q||$('#id').value){box.hidden=true;return}
+  const sc=$('#sucursal').value,G=grupos();
+  const ini=G.filter(g=>g.k.startsWith(q)),pal=G.filter(g=>!g.k.startsWith(q)&&g.k.split(' ').some(w=>w.startsWith(q)));
+  const orden=(a,b)=>((b.regs[0].sucursal===sc)-(a.regs[0].sucursal===sc))||b.regs.length-a.regs.length||a.nombre.localeCompare(b.nombre,'es');
+  const L=(ini.length?ini.sort(orden):pal.sort(orden)).slice(0,8);
+  if(!L.length||(L.length===1&&L[0].nombre===inp.value)){box.hidden=true;return}
+  const resaltar=n=>{const k=normNom(n);let i=k.startsWith(q)?0:k.split(' ').reduce((pos,w,j,arr)=>pos>=0?pos:(w.startsWith(q)?arr.slice(0,j).join(' ').length+(j?1:0):-1),-1);
+    return i<0?esc(n):esc(n.slice(0,i))+'<b>'+esc(n.slice(i,i+q.length))+'</b>'+esc(n.slice(i+q.length))};
+  box.innerHTML=L.map((g,i)=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g)).join(', '),nv=g.regs.filter(v=>!v.importado).length;
+    return`<button type="button" class="sp" data-i="${i}"><span><span class="sp-n">${resaltar(g.nombre)}</span><small class="sp-d">${esc(u.sucursal||'')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}${cul?' · '+esc(cul):''}</small></span><small>${nv?nv+' reg.':'nuevo'}</small></button>`}).join('');
+  box.querySelectorAll('button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();const g=L[+b.dataset.i];
+    inp.value=g.nombre;box.hidden=true;if(!$('#sucursal').value&&g.regs[0].sucursal){$('#sucursal').value=g.regs[0].sucursal;sugerirProd()}
+    inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));inp.blur()}));
+  const r=inp.getBoundingClientRect();Object.assign(box.style,{left:(r.left+scrollX)+'px',top:(r.bottom+scrollY+6)+'px',width:r.width+'px'});box.hidden=false;sugInput=inp}
+document.addEventListener('input',e=>{if(e.target.id==='productor')mostrarSugProd(e.target)});
+document.addEventListener('focusin',e=>{if(e.target.id==='productor'&&e.target.value)mostrarSugProd(e.target)});
 addEventListener('scroll',()=>{if(!$('#sug').hidden&&sugInput){const r=sugInput.getBoundingClientRect();$('#sug').style.top=(r.bottom+scrollY+6)+'px'}},{passive:true});
 // Separa dosis antiguas escritas a mano ("50 g", "1,5 kg", "10 cc", "1 litro")
 function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=String(p.dosis||'').trim();if(!t)return{cant:'',u:'cc'};
@@ -1278,7 +1297,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='3.6';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='3.7';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
