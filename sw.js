@@ -1,7 +1,7 @@
 // Visitas AGROLEON – funcionamiento sin conexión
-const C='agroleon-v50';
+const C='agroleon-v55';
 const BASE=new URL('./',self.location).href;
-const ARCH=['','index.html','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png'].map(f=>BASE+f);
+const ARCH=['','index.html','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png','pdf.js'].map(f=>BASE+f);
 
 // Instalar: guardar todos los archivos de la app en el teléfono
 self.addEventListener('install',e=>{

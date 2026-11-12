@@ -478,6 +478,11 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .insignia{position:absolute;z-index:3;top:-6px;left:calc(50% + min(18.5vw,78px)/2 - 14px);min-width:22px;height:22px;padding:0 6px;border-radius:11px;
   background:#FF3B30;color:#fff;font:700 13px/22px var(--f);font-style:normal;box-shadow:0 2px 6px rgba(255,59,48,.45),0 0 0 2px var(--fondo1)}
 .solo-inc{display:flex!important;align-items:center;gap:8px;margin:12px 2px 0!important;font-size:15px!important;color:var(--txt)!important}
+#perTipo .btn{padding:9px 4px;font-size:14px;min-height:0}#perTipo .btn.on{background:var(--verde);color:#fff}
+#perRango[hidden]{display:none!important}#perRango>div{min-width:0}#perRango input{min-width:0;width:100%;box-sizing:border-box}
+.pdfx{position:fixed;left:-20000px;top:0;width:760px;--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;color-scheme:light;background:#fff;color:#000}
+.pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
+.pdfx .concl{background:none!important;padding:0!important}.pdfx .concl:empty{display:none}.pdfx .tw{overflow:visible!important}
 .solo-inc input{width:20px;height:20px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;accent-color:#FF9500;background:none}
 @media print{
   :root{--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;--verde:#2E5E3F;--verde2:#2E5E3F;color-scheme:light}
@@ -652,10 +657,15 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <!-- ============ RESUMEN ============ -->
 <section id="datos" class="sec">
   <fieldset><legend>Informe para gerencia</legend>
-    <label>Mes del informe</label><input type="month" id="mesInf">
+    <label>Periodo del informe</label>
+    <div class="seg" id="perTipo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+      <button type="button" class="btn sec2 on" data-t="mes">Mensual</button><button type="button" class="btn sec2" data-t="anio">Todo el año</button><button type="button" class="btn sec2" data-t="rango">De mes a mes</button></div>
+    <div id="perMes"><input type="month" id="mesInf"></div>
+    <div id="perAnio" hidden><select id="anioInf"></select></div>
+    <div id="perRango" hidden style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="margin-top:0">Desde</label><input type="month" id="mesDesde"></div><div><label style="margin-top:0">Hasta</label><input type="month" id="mesHasta"></div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
       <button class="btn" id="btnInf" type="button">Generar informe</button>
-      <button class="btn sec2" id="btnCsvMes" type="button">Excel del mes</button>
+      <button class="btn sec2" id="btnCsvMes" type="button">Excel del periodo</button>
     </div>
   </fieldset>
   <div class="stat" id="statMes"></div>
@@ -684,11 +694,11 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <div class="modal" id="mRec"><div class="hoja" style="padding:12px"><div class="agarre"></div>
   <img id="recImg" alt="Receta">
   <div class="acciones">
-    <button class="btn full" id="btnWaProd" style="background:#1DA851;flex:1 1 100%"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 2.5 2.5 5 5 5l1.2-1.2-1.8-1-1 .8a4 4 0 0 1-2-2l.8-1-1-1.8z" stroke-width="1.4"/></svg><span id="waTxt">Enviar al productor por WhatsApp</span></button>
-    <button class="btn sec2" id="btnShare">Compartir imagen</button>
+    <button class="btn full" id="btnShare" style="background:#1DA851;flex:1 1 100%"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 2.5 2.5 5 5 5l1.2-1.2-1.8-1-1 .8a4 4 0 0 1-2-2l.8-1-1-1.8z" stroke-width="1.4"/></svg><span>Compartir receta por WhatsApp</span></button>
+    <button class="btn sec2" id="btnWaProd" style="flex:1 1 100%"><span id="waTxt">Enviar mensaje por WhatsApp</span></button>
     <button class="btn sec2" id="btnRecCerrar">Cerrar</button>
   </div>
-  <p class="nota" id="waNota">Se abre el chat del productor con un mensaje listo y la receta copiada: toque el campo de mensaje, elija <b>Pegar</b> y envíe.</p>
+  <p class="nota" id="waNota"><b>Compartir receta:</b> se abre el menú Compartir con la imagen; elija WhatsApp y el contacto.<br><b>Enviar mensaje:</b> abre el chat del productor con un saludo listo.</p>
 </div></div>
 <div class="toast" id="toast"></div>
 <div class="sug" id="sug" role="listbox" hidden></div>
@@ -1353,7 +1363,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='3.8';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='4.3';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1716,9 +1726,10 @@ function ficha(v){const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';const dm=m
    ${r('Labores culturales',c.labores)}`).join('')}
   <h4>Seguimiento</h4>${r('Próxima visita',fmtF(v.proxima))}${r('Compromisos',v.compromiso)}${r('Observaciones generales',v.obsGen)}
   ${(v.fotos||[]).length?`<h4>Registro fotográfico</h4><div class="fotos">${v.fotos.map(s=>`<img src="${s}">`).join('')}</div>`:''}
-  <div class="acciones noprint"><button class="btn" id="fRec">Receta (imagen)</button><button class="btn sec2" onclick="window.print()">Imprimir / PDF</button>
+  <div class="acciones noprint"><button class="btn" id="fRec">Receta (imagen)</button><button class="btn sec2" id="fPdf">Guardar PDF / Compartir</button>
   <button class="btn sec2" onclick="$('#mFicha').style.display='none'">Cerrar</button></div></div>`;
   $('#fRec').onclick=()=>{$('#mFicha').style.display='none';abrirReceta(v)};
+  $('#fPdf').onclick=()=>compartirPDF($('#ficha'),`Ficha_${(v.productor||'visita').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g,'_')}_${v.fecha}.pdf`);
   $('#mFicha').style.display='block';$('#mFicha').scrollTop=0}
 $('#mFicha').onclick=e=>{if(e.target.id==='mFicha')e.target.style.display='none'};
 
@@ -1799,7 +1810,7 @@ function faltaV(v){if(!v||v.importado)return[];const f=[];if(!tieneTrat(v))f.pus
 const incompletas=()=>cache.filter(v=>faltaV(v).length).sort((a,b)=>(a.fecha+(a.horaInicio||'')).localeCompare(b.fecha+(b.horaInicio||'')));
 function completar(v){cargar(v);setTimeout(()=>{const f=faltaV(v);
   const el=f[0]==='sucursal'?$('#sucursal'):f[0]==='horario'?$('#horaInicio'):document.querySelector('.t-nuevo');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},400)}
-function abrirReceta(v){if(!tieneTrat(v))return dialogo('Receta incompleta',`La visita a ${v.productor} todavía no tiene tratamientos. Complétela para generar la receta.`,[['Cancelar'],['Completar',()=>{$('#mFicha').style.display='none';completar(v)}]]);recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar al productor por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
+function abrirReceta(v){if(!tieneTrat(v))return dialogo('Receta incompleta',`La visita a ${v.productor} todavía no tiene tratamientos. Complétela para generar la receta.`,[['Cancelar'],['Completar',()=>{$('#mFicha').style.display='none';completar(v)}]]);recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar mensaje a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar mensaje por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
   const nombre=`Receta_${(v.productor||'productor').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g,'_')}_${v.fecha}.png`;
   cv.toBlob(b=>{recFile=new File([b],nombre,{type:'image/png'})},'image/png');
   $('#mRec').style.display='block';$('#mRec').scrollTop=0}
@@ -1811,7 +1822,9 @@ $('#mRec').onclick=e=>{if(e.target.id==='mRec')e.target.style.display='none'};
 
 /* ---------- Resumen ---------- */
 function tabla(obj,h){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return e.length?`<table><tr><th>${h}</th><th>N.º</th></tr>${e.map(([k,n])=>`<tr><td>${esc(k)}</td><td>${n}</td></tr>`).join('')}</table>`:'<p class="nota">Sin datos</p>'}
-function datosMes(mes){const T=cache.filter(v=>(v.fecha||'').startsWith(mes)&&!v.importado),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>(a.fecha||'').startsWith(mes));
+const perDe=m=>typeof m==='string'?{d:m,h:m}:m;
+const enPer=(f,P)=>{f=String(f||'').slice(0,7);return f.length===7&&f>=P.d&&f<=P.h};
+function datosMes(mes){const P=perDe(mes);const T=cache.filter(v=>enPer(v.fecha,P)&&!v.importado),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>enPer(a.fecha,P));
   const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,remota:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
   V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
   const dias=new Set([...V.map(v=>v.fecha),...A.map(a=>a.fecha)]);
@@ -1828,58 +1841,116 @@ function pintarResumen(){const D=datosMes(hoy().slice(0,7));
   $('#tSuc').innerHTML=tablaSuc(D,false)}
 
 /* ---------- Informe mensual ---------- */
-const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const GERENTE='Danny Leon';
+function resumenMes(D,X){const pl=(n,a,b)=>n+' '+(n===1?a:b),lista=L=>L.length<2?L.join(''):L.slice(0,-1).join(', ')+' y '+L[L.length-1];
+  const P=[];const top=(o,k=3)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,k).map(e=>e[0]);
+  const a=[];if(D.V.length)a.push(pl(D.V.length,'visita técnica de campo','visitas técnicas de campo'));if(D.percha)a.push(pl(D.percha,'turno de atención en percha','turnos de atención en percha'));
+  if(D.charlas)a.push(pl(D.charlas,'charla técnica','charlas técnicas')+(D.asist?` con ${pl(D.asist,'asistente','asistentes')}`:''));
+  if(D.ensayos)a.push(pl(D.ensayos,'ensayo','ensayos'));if(D.activ)a.push(pl(D.activ,'activación','activaciones'));if(D.eventos)a.push(pl(D.eventos,'evento','eventos'));
+  P.push(`Durante ${X.per} se realizaron ${lista(a)||'actividades de campo y percha'}.`);
+  if(X.prods){let t=`Se atendieron ${pl(X.prods,'productor','productores')}`;const d=[];if(X.segui)d.push(pl(X.segui,'cliente con seguimiento','clientes con seguimiento'));if(X.nuevos)d.push(pl(X.nuevos,'cliente nuevo','clientes nuevos'));
+    if(d.length)t+=` (${lista(d)})`;P.push(t+'.')}
+  if(X.suc.length){P.push(`Las visitas se concentraron en ${lista(X.suc.slice(0,3).map((r,i)=>`${r[0]} con ${i?r[1]:pl(r[1],'visita','visitas')}`))}${X.suc.length>3?` y se cubrieron ${X.suc.length} sucursales en total`:''}.`)}
+  const cu=Object.entries(X.cul).sort((a,b)=>b[1].v-a[1].v).slice(0,4).map(([k,o])=>`${k}${o.ha?' ('+n1(o.ha)+' ha)':''}`);if(cu.length)P.push(`Los cultivos con más atención fueron ${lista(cu)}.`);
+  const prob={},obj={},prd={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>(c.tratamientos||[]).forEach(t=>{normTrat(t);(t.problemas||[]).forEach(p=>prob[p]=(prob[p]||0)+1);
+    Object.values(t.objetivos||{}).forEach(o=>String(o||'').split(/[,;]| y /).forEach(x=>{x=x.trim();if(!x)return;const k=Object.keys(obj).find(z=>z.toLowerCase()===x.toLowerCase())||x;obj[k]=(obj[k]||0)+1}));(t.productos||[]).forEach(p=>{if(p.nom)prd[p.nom]=(prd[p.nom]||0)+1})})));
+  if(Object.keys(obj).length)P.push(`Los principales problemas atendidos fueron ${lista(top(obj,4))}.`);else if(Object.keys(prob).length)P.push(`Se trabajó principalmente en ${lista(top(prob).map(x=>x.toLowerCase()))}.`);
+  const pr=top(prd,5);if(pr.length)P.push(`Los productos más recomendados fueron ${lista(pr)}.`);
+  const tem=D.A.filter(a=>a.mod==='charla'&&a.tema).map(a=>a.tema);if(tem.length)P.push(`Temas de charlas: ${lista([...new Set(tem)].slice(0,4))}.`);
+  return P.join(' ')}
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const nomMes=m=>{const[a,b]=m.split('-');return MESES[+b-1]+' '+a};
 const n1=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
 $('#mesInf').value=hoy().slice(0,7);
-$('#btnCsvMes').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');const D=datosMes(m);
-  if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese mes');
+{const y=+hoy().slice(0,4),ys=new Set([y]);cache.concat(acts).forEach(x=>{const a=+(String(x.fecha||'').slice(0,4));if(a>2000)ys.add(a)});
+ $('#anioInf').innerHTML=[...ys].sort((a,b)=>b-a).map(a=>`<option value="${a}">${a}</option>`).join('');
+ $('#mesDesde').value=y+'-01';$('#mesHasta').value=hoy().slice(0,7)}
+let perT='mes';$('#perTipo').onclick=e=>{const b=e.target.closest('button');if(!b)return;perT=b.dataset.t;
+  $('#perTipo').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#perMes').hidden=perT!=='mes';$('#perAnio').hidden=perT!=='anio';$('#perRango').hidden=perT!=='rango'};
+function periodo(){if(perT==='mes'){const m=$('#mesInf').value;if(!m){toast('Elija el mes');return null}return{d:m,h:m,t:'mes',txt:nomMes(m)}}
+  if(perT==='anio'){const a=$('#anioInf').value;return{d:a+'-01',h:a+'-12',t:'anio',txt:'Año '+a}}
+  let d=$('#mesDesde').value,h=$('#mesHasta').value;if(!d||!h){toast('Elija desde y hasta');return null}if(d>h)[d,h]=[h,d];
+  if(d===h)return{d,h,t:'mes',txt:nomMes(d)};const[ad,md]=d.split('-'),[ah,mh]=h.split('-');
+  return{d,h,t:'rango',txt:ad===ah?`${MESES[+md-1]} a ${MESES[+mh-1]} ${ad}`:`${nomMes(d)} a ${nomMes(h)}`}}
+$('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.d===P.h?P.d:P.d+'_a_'+P.h;const D=datosMes(P);
+  if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese periodo');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
   const filas=[...D.R.map(v=>[v.fecha,'','','','Receta a distancia',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', '),v.comunidad,v.obsGen]),...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
     ...D.A.map(a=>[a.fecha,a.hi,a.hf,minutos(a.hi,a.hf)||'',MODS[a.mod]?MODS[a.mod].t:a.mod,a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
     .sort((a,b)=>(a[0]+(a[1]||'')).localeCompare(b[0]+(b[1]||''))).map(r=>{r[0]=fmtF(r[0]);return r.map(q).join(';')});
   const cab=['Fecha','Hora inicio','Hora fin','Minutos','Actividad','Sucursal','Productor / título','Detalle','Lugar / comunidad','Observaciones'];
   descargar(`Actividades_AGROLEON_${m}.csv`,'﻿'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')};
-$('#btnInf').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija el mes');informe(m)};
-function informe(mes){
-  const D=datosMes(mes);if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en '+nomMes(mes));
+$('#btnInf').onclick=()=>{const P=periodo();if(P)informe(P)};
+function informe(mes){const P=typeof mes==='string'?{d:mes,h:mes,t:'mes',txt:nomMes(mes)}:mes;const esMes=P.t==='mes',ckey=P.d===P.h?P.d:P.d+'_'+P.h;
+  const D=datosMes(P);if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en '+P.txt);
   const key=s=>String(s||'').trim().toLowerCase();
   const primera={};cache.forEach(v=>{const k=key(v.productor),f=v.importado?'0000':v.fecha;if(!primera[k]||f<primera[k])primera[k]=f});
-  const prods=new Set(D.V.map(v=>key(v.productor)));const nuevos=[...prods].filter(k=>primera[k]&&primera[k].startsWith(mes)).length;
+  const prods=new Set(D.V.map(v=>key(v.productor)));const esNuevo=k=>primera[k]&&enPer(primera[k],P);const nuevos=[...prods].filter(esNuevo).length,segui=prods.size-nuevos;
+  const sucI={},tipoN={};D.V.forEach(v=>{const s=v.sucursal||'Sin sucursal',t=(v.tipo||'Visita de campo').trim();const o=sucI[s]=sucI[s]||{v:0,p:new Set(),t:{}};o.v++;o.p.add(key(v.productor));o.t[t]=(o.t[t]||0)+1;tipoN[t]=(tipoN[t]||0)+1});
+  const TIPOS=Object.keys(tipoN).sort((a,b)=>tipoN[b]-tipoN[a]);
+  const filasSuc=Object.entries(sucI).map(([s,o])=>{const nu=[...o.p].filter(esNuevo).length;return[s,o.v,o.p.size-nu,nu,o.t]}).sort((a,b)=>b[1]-a[1]);
+  const cel=n=>`<td class="n">${n||'—'}</td>`,tb=n=>`<td class="n"><b>${n||'—'}</b></td>`;
+  const tSuc=filasSuc.length?`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Visitas</th>${TIPOS.map(t=>`<th class="n">${esc(t)}</th>`).join('')}<th class="n">Clientes con seguimiento</th><th class="n">Clientes nuevos</th></tr>
+   ${filasSuc.map(r=>`<tr><td>${esc(r[0])}</td>${cel(r[1])}${TIPOS.map(t=>cel(r[4][t])).join('')}${cel(r[2])}${cel(r[3])}</tr>`).join('')}
+   ${filasSuc.length>1?`<tr class="tot"><td><b>Total</b></td>${tb(D.V.length)}${TIPOS.map(t=>tb(tipoN[t])).join('')}${tb(segui)}${tb(nuevos)}</tr>`:''}</table></div>`:'';
   const area={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const k=key(v.productor)+'|'+nomCult(c);area[k]=Math.max(area[k]||0,haDe(c))}));
   const haTot=Object.values(area).reduce((a,b)=>a+b,0);
   const cul={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);cul[n]=cul[n]||{v:0,p:new Set(),ha:0};cul[n].v++;cul[n].p.add(key(v.productor))}));
   Object.entries(area).forEach(([k,ha])=>{const c=k.split('|')[1];if(cul[c])cul[c].ha+=ha});
   // registro diario
-  const items=[...D.R.map(v=>({f:v.fecha,hi:'',hf:'',tipo:'Receta a distancia (WhatsApp)',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', ')].filter(Boolean).join(' · ')})),...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
+  const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
     ...D.A.map(a=>({f:a.fecha,hi:a.hi,hf:a.hf,tipo:MODS[a.mod]?MODS[a.mod].t:'',suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
   const nomDia=f=>{const d=new Date(f+'T12:00:00');const n=DIAS[d.getDay()];return n[0].toUpperCase()+n.slice(1)+' '+fmtF(f)};
-  let conc='';try{conc=localStorage.getItem('concl-'+mes)||''}catch(e){}
+  const resumen=resumenMes(D,{per:esMes?'el mes':P.t==='anio'?'el año':'el periodo',prods:prods.size,nuevos,segui,haTot,cul,suc:filasSuc});
+  let conc='';try{conc=localStorage.getItem('concl-'+ckey)||''}catch(e){}if(!conc.trim())conc=resumen;
   let sec=0;const H=t=>`<h4>${++sec}. ${t}</h4>`;
-  const kpi=(n,t)=>`<div><b>${n}</b><span>${t}</span></div>`;
-  $('#informe').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>Informe mensual de actividades</h2>
-   <div style="font-size:14px;margin-top:2px">Periodo: <b>${nomMes(mes)}</b> · ${esc(firmaNom())}</div></div><img class="lgE" src="${LOGO_E}" alt=""></div>
+  const kpi=(n,t)=>(!n||n==='0')?'':`<div><b>${n}</b><span>${t}</span></div>`;
+  $('#informe').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>Informe ${esMes?'mensual':P.t==='anio'?'anual':''} de actividades</h2>
+   <div style="font-size:14px;margin-top:2px">Periodo: <b>${esc(P.txt)}</b> · ${esc(firmaNom())}</div><div style="font-size:13px;opacity:.9">Para: ${esc(GERENTE)}, Gerente AGROLEON</div></div><img class="lgE" src="${LOGO_E}" alt=""></div>
   <div class="cuerpo inf">
-  ${H('Resumen del mes')}
-  <div class="kpi">${kpi(D.dias,'Días trabajados')}${kpi(n1(D.min/60),'Horas registradas')}${kpi(n1(D.mperc/60),'Horas en percha')}
-   ${kpi(D.V.length,'Visitas de campo')}${kpi(prods.size,'Productores atendidos')}${kpi(nuevos,'Productores nuevos')}
-   ${kpi(n1(haTot),'Hectáreas atendidas')}${kpi(D.charlas,'Charlas técnicas')}${kpi(D.asist,'Asistentes a charlas')}
+  ${H(esMes?'Resumen del mes':P.t==='anio'?'Resumen del año':'Resumen del periodo')}
+  <div class="kpi">
+   ${kpi(D.V.length,'Visitas de campo')}${kpi(prods.size,'Productores atendidos')}${kpi(segui,'Clientes con seguimiento')}${kpi(nuevos,'Clientes nuevos')}
+   ${kpi(D.charlas,'Charlas técnicas')}${kpi(D.asist,'Asistentes a charlas')}
    ${kpi(D.R.length,'Recetas a distancia')}${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}</div>
-  ${H('Actividades por sucursal')}${tablaSuc(D,true)}
+  ${tSuc?H('Actividades por sucursal')+tSuc:''}
   ${Object.keys(cul).length?H('Cultivos atendidos en visitas')+`<div class="tw"><table><tr><th>Cultivo</th><th class="n">Visitas</th><th class="n">Productores</th><th class="n">Hectáreas</th></tr>${Object.entries(cul).sort((a,b)=>b[1].v-a[1].v).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.v}</td><td class="n">${o.p.size}</td><td class="n">${n1(o.ha)}</td></tr>`).join('')}</table></div>`:''}
-  ${H('Registro diario de actividades')}
+  ${items.length?H('Registro diario de actividades'):''}
   ${Object.entries(porDia).map(([f,L])=>`<div class="dia"><h5>${nomDia(f)}</h5>${L.map(x=>`<div class="act"><span class="h">${esc(x.hi||'')}${x.hf?'–'+esc(x.hf):''}</span><span><b>${esc(x.tipo)}</b>${x.suc?' · '+esc(x.suc):''}${x.det?'<br>'+esc(x.det):''}</span></div>`).join('')}</div>`).join('')}
-  ${H('Conclusiones y acciones')}
-  <div class="concl" id="concl" contenteditable="true" data-ph="Toque aquí para escribir conclusiones, logros y acciones para el próximo mes."></div>
-  <div class="firma"><div>${esc(firmaNom())}<br>${esc(PERFIL.cargo||'Técnico de campo')}</div><div>Recibido<br>Gerencia AGROLEON</div></div>
-  <div class="acciones noprint"><button class="btn" onclick="window.print()">Guardar PDF / Imprimir</button>
+  ${H('Conclusiones')}
+  <div class="concl" id="concl" contenteditable="true" data-ph="Toque aquí para escribir las conclusiones del mes."></div>
+  <div class="noprint" style="text-align:right;margin-top:6px"><button class="btn sec2" style="width:auto;padding:8px 14px;font-size:14px" id="bRegen">↻ Rehacer resumen automático</button></div>
+  <div class="firma"><div>${esc(firmaNom())}<br>${esc(PERFIL.cargo||'Técnico de campo')}</div><div>Recibido<br>${esc(GERENTE)}<br>Gerente AGROLEON</div></div>
+  <div class="acciones noprint"><button class="btn" id="bPdfInf">Guardar PDF / Compartir</button>
    <button class="btn sec2" onclick="$('#mInf').style.display='none'">Cerrar</button></div>
-  <p class="nota noprint">En iPhone: toque "Guardar PDF / Imprimir", luego el botón Compartir para guardarlo en Archivos o enviarlo por WhatsApp o correo.</p></div>`;
-  const cc=$('#concl');cc.textContent=conc;cc.oninput=()=>{try{localStorage.setItem('concl-'+mes,cc.innerText)}catch(e){}};
+  <p class="nota noprint">Se abre el menú Compartir del iPhone: guárdelo en Archivos o envíelo por WhatsApp o correo.</p></div>`;
+  const cc=$('#concl');cc.textContent=conc;$('#bRegen').onclick=()=>{cc.textContent=resumen;try{localStorage.removeItem('concl-'+ckey)}catch(e){}};cc.oninput=()=>{try{localStorage.setItem('concl-'+ckey,cc.innerText)}catch(e){}};
+  $('#bPdfInf').onclick=()=>compartirPDF($('#informe'),`Informe_AGROLEON_${ckey}.pdf`);
   $('#mInf').style.display='block';$('#mInf').scrollTop=0}
 $('#mInf').onclick=e=>{if(e.target.id==='mInf')e.target.style.display='none'};
+
+/* ---------- PDF para compartir (menú Compartir del iPhone) ---------- */
+let _pdfLib=null;
+function libPDF(){if(window.jspdf&&window.html2canvas)return Promise.resolve();return _pdfLib||(_pdfLib=new Promise((ok,no)=>{const s=document.createElement('script');s.src='pdf.js';
+  s.onload=ok;s.onerror=()=>{_pdfLib=null;no(new Error('pdf'))};document.head.appendChild(s)}))}
+async function compartirPDF(hoja,nombre){toast('Preparando PDF…');
+  try{await libPDF()}catch(e){return dialogo('Falta un archivo','No se encontró pdf.js. Súbalo a GitHub junto con index.html y sw.js, y abra la app una vez con internet.',[['Entendido']])}
+  const w=document.createElement('div');w.className='pdfx';const c=hoja.cloneNode(true);c.removeAttribute('id');w.appendChild(c);document.body.appendChild(w);
+  const cc=c.querySelector('[contenteditable]');if(cc)cc.removeAttribute('contenteditable');
+  let file;try{await new Promise(r=>setTimeout(r,60));
+    const esc2=2,cv=await html2canvas(c,{scale:esc2,backgroundColor:'#ffffff',useCORS:true,logging:false,windowWidth:760});
+    const W=cv.width,pagH=Math.floor(W*297/210),top0=c.getBoundingClientRect().top;
+    const cortes=[...c.querySelectorAll('h4,h5,tr,.act,.dia,.kpi,.firma,p,.fotos img,.concl')].map(e=>Math.round((e.getBoundingClientRect().top-top0)*esc2)).filter(y=>y>0).sort((a,b)=>a-b);
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4'});let y=0,n=0;
+    while(y<cv.height-4){let fin=Math.min(y+pagH,cv.height);if(fin<cv.height){const ok=cortes.filter(z=>z>y+pagH*0.5&&z<=fin);if(ok.length)fin=ok[ok.length-1]}
+      const h=fin-y,pc=document.createElement('canvas');pc.width=W;pc.height=h;const g=pc.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,h);g.drawImage(cv,0,y,W,h,0,0,W,h);
+      if(n++)pdf.addPage();pdf.addImage(pc.toDataURL('image/jpeg',0.9),'JPEG',0,0,210,h*210/W);y=fin}
+    file=new File([pdf.output('blob')],nombre,{type:'application/pdf'})}
+  catch(e){console.error(e);return toast('No se pudo crear el PDF')}finally{w.remove()}
+  const enviar=async()=>{if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:nombre})}catch(e){if(e.name==='NotAllowedError')throw e}}else descargar(nombre,file,'application/pdf')};
+  try{await enviar()}catch(e){dialogo('PDF listo',nombre,[['Cancelar'],['Compartir',()=>{enviar().catch(()=>{})}]])}}
 
 /* ---------- Exportar / Respaldo ---------- */
 function descargar(nombre,contenido,tipo){const blob=contenido instanceof Blob?contenido:new Blob([contenido],{type:tipo});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
