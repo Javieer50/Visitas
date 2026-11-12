@@ -514,7 +514,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <section id="productores" class="sec">
   <label class="btn sec2 full" style="margin:0 0 12px;color:var(--acc)"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>Importar desde Google Earth (KML / KMZ)<input type="file" id="inGE" hidden></label>
   <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscarP" type="search" placeholder="Buscar productor, comunidad o cultivo"></div>
-  <div class="filtros"><select id="fSucP"><option value="">Todos los cantones</option></select></div>
+  <div class="filtros"><select id="fSucP"><option value="">Todas las sucursales</option></select></div>
   <div id="listaP"></div>
 </section>
 
@@ -523,7 +523,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 
 <!-- ============ CULTIVOS ============ -->
 <section id="cultivosSec" class="sec">
-  <div class="filtros"><select id="fSucC" hidden><option value=""></option></select><select id="fCanC"><option value="">Todos los cantones</option></select></div>
+  <div class="filtros"><select id="fSucC"><option value="">Todas las sucursales</option></select><select id="fCanC"><option value="">Todos los cantones</option></select></div>
   <div class="stat" id="cResumen" style="margin-top:0"></div>
   <div id="listaC"></div>
 </section>
@@ -557,7 +557,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
   <div id="hist"></div>
   <div class="fila">
     <div><label>Teléfono / WhatsApp</label><input id="telefono" inputmode="tel"></div>
-    <div><label>Cantón <span style="color:#FF3B30">*</span></label><input id="canton" placeholder="Cantón donde vive el cliente"></div>
+    <div><label>Cantón</label><input id="canton"></div>
   </div>
   <datalist id="dl-canton"><option>Sucúa</option><option>Morona</option><option>Logroño</option><option>Santiago</option><option>Limón Indanza</option><option>Gualaquiza</option><option>San Juan Bosco</option><option>Huamboya</option><option>Pablo Sexto</option><option>Palora</option><option>Taisha</option><option>Tiwintza</option><option>Pastaza</option><option>Tena</option><option>Yantzaza</option></datalist>
   <label>Comunidad / Referencias</label><textarea id="comunidad" placeholder="Comunidad, sector y cómo llegar a la finca"></textarea>
@@ -997,9 +997,9 @@ function mostrarSugProd(inp){const q=normNom(inp.value),box=$('#sug');if(!q||$('
   const resaltar=n=>{const k=normNom(n);let i=k.startsWith(q)?0:k.split(' ').reduce((pos,w,j,arr)=>pos>=0?pos:(w.startsWith(q)?arr.slice(0,j).join(' ').length+(j?1:0):-1),-1);
     return i<0?esc(n):esc(n.slice(0,i))+'<b>'+esc(n.slice(i,i+q.length))+'</b>'+esc(n.slice(i+q.length))};
   box.innerHTML=L.map((g,i)=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g)).join(', '),nv=g.regs.filter(v=>!v.importado).length;
-    return`<button type="button" class="sp" data-i="${i}"><span><span class="sp-n">${resaltar(g.nombre)}</span><small class="sp-d">${esc(cantonDe(g)||'Sin cantón')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}${cul?' · '+esc(cul):''}</small></span><small>${nv?nv+' reg.':'nuevo'}</small></button>`}).join('');
+    return`<button type="button" class="sp" data-i="${i}"><span><span class="sp-n">${resaltar(g.nombre)}</span><small class="sp-d">${esc(u.sucursal||'')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}${cul?' · '+esc(cul):''}</small></span><small>${nv?nv+' reg.':'nuevo'}</small></button>`}).join('');
   box.querySelectorAll('button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();const g=L[+b.dataset.i];
-    inp.value=g.nombre;box.hidden=true;if(!$('#sucursal').value&&sucDelDia()){$('#sucursal').value=sucDelDia();sugerirProd()}
+    inp.value=g.nombre;box.hidden=true;if(!$('#sucursal').value&&g.regs[0].sucursal){$('#sucursal').value=g.regs[0].sucursal;sugerirProd()}
     inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));inp.blur()}));
   const r=inp.getBoundingClientRect();posSug(inp);box.hidden=false;sugInput=inp}
 document.addEventListener('input',e=>{if(e.target.id==='productor')mostrarSugProd(e.target)});
@@ -1236,11 +1236,11 @@ function grupos(){const G={};
 function cultivosDe(g){const cul={};g.regs.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);if(!cul[n])cul[n]={c:edadActual({...c},v.fecha),f:v.fecha}}));return cul}
 $('#buscarP').oninput=pintarProductores;$('#fSucP').onchange=pintarProductores;
 function pintarProductores(){const q=normNom($('#buscarP').value),sc=$('#fSucP').value,G=grupos();
-  const cur=$('#fSucP').value;$('#fSucP').innerHTML='<option value="">Todos los cantones</option>'+[...new Set(G.map(g=>cantonDe(g)||'Sin cantón'))].sort().map(x=>`<option>${esc(x)}</option>`).join('');$('#fSucP').value=cur;
-  const L=G.filter(g=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g));return(!sc||(cantonDe(g)||'Sin cantón')===sc)&&(!q||normNom([g.nombre,u.comunidad,u.canton,...cul].join(' ')).includes(q))});
+  const cur=$('#fSucP').value;$('#fSucP').innerHTML='<option value="">Todas las sucursales</option>'+[...new Set(G.map(g=>g.regs[0].sucursal).filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');$('#fSucP').value=cur;
+  const L=G.filter(g=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g));return(!sc||u.sucursal===sc)&&(!q||normNom([g.nombre,u.comunidad,u.canton,...cul].join(' ')).includes(q))});
   $('#listaP').innerHTML=L.length?`<p class="nota" style="margin:0 0 8px">${L.length} productor${L.length>1?'es':''}</p>`+L.map(g=>{const u=g.regs[0],cul=cultivosDe(g),nv=g.regs.filter(v=>!v.remota&&!v.importado).length,nr=g.regs.filter(v=>v.remota).length,ni=g.regs.some(v=>/Google/.test(v.tipo||''));
     return`<div class="card pcard" data-k="${esc(g.k)}" role="button" tabindex="0"><h3>${esc(g.nombre)}<small>${fmtF(u.fecha)}</small></h3>
-    <div class="m">${esc(cantonDe(g)||'Sin cantón')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}</div>
+    <div class="m">${esc(u.sucursal||'')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}</div>
     ${Object.entries(cul).map(([n,o])=>`<span class="tag">${esc(n)}${o.c.area?' · '+esc(fmtArea(o.c)):''}</span>`).join('')}
     <div class="m" style="margin-top:8px">${ni?'<span class="tag ge" style="margin:0 6px 0 0">Google Earth</span>':''}${nv} visita${nv!==1?'s':''}${nr?' · '+nr+' receta'+(nr>1?'s':'')+' a distancia':''}${g.ens.length?' · '+g.ens.length+' ensayo'+(g.ens.length>1?'s':''):''}</div></div>`}).join('')
    :'<div class="vacio">No hay productores que coincidan.<br>Se agregan solos al registrar una visita o una receta a distancia.</div>';
@@ -1252,11 +1252,11 @@ function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const 
   const prods={};g.regs.forEach(v=>(v.cultivos||[]).forEach(c=>(c.tratamientos||[]).forEach(t=>t.productos.forEach(p=>{if(p.nom)prods[p.nom]=(prods[p.nom]||0)+1}))));
   const ev=[...g.regs.map(v=>({f:v.fecha,h:v.horaInicio,t:v.remota?'rem':'vis',v})),...g.ens.map(a=>({f:a.fecha,h:a.hi,t:'ens',a}))].sort((a,b)=>(b.f+(b.h||'')).localeCompare(a.f+(a.h||'')));
   const fotos=g.regs.flatMap(v=>v.fotos||[]).slice(0,12);const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';
-  $('#perfilP').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(g.nombre)}</h2><div style="font-size:13px">${esc(cantonDe(g)||'Sin cantón')}</div></div></div>
+  $('#perfilP').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(g.nombre)}</h2><div style="font-size:13px">${esc(u.sucursal||'')}${u.canton?' · '+esc(u.canton):''}</div></div></div>
   <div class="cuerpo">
    <div class="acciones noprint" style="margin-top:6px"><button class="btn" id="pNueva">Nueva visita</button><button class="btn sec2" id="pRem">Receta a distancia</button></div><button type="button" class="btn sec2 full" id="pEdit" style="margin-top:10px"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Editar datos del productor</button>
    <div class="pnum"><div><b>${nv}</b><span>Visitas</span></div><div><b>${nr}</b><span>Recetas a distancia</span></div><div><b>${g.ens.length}</b><span>Ensayos</span></div></div>
-   <h4>Datos del productor</h4>${r('Teléfono',u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono)}${r('Comunidad / referencias',u.comunidad)}${r('Cantón',cantonDe(g))}${r('Visitado en',[...new Set(g.regs.filter(v=>!v.importado).map(v=>v.sucursal).filter(Boolean))].join(', '))}
+   <h4>Datos del productor</h4>${r('Teléfono',u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono)}${r('Comunidad / referencias',u.comunidad)}${r('Cantón',u.canton)}${r('Sucursal',u.sucursal)}
    ${r('Cliente desde',fmtF(prim.fecha))}${r('Último registro',fmtF(u.fecha))}
    <div class="acciones noprint" style="margin-top:8px">${tel&&tel!=='invalido'?`<a class="btn sec2 peq" href="https://wa.me/${tel}" target="_blank" rel="noopener">WhatsApp</a>`:''}${gps?mapBtns(gps,1):''}</div>
    <h4>Cultivos actuales</h4>${Object.entries(cul).map(([n,o])=>`<p><b>${esc(n)}</b>${o.c.variedad?' · '+esc(o.c.variedad):''}${o.c.area?' · '+esc(fmtArea(o.c)):''}${o.c.edad?' · '+esc(fmtEdad(o.c)):''}${o.c.plantas?' · '+esc(o.c.plantas)+' plantas':''}</p>`).join('')||'<p class="nota">Sin cultivos registrados.</p>'}
@@ -1270,7 +1270,7 @@ function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const 
       <div class="row-btns noprint"><button class="btn sec2 peq" data-f="${v.id}">Ficha</button><button class="btn sec2 peq" data-r="${v.id}">Receta</button></div></div>`}).join('')}</div>
    ${fotos.length?`<h4>Fotos</h4><div class="pfotos">${fotos.map(x=>`<img src="${x}" alt="">`).join('')}</div>`:''}
    <div class="acciones noprint"><button class="btn sec2" onclick="$('#mProd').style.display='none'">Cerrar</button></div></div>`;
-  const ir=m=>{$('#mProd').style.display='none';limpiar();setModo(m);$('#sucursal').value=sucDelDia();sugerirProd();$('#productor').value=g.nombre;mostrarHist(true);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita')};
+  const ir=m=>{$('#mProd').style.display='none';limpiar();setModo(m);$('#sucursal').value=u.sucursal||'';sugerirProd();$('#productor').value=g.nombre;mostrarHist(true);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita')};
   $('#pNueva').onclick=()=>ir('visita');$('#pRem').onclick=()=>ir('remota');$('#pEdit').onclick=()=>editarProductor(k);
   $('#perfilP').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{$('#mProd').style.display='none';ficha(cache.find(x=>x.id==b.dataset.f))});
   $('#perfilP').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{$('#mProd').style.display='none';abrirReceta(cache.find(x=>x.id==b.dataset.r))});
@@ -1364,7 +1364,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='4.8';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.0';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1420,16 +1420,16 @@ function plantaciones(){const L=[];grupos().forEach(g=>{const loc=g.regs.find(v=
     L.push({cultivo:n,prod:g.nombre,k:g.k,tel,gps,comFull:(loc.comunidad||'').split('\n')[0],ha:haDe(o.c),c:o.c,f:o.f,suc:v.sucursal||g.regs[0].sucursal||'Sin sucursal',canton:loc.canton||'Sin cantón',com:(loc.comunidad||'').split('\n')[0].split(',')[0].trim()||'Sin comunidad'})})});return L}
 const nf=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
 $('#fSucC').onchange=$('#fCanC').onchange=pintarCultivos;
-function pintarCultivos(){const T=plantaciones(),sc='',cn=$('#fCanC').value;
+function pintarCultivos(){const T=plantaciones(),sc=$('#fSucC').value,cn=$('#fCanC').value;
   const opt=(id,arr,t)=>{const cur=$(id).value;$(id).innerHTML=`<option value="">${t}</option>`+[...new Set(arr)].sort().map(x=>`<option>${esc(x)}</option>`).join('');$(id).value=cur};
-  opt('#fCanC',T.map(x=>x.canton),'Todos los cantones');
+  opt('#fSucC',T.map(x=>x.suc),'Todas las sucursales');opt('#fCanC',T.filter(x=>!sc||x.suc===sc).map(x=>x.canton),'Todos los cantones');
   const L=T.filter(x=>(!sc||x.suc===sc)&&(!$('#fCanC').value||x.canton===$('#fCanC').value));
-  const C={};L.forEach(x=>{const o=C[x.cultivo]||(C[x.cultivo]={ha:0,p:new Set(),pl:0,suc:new Set()});o.ha+=x.ha;o.p.add(x.k);o.pl+=+x.c.plantas||0;o.suc.add(x.canton)});
+  const C={};L.forEach(x=>{const o=C[x.cultivo]||(C[x.cultivo]={ha:0,p:new Set(),pl:0,suc:new Set()});o.ha+=x.ha;o.p.add(x.k);o.pl+=+x.c.plantas||0;o.suc.add(x.suc)});
   const E=Object.entries(C).sort((a,b)=>b[1].ha-a[1].ha||b[1].p.size-a[1].p.size),max=Math.max(...E.map(e=>e[1].ha),0.0001);
   $('#cResumen').innerHTML=`<div><b>${E.length}</b><span>Cultivos</span></div><div><b>${nf(L.reduce((s,x)=>s+x.ha,0))}</b><span>Hectáreas</span></div><div><b>${new Set(L.map(x=>x.k)).size}</b><span>Productores</span></div>`;
   $('#listaC').innerHTML=E.length?E.map(([n,o])=>`<div class="card pcard" data-c="${esc(n)}" role="button" tabindex="0"><h3>${esc(n)}<small>${nf(o.ha)} ha</small></h3>
     <div class="barra"><span style="width:${Math.max(3,o.ha/max*100)}%"></span></div>
-    <div class="m">${o.p.size} productor${o.p.size!==1?'es':''}${o.pl?' · '+o.pl.toLocaleString('es-EC')+' plantas':''} · ${o.suc.size} ${o.suc.size!==1?'cantones':'cantón'}</div></div>`).join('')
+    <div class="m">${o.p.size} productor${o.p.size!==1?'es':''}${o.pl?' · '+o.pl.toLocaleString('es-EC')+' plantas':''} · ${o.suc.size} sucursal${o.suc.size!==1?'es':''}</div></div>`).join('')
    :'<div class="vacio">Aún no hay cultivos registrados.<br>Se suman solos con cada visita.</div>';
   $('#listaC').querySelectorAll('.pcard').forEach(c=>c.onclick=()=>abrirCultivo(c.dataset.c,L))}
 function tablaGrupo(L,campo,titulo){const G={};L.forEach(x=>{const k=x[campo]||'—';const o=G[k]||(G[k]={ha:0,p:new Set(),pl:0});o.ha+=x.ha;o.p.add(x.k);o.pl+=+x.c.plantas||0});
@@ -1444,15 +1444,15 @@ function abrirCultivo(n,base){const L=base.filter(x=>x.cultivo===n);if(!L.length
   const pb={},pr={};cache.forEach(v=>(v.cultivos||[]).filter(c=>nomCult(c)===n&&L.some(x=>x.k===normNom(v.productor))).forEach(c=>(c.tratamientos||[]).forEach(t=>{normTrat(t);
     t.problemas.forEach(P=>{const o=t.objetivos[P];const k=P+(o?': '+o:'');pb[k]=(pb[k]||0)+1});t.productos.forEach(p=>{if(p.nom)pr[p.nom]=(pr[p.nom]||0)+1})})));
   const top=(o,t)=>{const E=Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,8);return E.length?`<h4>${t}</h4><p>${E.map(([k,c])=>`${esc(k)} <span class="nota">(${c})</span>`).join(' · ')}</p>`:''};
-  $('#perfilC').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(n)}</h2><div style="font-size:13px">${$('#fCanC').value?esc($('#fCanC').value):'Todos los cantones'}</div></div></div>
+  $('#perfilC').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(n)}</h2><div style="font-size:13px">${$('#fSucC').value||'Todas las sucursales'}${$('#fCanC').value?' · '+esc($('#fCanC').value):''}</div></div></div>
   <div class="cuerpo">
    <div class="pnum"><div><b>${nf(ha)}</b><span>Hectáreas</span></div><div><b>${new Set(L.map(x=>x.k)).size}</b><span>Productores</span></div><div><b>${nf(prom)}</b><span>Ha promedio por finca</span></div></div>
-   <div class="pnum" style="margin-top:0"><div><b>${pl?pl.toLocaleString('es-EC'):'—'}</b><span>Plantas registradas</span></div><div><b>${edades.length?nf(edades.reduce((a,b)=>a+b,0)/edades.length):'—'}</b><span>Edad promedio (años)</span></div><div><b>${new Set(L.map(x=>x.canton)).size}</b><span>Cantones</span></div></div>
-   ${tablaGrupo(L,'canton','Por cantón')}${tablaGrupo(L,'com','Por comunidad')}
+   <div class="pnum" style="margin-top:0"><div><b>${pl?pl.toLocaleString('es-EC'):'—'}</b><span>Plantas registradas</span></div><div><b>${edades.length?nf(edades.reduce((a,b)=>a+b,0)/edades.length):'—'}</b><span>Edad promedio (años)</span></div><div><b>${new Set(L.map(x=>x.suc)).size}</b><span>Sucursales</span></div></div>
+   ${tablaGrupo(L,'suc','Por sucursal')}${tablaGrupo(L,'canton','Por cantón')}${tablaGrupo(L,'com','Por comunidad')}
    ${tablaGrupo(conVar,'variedad','Por variedad')}${tablaGrupo(conEt,'etapa','Por etapa fenológica')}
    ${top(pb,'Problemas más frecuentes')}${top(pr,'Productos más recomendados')}
    <h4>Productores con ${esc(n.toLowerCase())}</h4>
-   ${L.sort((a,b)=>b.ha-a.ha).map(x=>`<div class="pend" data-k="${esc(x.k)}" style="cursor:pointer"><span><b>${esc(x.prod)}</b><br><span class="nota" style="margin:0">${esc(x.com)} · ${esc(x.canton)}${x.c.variedad?' · '+esc(x.c.variedad):''}${x.c.edad?' · '+esc(fmtEdad(x.c)):''}</span></span><b style="color:var(--acc);white-space:nowrap">${x.c.area?esc(fmtArea(x.c)):'—'}</b></div>`).join('')}
+   ${L.sort((a,b)=>b.ha-a.ha).map(x=>`<div class="pend" data-k="${esc(x.k)}" style="cursor:pointer"><span><b>${esc(x.prod)}</b><br><span class="nota" style="margin:0">${esc(x.com)} · ${esc(x.suc)}${x.c.variedad?' · '+esc(x.c.variedad):''}${x.c.edad?' · '+esc(fmtEdad(x.c)):''}</span></span><b style="color:var(--acc);white-space:nowrap">${x.c.area?esc(fmtArea(x.c)):'—'}</b></div>`).join('')}
    <div class="acciones noprint"><button class="btn sec2" onclick="$('#mCult').style.display='none'">Cerrar</button></div></div>`;
   $('#perfilC').querySelectorAll('[data-k]').forEach(d=>d.onclick=()=>{$('#mCult').style.display='none';abrirProductor(d.dataset.k)});
   $('#perfilC').querySelectorAll('tr.clic').forEach(tr=>tr.onclick=()=>{const campo=tr.dataset.g,val=tr.dataset.v;
@@ -1503,7 +1503,7 @@ function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTM
   // Si escribió el nombre con otra forma, usar el nombre tal como está registrado
   if($('#productor').value!==u.productor&&document.activeElement!==$('#productor'))$('#productor').value=u.productor;
   ['telefono','canton','comunidad','lat','lon','alt','prec'].forEach(k=>{if(!$('#'+k).value&&u[k])$('#'+k).value=u[k]});
-  if(!$('#sucursal').value&&sucDelDia())$('#sucursal').value=sucDelDia();mostrarGps();
+  if(!$('#sucursal').value&&u.sucursal)$('#sucursal').value=u.sucursal;mostrarGps();
   const ya=new Set([...document.querySelectorAll('.cult')].filter(c=>!c.dataset.vacio).map(nomBloque));
   const falta=[!P.vs.some(v=>v.lat)&&'ubicación GPS',!P.vs.some(v=>v.telefono)&&'teléfono',!P.vs.some(v=>v.comunidad)&&'comunidad / referencias',!P.vs.some(v=>v.canton)&&'cantón'].filter(Boolean);
   box.innerHTML=`<div class="hist"><b>Productor registrado</b>${P.vs.some(v=>/Google/.test(v.tipo||''))?' <span class="tag ge" style="margin:0 0 0 4px">Google Earth</span>':''} · ${(n=>n+' visita'+(n!==1?'s':''))(P.vs.filter(v=>!v.remota&&!v.importado).length)}${(n=>n?' · '+n+' receta'+(n>1?'s':'')+' a distancia':'')(P.vs.filter(v=>v.remota).length)} · último registro ${fmtF(u.fecha)}
@@ -1806,11 +1806,11 @@ $('#btnWaProd').onclick=async()=>{const v=recVisit;if(!v)return;const tel=telWa(
   setTimeout(()=>{location.href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`},copiada?700:200)};
 /* ---------- Visitas y recetas incompletas ---------- */
 const tieneTrat=v=>(v.cultivos||[]).some(c=>(c.tratamientos||[]).some(t=>(t.productos||[]).some(p=>p.nom)));
-function faltaV(v){if(!v||v.importado)return[];const f=[];if(!tieneTrat(v))f.push('tratamiento');if(!v.sucursal)f.push('sucursal');if(!v.canton)f.push('cantón');
+function faltaV(v){if(!v||v.importado)return[];const f=[];if(!tieneTrat(v))f.push('tratamiento');if(!v.sucursal)f.push('sucursal');
   if(!v.remota&&!v.horaInicio)f.push('horario');return f}
 const incompletas=()=>cache.filter(v=>faltaV(v).length).sort((a,b)=>(a.fecha+(a.horaInicio||'')).localeCompare(b.fecha+(b.horaInicio||'')));
 function completar(v){cargar(v);setTimeout(()=>{const f=faltaV(v);
-  const el=f[0]==='sucursal'?$('#sucursal'):f[0]==='cantón'?$('#canton'):f[0]==='horario'?$('#horaInicio'):document.querySelector('.t-nuevo');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},400)}
+  const el=f[0]==='sucursal'?$('#sucursal'):f[0]==='horario'?$('#horaInicio'):document.querySelector('.t-nuevo');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},400)}
 function abrirReceta(v){if(!tieneTrat(v))return dialogo('Receta incompleta',`La visita a ${v.productor} todavía no tiene tratamientos. Complétela para generar la receta.`,[['Cancelar'],['Completar',()=>{$('#mFicha').style.display='none';completar(v)}]]);recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar mensaje a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar mensaje por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
   const nombre=`Receta_${(v.productor||'productor').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g,'_')}_${v.fecha}.png`;
   cv.toBlob(b=>{recFile=new File([b],nombre,{type:'image/png'})},'image/png');
@@ -1895,15 +1895,12 @@ function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:n
   const tSuc=filasSuc.length?`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Visitas</th>${TIPOS.map(t=>`<th class="n">${esc(t)}</th>`).join('')}<th class="n">Clientes con seguimiento</th><th class="n">Clientes nuevos</th></tr>
    ${filasSuc.map(r=>`<tr><td>${esc(r[0])}</td>${cel(r[1])}${TIPOS.map(t=>cel(r[4][t])).join('')}${cel(r[2])}${cel(r[3])}</tr>`).join('')}
    ${filasSuc.length>1?`<tr class="tot"><td><b>Total</b></td>${tb(D.V.length)}${TIPOS.map(t=>tb(tipoN[t])).join('')}${tb(segui)}${tb(nuevos)}</tr>`:''}</table></div>`:'';
-  const canI={};D.V.forEach(v=>{const c=(v.canton||'').trim()||'Sin cantón';const o=canI[c]=canI[c]||{v:0,p:new Set()};o.v++;o.p.add(key(v.productor))});
-  const filasCan=Object.entries(canI).sort((a,b)=>b[1].p.size-a[1].p.size||b[1].v-a[1].v);
-  const tCan=filasCan.length?`<div class="tw" style="overflow-x:auto"><table><tr><th>Cantón del cliente</th><th class="n">Clientes</th><th class="n">Visitas</th></tr>${filasCan.map(([c,o])=>`<tr><td>${esc(c)}</td><td class="n">${o.p.size}</td><td class="n">${o.v}</td></tr>`).join('')}${filasCan.length>1?`<tr class="tot"><td><b>Total</b></td><td class="n"><b>${prods.size}</b></td><td class="n"><b>${D.V.length}</b></td></tr>`:''}</table></div>`:'';
   const area={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const k=key(v.productor)+'|'+nomCult(c);area[k]=Math.max(area[k]||0,haDe(c))}));
   const haTot=Object.values(area).reduce((a,b)=>a+b,0);
   const cul={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const n=nomCult(c);cul[n]=cul[n]||{v:0,p:new Set(),ha:0};cul[n].v++;cul[n].p.add(key(v.productor))}));
   Object.entries(area).forEach(([k,ha])=>{const c=k.split('|')[1];if(cul[c])cul[c].ha+=ha});
   // registro diario
-  const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor+(v.canton?' ('+v.canton+')':''),(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
+  const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
     ...D.A.map(a=>({f:a.fecha,hi:a.hi,hf:a.hf,tipo:MODS[a.mod]?MODS[a.mod].t:'',suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
@@ -1921,7 +1918,6 @@ function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:n
    ${kpi(D.charlas,'Charlas técnicas')}${kpi(D.asist,'Asistentes a charlas')}
    ${kpi(D.R.length,'Recetas a distancia')}${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}</div>
   ${tSuc?H('Actividades por sucursal')+tSuc:''}
-  ${tCan?H('Clientes por cantón')+tCan:''}
   ${Object.keys(cul).length?H('Cultivos atendidos en visitas')+`<div class="tw"><table><tr><th>Cultivo</th><th class="n">Visitas</th><th class="n">Productores</th><th class="n">Hectáreas</th></tr>${Object.entries(cul).sort((a,b)=>b[1].v-a[1].v).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.v}</td><td class="n">${o.p.size}</td><td class="n">${n1(o.ha)}</td></tr>`).join('')}</table></div>`:''}
   ${items.length?H('Registro diario de actividades'):''}
   ${Object.entries(porDia).map(([f,L])=>`<div class="dia"><h5>${nomDia(f)}</h5>${L.map(x=>`<div class="act"><span class="h">${esc(x.hi||'')}${x.hf?'–'+esc(x.hf):''}</span><span><b>${esc(x.tipo)}</b>${x.suc?' · '+esc(x.suc):''}${x.det?'<br>'+esc(x.det):''}</span></div>`).join('')}</div>`).join('')}
