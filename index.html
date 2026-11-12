@@ -329,8 +329,8 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 .inf .tw{overflow-x:auto}
 .inf .concl{background:var(--fill2);border-radius:12px;min-height:90px;padding:10px 12px;font-size:15px;white-space:pre-wrap;outline:none}
 .inf .concl:empty:before{content:attr(data-ph);color:var(--txt2)}
-.inf .firma{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:30px;text-align:center;font-size:13px}
-.inf .firma div{border-top:1px solid var(--txt);padding-top:6px}
+.inf .firma{margin-top:28px;padding-top:110px;display:grid;grid-template-columns:1fr 1fr;gap:48px;text-align:center;font-size:13px;line-height:1.45;break-inside:avoid}
+.inf .firma div{border-top:1px solid var(--txt);padding-top:8px}
 .hoja .lgA,.hoja .lgE{width:auto;flex:none}
 
 @media (max-width:380px){.hero h1{font-size:30px}.fila3{grid-template-columns:1fr 1fr}.stat b{font-size:24px}}
@@ -478,7 +478,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .insignia{position:absolute;z-index:3;top:-6px;left:calc(50% + min(18.5vw,78px)/2 - 14px);min-width:22px;height:22px;padding:0 6px;border-radius:11px;
   background:#FF3B30;color:#fff;font:700 13px/22px var(--f);font-style:normal;box-shadow:0 2px 6px rgba(255,59,48,.45),0 0 0 2px var(--fondo1)}
 .solo-inc{display:flex!important;align-items:center;gap:8px;margin:12px 2px 0!important;font-size:15px!important;color:var(--txt)!important}
-#perTipo .btn{padding:9px 4px;font-size:14px;min-height:0}#perTipo .btn.on{background:var(--verde);color:#fff}
+#perRap .btn{padding:8px 4px;font-size:13px;min-height:0}
 #perRango[hidden]{display:none!important}#perRango>div{min-width:0}#perRango input{min-width:0;width:100%;box-sizing:border-box}
 .pdfx{position:fixed;left:-20000px;top:0;width:760px;--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;color-scheme:light;background:#fff;color:#000}
 .pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
@@ -658,11 +658,9 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <section id="datos" class="sec">
   <fieldset><legend>Informe para gerencia</legend>
     <label>Periodo del informe</label>
-    <div class="seg" id="perTipo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
-      <button type="button" class="btn sec2 on" data-t="mes">Mensual</button><button type="button" class="btn sec2" data-t="anio">Todo el año</button><button type="button" class="btn sec2" data-t="rango">De mes a mes</button></div>
-    <div id="perMes"><input type="month" id="mesInf"></div>
-    <div id="perAnio" hidden><select id="anioInf"></select></div>
-    <div id="perRango" hidden style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="margin-top:0">Desde</label><input type="month" id="mesDesde"></div><div><label style="margin-top:0">Hasta</label><input type="month" id="mesHasta"></div></div>
+    <div id="perRango" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="margin-top:0">Desde</label><input type="date" id="fDesde"></div><div><label style="margin-top:0">Hasta</label><input type="date" id="fHasta"></div></div>
+    <div class="seg" id="perRap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
+      <button type="button" class="btn sec2" data-r="mes">Este mes</button><button type="button" class="btn sec2" data-r="ant">Mes anterior</button><button type="button" class="btn sec2" data-r="anio">Este año</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
       <button class="btn" id="btnInf" type="button">Generar informe</button>
       <button class="btn sec2" id="btnCsvMes" type="button">Excel del periodo</button>
@@ -1364,7 +1362,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='4.5';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='4.7';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1823,8 +1821,8 @@ $('#mRec').onclick=e=>{if(e.target.id==='mRec')e.target.style.display='none'};
 
 /* ---------- Resumen ---------- */
 function tabla(obj,h){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return e.length?`<table><tr><th>${h}</th><th>N.º</th></tr>${e.map(([k,n])=>`<tr><td>${esc(k)}</td><td>${n}</td></tr>`).join('')}</table>`:'<p class="nota">Sin datos</p>'}
-const perDe=m=>typeof m==='string'?{d:m,h:m}:m;
-const enPer=(f,P)=>{f=String(f||'').slice(0,7);return f.length===7&&f>=P.d&&f<=P.h};
+const perDe=m=>typeof m==='string'?(m.length===7?{d:m+'-01',h:m+'-31'}:{d:m,h:m}):m;
+const enPer=(f,P)=>{f=String(f||'').slice(0,10);return f.length===10&&f>=P.d&&f<=P.h};
 function datosMes(mes){const P=perDe(mes);const T=cache.filter(v=>enPer(v.fecha,P)&&!v.importado),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>enPer(a.fecha,P));
   const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,remota:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
   V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
@@ -1860,18 +1858,21 @@ function resumenMes(D,X){const pl=(n,a,b)=>n+' '+(n===1?a:b),lista=L=>L.length<2
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const nomMes=m=>{const[a,b]=m.split('-');return MESES[+b-1]+' '+a};
 const n1=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
-$('#mesInf').value=hoy().slice(0,7);
-{const y=+hoy().slice(0,4),ys=new Set([y]);cache.concat(acts).forEach(x=>{const a=+(String(x.fecha||'').slice(0,4));if(a>2000)ys.add(a)});
- $('#anioInf').innerHTML=[...ys].sort((a,b)=>b-a).map(a=>`<option value="${a}">${a}</option>`).join('');
- $('#mesDesde').value=y+'-01';$('#mesHasta').value=hoy().slice(0,7)}
-let perT='mes';$('#perTipo').onclick=e=>{const b=e.target.closest('button');if(!b)return;perT=b.dataset.t;
-  $('#perTipo').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('#perMes').hidden=perT!=='mes';$('#perAnio').hidden=perT!=='anio';$('#perRango').hidden=perT!=='rango'};
-function periodo(){if(perT==='mes'){const m=$('#mesInf').value;if(!m){toast('Elija el mes');return null}return{d:m,h:m,t:'mes',txt:nomMes(m)}}
-  if(perT==='anio'){const a=$('#anioInf').value;return{d:a+'-01',h:a+'-12',t:'anio',txt:'Año '+a}}
-  let d=$('#mesDesde').value,h=$('#mesHasta').value;if(!d||!h){toast('Elija desde y hasta');return null}if(d>h)[d,h]=[h,d];
-  if(d===h)return{d,h,t:'mes',txt:nomMes(d)};const[ad,md]=d.split('-'),[ah,mh]=h.split('-');
-  return{d,h,t:'rango',txt:ad===ah?`${MESES[+md-1]} a ${MESES[+mh-1]} ${ad}`:`${nomMes(d)} a ${nomMes(h)}`}}
-$('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.d===P.h?P.d:P.d+'_a_'+P.h;const D=datosMes(P);
+const finMes=m=>{const[a,b]=m.split('-').map(Number);return m+'-'+String(new Date(a,b,0).getDate()).padStart(2,'0')};
+function ponerRango(r){const h=hoy(),m=h.slice(0,7);let d,f;
+  if(r==='mes'){d=m+'-01';f=h}else if(r==='anio'){d=h.slice(0,4)+'-01-01';f=h}
+  else{const[a,b]=m.split('-').map(Number),pm=b===1?(a-1)+'-12':a+'-'+String(b-1).padStart(2,'0');d=pm+'-01';f=finMes(pm)}
+  $('#fDesde').value=d;$('#fHasta').value=f}
+ponerRango('mes');
+$('#perRap').onclick=e=>{const b=e.target.closest('button');if(b)ponerRango(b.dataset.r)};
+function periodo(){let d=$('#fDesde').value,h=$('#fHasta').value;if(!d||!h){toast('Elija las fechas desde y hasta');return null}if(d>h)[d,h]=[h,d];
+  const m=d.slice(0,7),mesComp=d.endsWith('-01')&&h.slice(0,7)===m&&(h===finMes(m)||(m===hoy().slice(0,7)&&h>=hoy()));
+  const anioComp=d.slice(5)==='01-01'&&h.slice(0,4)===d.slice(0,4)&&(h.slice(5)==='12-31'||(d.slice(0,4)===hoy().slice(0,4)&&h>=hoy()));
+  if(mesComp)return{d,h,t:'mes',txt:nomMes(m)};
+  if(anioComp)return{d,h,t:'anio',txt:'Año '+d.slice(0,4)};
+  if(d===h)return{d,h,t:'rango',txt:fmtF(d),ini:'El '+fmtF(d)};
+  return{d,h,t:'rango',txt:`Del ${fmtF(d)} al ${fmtF(h)}`,ini:`Del ${fmtF(d)} al ${fmtF(h)}`}}
+$('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.t==='mes'?P.d.slice(0,7):P.d+'_a_'+P.h;const D=datosMes(P);
   if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese periodo');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
   const filas=[...D.R.map(v=>[v.fecha,'','','','Receta a distancia',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', '),v.comunidad,v.obsGen]),...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
@@ -1880,7 +1881,7 @@ $('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.d===P.h?P.
   const cab=['Fecha','Hora inicio','Hora fin','Minutos','Actividad','Sucursal','Productor / título','Detalle','Lugar / comunidad','Observaciones'];
   descargar(`Actividades_AGROLEON_${m}.csv`,'﻿'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')};
 $('#btnInf').onclick=()=>{const P=periodo();if(P)informe(P)};
-function informe(mes){const P=typeof mes==='string'?{d:mes,h:mes,t:'mes',txt:nomMes(mes)}:mes;const esMes=P.t==='mes',ckey=P.d===P.h?P.d:P.d+'_'+P.h;
+function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:nomMes(mes.slice(0,7))}:mes;const esMes=P.t==='mes',ckey=esMes?P.d.slice(0,7):P.d+'_'+P.h;
   const D=datosMes(P);if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en '+P.txt);
   const key=s=>String(s||'').trim().toLowerCase();
   const primera={};cache.forEach(v=>{const k=key(v.productor),f=v.importado?'0000':v.fecha;if(!primera[k]||f<primera[k])primera[k]=f});
@@ -1902,7 +1903,7 @@ function informe(mes){const P=typeof mes==='string'?{d:mes,h:mes,t:'mes',txt:nom
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
   const nomDia=f=>{const d=new Date(f+'T12:00:00');const n=DIAS[d.getDay()];return n[0].toUpperCase()+n.slice(1)+' '+fmtF(f)};
-  const resumen=resumenMes(D,{ini:esMes?'En '+P.txt:P.t==='anio'?'En el '+P.txt.toLowerCase():'De '+P.txt,prods:prods.size,nuevos,segui,haTot,cul,suc:filasSuc});
+  const resumen=resumenMes(D,{ini:esMes?'En '+P.txt:P.t==='anio'?'En el '+P.txt.toLowerCase():P.ini,prods:prods.size,nuevos,segui,haTot,cul,suc:filasSuc});
   let conc='';try{conc=localStorage.getItem('concl-'+ckey)||''}catch(e){}if(!conc.trim())conc=resumen;
   let sec=0;const H=t=>`<h4>${++sec}. ${t}</h4>`;
   const kpi=(n,t)=>(!n||n==='0')?'':`<div><b>${n}</b><span>${t}</span></div>`;
