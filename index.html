@@ -483,6 +483,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .pdfx{position:fixed;left:-20000px;top:0;width:760px;--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;color-scheme:light;background:#fff;color:#000}
 .pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
 .pdfx .concl{background:none!important;padding:0!important}.pdfx .concl:empty{display:none}.pdfx .tw{overflow:visible!important}
+.nm-f{display:flex;gap:8px;align-items:center;margin-top:8px}.nm-f input{flex:1;min-width:0}.nm-f .xp{position:static;flex:none;width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}.mdep[hidden]{display:none!important}
 .perF{margin-top:10px}#perRg{display:grid;grid-template-columns:1fr 1fr;gap:10px}#perRg[hidden],#perDia[hidden]{display:none!important}
 .perF label{margin-top:0}.perF input{min-width:0;width:100%;box-sizing:border-box}#perRg>div{min-width:0}
 .alm-barra{height:12px;border-radius:6px;background:var(--fill);overflow:hidden;display:flex;margin:10px 0 6px}.alm-barra span{display:block;height:100%}
@@ -987,7 +988,8 @@ function valoresHist(inp){const V=[],add=(x,peso=1)=>{x=String(x||'').split('\n'
   if(id==='m_productor'){grupos().forEach(g=>add(g.nombre,2));return V}
   if(id==='m_cultivo'){cults(c=>add(nomCult(c)));CULTIVOS.filter(x=>x!=='Otro').forEach(x=>add(x,0));return V}
   if(id==='m_lugar'){acts.forEach(a=>add(a.lugar,2));cache.forEach(v=>add(v.comunidad));return V}
-  const mk=id.startsWith('m_')?id.slice(2):'';if(['tema','org','prods','material','titulo','nombre','area','dosis'].includes(mk)){acts.forEach(a=>add(a[mk]));return V}
+  const mk=id.startsWith('m_')?id.slice(2):'';if(['tema','org','prods','material','titulo','nombre','area','dosis','entidad'].includes(mk)){acts.forEach(a=>add(a[mk]));return V}
+  if(cl.contains('nm-in')){const ac=!!inp.closest('[data-k="acomps"]');acts.forEach(a=>{(ac?a.acomps:a.personas||[]).forEach&&(ac?(a.acomps||[]):(a.personas||[])).forEach(x=>add(x,2));if(ac&&a.acomp)a.acomp.split(/,\s*/).forEach(x=>add(x))});if(ac)cache.forEach(v=>String(v.acomp||'').split(/,\s*/).forEach(x=>add(x)));return V}
   if(id==='obsGen'){cache.forEach(v=>add(v.obsGen));return V}
   return null}
 function mostrarSugGen(inp,alFoco){const V=valoresHist(inp),box=$('#sug');if(!V){return false}
@@ -1128,8 +1130,21 @@ const MODS={
    {k:'obs',l:'Resultados / observaciones',ty:'area'}]},
  evento:{t:'Eventos varios',g:'evento',c:'#C2410C,#9A3412',titulo:a=>a.titulo||'Evento',fotos:1,
   campos:[...F_FH,{k:'titulo',l:'Nombre del evento',ty:'text',req:1},
-   {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión interna / empresa','Capacitación recibida','Otro'],half:1},{k:'asist',l:'Asistentes',ty:'num',half:1},
-   {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},{k:'obs',l:'Descripción / observaciones',ty:'area'}]}};
+   {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión con empresa o institución','Reunión interna / empresa','Capacitación recibida','Otro']},{k:'asist',l:'N.º de asistentes',ty:'num',ph:'Se cuenta solo si agrega los nombres abajo'},
+   {k:'entidad',l:'Empresa o institución',ty:'text',ph:'Ej.: MAG, GAD Municipal, INIAP, Asociación…',dep:{k:'tipoE',v:'Reunión con empresa o institución'}},
+   {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},
+   {k:'personas',l:'Personas asistentes',ty:'nombres',add:'Agregar asistente',ph:'Nombre y cargo. Ej.: Juan Pérez – técnico MAG'},
+   {k:'acomps',l:'Acompañantes',ty:'nombres',add:'Agregar acompañante',ph:'Ej.: vendedor AGROLEON, ATC ECUAQUIMICA'},
+   {k:'obs',l:'Descripción / acuerdos',ty:'area'}]}};
+function filaNombre(cont,v,ph){const d=document.createElement('div');d.className='nm-f';
+  d.innerHTML=`<input class="nm-in" value="${esc(v||'')}" placeholder="${esc(ph||'Nombre')}" autocapitalize="words"><button type="button" class="xp" title="Quitar">×</button>`;
+  d.querySelector('.xp').onclick=()=>{if(cont.children.length>1)d.remove();else d.querySelector('input').value='';programarBorradorM()};
+  d.querySelector('input').addEventListener('change',e=>{const t=e.target;if(t.closest('[data-k="personas"]')){const n=nombrePropio(t.value.split(/\s[–-]\s/)[0]);const r=t.value.split(/\s[–-]\s/).slice(1).join(' – ');t.value=n+(r?' – '+r:'')}});
+  cont.appendChild(d);return d}
+function leerCampoMod(c){const el=$('#m_'+c.k);if(!el)return c.ty==='chips'||c.ty==='nombres'?[]:'';
+  if(c.ty==='chips')return[...el.querySelectorAll('input:checked')].map(x=>x.value);
+  if(c.ty==='nombres')return[...el.querySelectorAll('.nm-in')].map(x=>x.value.trim()).filter(Boolean);
+  return(el.value||'').trim()}
 const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['productores','Productores','prods','#9A7B3F,#6E5526'],['cultivosSec','Cultivos','cult','#5E8C2F,#3F6A1A'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47'],['perfilSec','Mi perfil','perfil','#8A8F98,#565B63']];
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
 function pintarInicio(){
@@ -1157,7 +1172,7 @@ function pintarInicio(){
 let modK=null,modEdit=null,modFotos=[],modVista='form';
 let tBorrM=null;
 function guardarBorradorM(){if(secAct!=='mod'||modVista!=='form'||!$('#fm'))return;const m=MODS[modK],vals={};let util=false;
-  m.campos.forEach(c=>{if(c.ty==='ens'){vals[c.k]=leerEnsTrats();if(vals[c.k].some(t=>t.productos.length))util=true;return}const el=$('#m_'+c.k);if(!el)return;vals[c.k]=c.ty==='chips'?[...el.querySelectorAll('input:checked')].map(x=>x.value):el.value;
+  m.campos.forEach(c=>{if(c.ty==='ens'){vals[c.k]=leerEnsTrats();if(vals[c.k].some(t=>t.productos.length))util=true;return}const el=$('#m_'+c.k);if(!el)return;vals[c.k]=leerCampoMod(c);
     if(!['fecha','hi','hf','sucursal','estado','tipoA','tipoE'].includes(c.k)&&(Array.isArray(vals[c.k])?vals[c.k].length:String(vals[c.k]||'').trim()))util=true});
   if(util||modFotos.length)borrGuardar('m-'+modK,{vals,fotos:modFotos.slice(),edit:modEdit,t:Date.now()})}
 const programarBorradorM=()=>{clearTimeout(tBorrM);tBorrM=setTimeout(guardarBorradorM,600)};
@@ -1192,12 +1207,13 @@ function leerEnsTrats(){return[...document.querySelectorAll('#ensTrats .trat')].
   return{nombre:d.querySelector('.e-nom').value.trim()||'Tratamiento',testigo:test,
    productos:test?[]:[...d.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+uTxt(cant,u):'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom),
    numAplic:test?'':d.querySelector('.t-num').value.trim(),frecuencia:test?'':d.querySelector('.t-fre').value.trim(),obs:d.querySelector('.t-obsT').value.trim()}})}
-function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',lab=`<label for="${id}">${f.l}${f.req?' *':''}</label>`;
+function campoHTML(f,val){if(f.dep&&!f._w)return`<div class="mdep" data-dk="${f.dep.k}" data-dv="${esc(f.dep.v)}">${campoHTML({...f,_w:1},val)}</div>`;const id='m_'+f.k,v=val??'',req=f.req?' required':'',lab=`<label for="${id}">${f.l}${f.req?' *':''}</label>`;
   if(f.ty==='suc')return lab+`<select id="${id}"${req}><option value="">— Seleccione —</option>${SUCS.map(x=>`<option${x===v?' selected':''}>${x}</option>`).join('')}</select>`;
   if(f.ty==='sel')return lab+`<select id="${id}">${f.op.map(x=>`<option${x===v?' selected':''}>${x}</option>`).join('')}</select>`;
   if(f.ty==='chips')return`<label>${f.l}</label><div class="chk" id="${id}">${f.op.map(x=>`<label><input type="checkbox" value="${esc(x)}"${(v||[]).includes(x)?' checked':''}>${x}</label>`).join('')}</div>`;
   if(f.ty==='ens')return`<div class="sub" style="margin-top:22px">${f.l}</div><div class="nota">Agregue un tratamiento por cada producto o dosis que va a comparar, y el testigo.</div><div id="ensTrats"></div><button type="button" class="t-nuevo" id="ensAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar tratamiento</button>`;
   if(f.ty==='area')return lab+`<textarea id="${id}">${esc(v)}</textarea>`;
+  if(f.ty==='nombres')return`<label>${f.l}</label><div class="nm-lista" id="${id}" data-k="${f.k}" data-ph="${esc(f.ph||'')}" data-v="${esc(JSON.stringify(Array.isArray(v)?v:(v?[v]:[])))}"></div><button type="button" class="t-addP nm-add" data-for="${id}"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>${esc(f.add||'Agregar')}</button>`;
   if(f.ty==='cult')return lab+`<input id="${id}" value="${esc(v)}">`;
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
   return lab+`<input id="${id}" type="${t}"${t==='number'?' inputmode="numeric" min="0"':''} value="${esc(v)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}${req}>`}
@@ -1215,6 +1231,10 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
   $('#modForm').innerHTML=html;$('#btnGuardar').textContent=ed?'Actualizar':'Guardar';
   if($('#ensTrats')){(tratsEnsayo(a)).forEach(addEnsTrat);$('#ensAdd').onclick=()=>{const n=addEnsTrat({});n.scrollIntoView({behavior:'smooth',block:'start'});n.querySelector('.p-nom').focus()}}
   $('#modForm').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{$('#m_'+b.dataset.h).value=ahora()});
+  $('#modForm').querySelectorAll('.nm-lista').forEach(c=>{let L=[];try{L=JSON.parse(c.dataset.v||'[]')}catch(e){}(L.length?L:['']).forEach(x=>filaNombre(c,x,c.dataset.ph))});
+  $('#modForm').querySelectorAll('.nm-add').forEach(b=>b.onclick=()=>{const c=$('#'+b.dataset.for);const f=filaNombre(c,'',c.dataset.ph);f.querySelector('input').focus()});
+  const deps=()=>$('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);w.hidden=!(s&&s.value===w.dataset.dv)});
+  $('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);if(s)s.addEventListener('change',deps)});deps();
   const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
   $('#mGuardar').onclick=guardarMod;if(ed)$('#mCancelar').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();verVista('hist')};
   if(m.fotos){$('#mFoto').onchange=async e=>{for(const f of e.target.files){try{modFotos.push(await comprimir(f))}catch(x){}}e.target.value='';pintarMFotos()};pintarMFotos()}
@@ -1226,7 +1246,8 @@ function pintarMFotos(){const b=$('#mFotos');if(!b)return;b.innerHTML=modFotos.m
 async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity())return;
   if($('#ensTrats')&&!leerEnsTrats().some(t=>t.productos.length))return dialogo('Faltan tratamientos','Agregue al menos un tratamiento con el producto a evaluar.',[['Entendido']]);
   const r={id:modEdit||Date.now(),mod:modK};
-  m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=c.ty==='chips'?[...document.querySelectorAll('#m_'+c.k+' input:checked')].map(x=>x.value):($('#m_'+c.k).value||'').trim()});
+  m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=leerCampoMod(c)});
+  if(r.mod==='evento'){if(r.tipoE!=='Reunión con empresa o institución')r.entidad='';if(!r.asist&&(r.personas||[]).length)r.asist=String(r.personas.length)}
   if(r.productor)r.productor=nombrePropio(r.productor);
   if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
   if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
@@ -1237,7 +1258,8 @@ function resumenAct(a){const m=MODS[a.mod];if(!m)return'';const x=[];
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
   if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(tratsEnsayo(a).map(t=>t.testigo?t.nombre+(/testigo/i.test(t.nombre)?'':' (testigo)'):t.nombre+': '+(t.productos.map(p=>p.nom+(p.dosis?' '+p.dosis:'')+(p.para?' '+p.para.replace('para ','/ '):'')).join(' + '))).join(' · '));if(a.estado)x.push(a.estado)}
   if(a.mod==='activ'){x.push(a.prods);if(a.lugar)x.push(a.lugar);if(a.personas)x.push(a.personas+' personas')}
-  if(a.mod==='evento'){if(a.tipoE)x.push(a.tipoE);if(a.lugar)x.push(a.lugar);if(a.asist)x.push(a.asist+' asistentes')}
+  if(a.mod==='evento'){if(a.tipoE)x.push(a.tipoE+(a.entidad?': '+a.entidad:''));if(a.lugar)x.push(a.lugar);if(a.asist)x.push(a.asist+' asistentes');
+    if((a.personas||[]).length)x.push('Asistentes: '+a.personas.join(', '));if((a.acomps||[]).length)x.push('Acompañantes: '+a.acomps.join(', '))}
   return x.filter(Boolean).join(' · ')}
 function pintarHist(){const L=acts.filter(a=>a.mod===modK),m=MODS[modK];
   $('#modHist').innerHTML=L.length?L.map(a=>{const dm=minutos(a.hi,a.hf);return`<div class="card modcard" style="margin-top:14px">
@@ -1395,7 +1417,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='5.3';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.4';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
