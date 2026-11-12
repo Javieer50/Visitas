@@ -113,6 +113,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .trat textarea.t-obsT{min-height:54px}
 .tp{border:0;border-radius:999px;padding:6px 11px;background:var(--card);color:var(--txt2);font:500 13px var(--f)}
 .tp.on{background:var(--verde2);color:#fff}
+.sug{position:absolute;z-index:75;background:var(--card);border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22),0 0 0 .5px var(--sep);overflow:hidden;max-height:300px;overflow-y:auto}
+.sug button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 14px;border:0;border-bottom:.5px solid var(--sep);background:none;color:var(--txt);font:17px var(--f);text-align:left}
+.sug button:last-child{border-bottom:0}.sug button:active{background:var(--fill)}
+.sug b{font-weight:700;color:var(--acc)}.sug small{color:var(--txt2);font-size:12px;white-space:nowrap}
+.trat.ens .tt input{background:transparent;border:0;min-height:0;padding:0;font:600 16px var(--f);color:var(--acc);box-shadow:none;width:100%}
+.tst{display:flex!important;align-items:center;gap:10px;color:var(--txt)!important;font-size:15px!important;margin:12px 0 0!important}
+.tst input{width:22px;height:22px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;flex:none;accent-color:var(--verde2);background:none}
 .t-nuevo{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:50px;border:0;border-radius:13px;background:var(--verde2);color:#fff;font:600 17px var(--f)}
 .t-nuevo:active{opacity:.8}
 .t-addP{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;min-height:44px;border:1.5px dashed var(--acc);border-radius:12px;background:var(--card);color:var(--acc);font:600 15px var(--f)}
@@ -136,12 +143,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .ocup b{color:var(--acc)}
 .fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
 /* Menú de inicio estilo iPhone */
-.home{display:flex;flex-wrap:wrap;justify-content:center;gap:30px 5%;padding:30px 0 12px;min-height:calc(100vh - 360px);align-content:center}
-.app{width:28%;display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;padding:0;color:var(--txt);font:600 14px/1.2 var(--f);text-align:center;cursor:pointer}
-.app .ico{width:100%;max-width:112px;aspect-ratio:1;height:auto;border-radius:24%;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .12s}
+/* Cuadrícula uniforme de 4 columnas, como la pantalla de inicio del iPhone; la última fila queda centrada */
+.home{display:flex;flex-wrap:wrap;justify-content:center;row-gap:22px;padding:26px 0 14px;min-height:calc(100svh - 520px);align-content:center}
+.app{width:25%;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0 2px;color:var(--txt);font:500 12.5px/1.22 var(--f);text-align:center;cursor:pointer}
+.app .ico{width:min(18.5vw,78px);height:min(18.5vw,78px);aspect-ratio:1;border-radius:23%;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .12s}
 .app:active .ico{transform:scale(.9)}
 .app .ico svg{width:54%;height:54%;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.app span{max-width:110px}
+.app span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:2.44em;max-width:92px}
 .app .badge{position:absolute;margin:-6px 0 0 50px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--rojo);color:#fff;font:600 12px/20px var(--f)}
 .hoy{margin-top:22px;background:var(--card);border-radius:16px;padding:14px 16px;box-shadow:var(--sombra)}
 .hoy h3{margin:0 0 8px;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.03em;color:var(--txt2)}
@@ -187,6 +195,26 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .tl .ev .cab2 span{font-weight:500;color:var(--txt2);font-size:13px}
 .tl .ev .lin{font-size:13px;margin-top:4px;line-height:1.4}
 .tl .ev .row-btns{margin-top:8px}
+th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+#listaC{margin-top:14px}
+.barra{height:8px;border-radius:4px;background:var(--fill);margin:10px 0 2px;overflow:hidden}.barra span{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#5E8C2F,var(--verde2))}
+tr.clic{cursor:pointer}tr.clic:active td{background:var(--fill)}.flecha{color:var(--txt3);font-weight:600}
+.volver{background:none;border:0;color:var(--acc);font:500 17px var(--f);padding:8px 0;margin:4px 0 4px}
+.zp{padding:12px 0;border-bottom:.5px solid var(--sep)}.zp:last-of-type{border-bottom:0}
+.zh{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.zh b{font-size:17px}.zh span{color:var(--acc);font-weight:600;white-space:nowrap;font-size:15px}
+.zp .row-btns{margin-top:8px}
+.tag.ge{background:#E3ECF8;color:#2A5590;font-weight:600}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.ge{background:#1E3352;color:#9CC2F2}}
+.tl .ev.ge::before{background:#4A7FC1}
+.imp-fila{padding:12px 0;border-bottom:.5px solid var(--sep)}
+.imp-fila.off{opacity:.45}
+.imp-top{display:flex;align-items:center;gap:10px}
+.imp-top input[type=checkbox]{width:22px;height:22px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;flex:none;accent-color:var(--verde2);background:none}
+.imp-top input.i-nom{font-weight:600}
+.imp-sub{display:grid;grid-template-columns:1.3fr .8fr;gap:8px;margin-top:8px}
+.imp-sub input,.imp-sub select{min-height:40px;padding:8px 10px;font-size:15px}
+.imp-sub .i-com{grid-column:1/-1}
+.imp-info{font-size:12px;color:var(--txt2);margin-top:6px}
 .pfotos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pfotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
 .iacc{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--sep)}
 .ib{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;color:var(--acc);font:500 11px var(--f);cursor:pointer}
@@ -331,9 +359,17 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
 
 <!-- ============ PRODUCTORES ============ -->
 <section id="productores" class="sec">
+  <label class="btn sec2 full" style="margin:0 0 12px;color:var(--acc)"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>Importar desde Google Earth (KML / KMZ)<input type="file" id="inGE" hidden></label>
   <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscarP" type="search" placeholder="Buscar productor, comunidad o cultivo"></div>
   <div class="filtros"><select id="fSucP"><option value="">Todas las sucursales</option></select></div>
   <div id="listaP"></div>
+</section>
+
+<!-- ============ CULTIVOS ============ -->
+<section id="cultivosSec" class="sec">
+  <div class="filtros"><select id="fSucC"><option value="">Todas las sucursales</option></select><select id="fCanC"><option value="">Todos los cantones</option></select></div>
+  <div class="stat" id="cResumen" style="margin-top:0"></div>
+  <div id="listaC"></div>
 </section>
 
 <!-- ============ MÓDULO GENÉRICO ============ -->
@@ -482,12 +518,14 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.14<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.20<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
 
 
+<div class="modal" id="mImp"><div class="hoja" id="impHoja"></div></div>
+<div class="modal" id="mCult"><div class="hoja" id="perfilC"></div></div>
 <div class="modal" id="mProd"><div class="hoja" id="perfilP"></div></div>
 <div class="modal" id="mInf"><div class="hoja" id="informe"></div></div>
 <div class="modal" id="mFicha"><div class="hoja" id="ficha"></div></div>
@@ -501,6 +539,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
   <p class="nota" id="waNota">Se abre el chat del productor con un mensaje listo y la receta copiada: toque el campo de mensaje, elija <b>Pegar</b> y envíe.</p>
 </div></div>
 <div class="toast" id="toast"></div>
+<div class="sug" id="sug" role="listbox" hidden></div>
 <div class="hojafondo" id="hojaAcc" hidden onclick="if(event.target===this)cerrarHoja()"><div class="hojaacc">
   <div class="hgrp"><div class="hcab"><div class="ht"></div><div class="hs"></div></div><div class="hg"></div></div>
   <button class="hcancel" onclick="cerrarHoja()">Cancelar</button></div></div>
@@ -579,7 +618,7 @@ const opts=(arr,sel)=>arr.map(x=>`<option${x===sel?' selected':''}>${x}</option>
 const CAMPOS=['fecha','horaInicio','horaFin','sucursal','tipo','acomp','productor','telefono','canton','comunidad','lat','lon','alt','prec','proxima','compromiso','obsGen'];
 
 /* ---------- Pestañas ---------- */
-const TIT={productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
+const TIT={cultivosSec:'Cultivos',productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
 let secAct='inicio',modoV='visita';
 function setModo(m){modoV=m;const r=m==='remota';$('#f').classList.toggle('remota',r);$('#avisoRem').hidden=!r;
   $('#horaInicio').required=!r;$('#lgDatos').textContent=r?'Fecha de la consulta':'Datos de la visita';
@@ -593,7 +632,7 @@ function irA(t,titulo){secAct=t;$('#tbTitle').textContent=titulo||TIT[t];$('#lgT
   document.querySelectorAll('.sec').forEach(x=>x.classList.toggle('act',x.id===t));
   $('#btnBack').hidden=t==='inicio';
   $('#barra').style.visibility=(t==='nueva'||(t==='mod'&&modVista==='form'))?'visible':'hidden';
-  if(t==='inicio')pintarInicio();if(t==='productores')pintarProductores();if(t==='lista')pintarLista();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
+  if(t==='inicio')pintarInicio();if(t==='productores')pintarProductores();if(t==='cultivosSec')pintarCultivos();if(t==='lista')pintarLista();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
 $('#btnBack').onclick=()=>irA('inicio');
 
 /* ---------- Horas ---------- */
@@ -708,6 +747,36 @@ function addTrat(cont,t={}){normTrat(t);
   const cult=cont.closest('.cult');if(cult)refrescarChips(cult);
   renumerar();return d}
 const DOSU=['cc','L','g','kg'];
+/* ---------- Autocompletar productos (aprende de lo que va recetando) ---------- */
+const CATALOGO=[...document.querySelectorAll('#dl-insumos option')].map(o=>o.value);
+function memoriaProductos(){const M={};
+  const add=(p,f)=>{const k=normNom(p.nom);if(!k)return;const m=M[k]||(M[k]={nom:p.nom,n:0,f:'',ult:null,var:{}});m.n++;m.var[p.nom]=(m.var[p.nom]||0)+1;
+    if(f>=m.f){m.f=f;if(p.cant||p.dosis)m.ult=p}};
+  cache.forEach(v=>(v.cultivos||[]).forEach(c=>(c.tratamientos||[]).forEach(t=>(t.productos||[]).forEach(p=>add(p,v.fecha||'')))));
+  acts.filter(a=>a.mod==='ensayo').forEach(a=>tratsEnsayo(a).forEach(t=>(t.productos||[]).forEach(p=>add(p,a.fecha||''))));
+  const mayus=x=>x===x.toUpperCase()&&/[A-Z]/.test(x)?1:0;
+  Object.values(M).forEach(m=>{m.nom=Object.entries(m.var).sort((a,b)=>b[1]-a[1]||mayus(a[0])-mayus(b[0]))[0][0]});
+  CATALOGO.forEach(n=>{const k=normNom(n);if(!M[k])M[k]={nom:n,n:0,f:'',ult:null}});return M}
+let sugInput=null;
+function mostrarSug(inp){const q=normNom(inp.value),box=$('#sug');if(!q){box.hidden=true;return}
+  const M=Object.values(memoriaProductos());
+  const ini=M.filter(m=>normNom(m.nom).startsWith(q)),pal=M.filter(m=>!normNom(m.nom).startsWith(q)&&normNom(m.nom).split(/[\s\-]+/).some(w=>w.startsWith(q)));
+  const orden=(a,b)=>b.n-a.n||a.nom.localeCompare(b.nom,'es');
+  const L=(ini.length?ini.sort(orden):pal.sort(orden)).filter(m=>normNom(m.nom)!==q||m.n).slice(0,8);
+  if(!L.length||(L.length===1&&L[0].nom===inp.value)){box.hidden=true;return}
+  const resaltar=n=>{const i=normNom(n).indexOf(q);return i<0?esc(n):esc(n.slice(0,i))+'<b>'+esc(n.slice(i,i+q.length))+'</b>'+esc(n.slice(i+q.length))};
+  box.innerHTML=L.map((m,i)=>`<button type="button" data-i="${i}"><span>${resaltar(m.nom)}</span><small>${m.n?`${m.n} ${m.n>1?'veces':'vez'}${m.ult&&m.ult.dosis?' · '+esc(m.ult.dosis):''}`:'catálogo'}</small></button>`).join('');
+  box.querySelectorAll('button').forEach(b=>{const m=L[+b.dataset.i];
+    b.addEventListener('pointerdown',e=>{e.preventDefault();elegirSug(inp,m)})});
+  const r=inp.getBoundingClientRect();Object.assign(box.style,{left:(r.left+scrollX)+'px',top:(r.bottom+scrollY+6)+'px',width:r.width+'px'});box.hidden=false;sugInput=inp}
+function elegirSug(inp,m){inp.value=m.nom;$('#sug').hidden=true;const fila=inp.closest('.prod');
+  if(fila&&m.ult&&!fila.querySelector('.p-cant').value){const dq=partirDosis(m.ult);fila.querySelector('.p-cant').value=String(dq.cant||'').replace('.',',');
+    if(dq.u)fila.querySelector('.p-u').value=dq.u;if(m.ult.para)fila.querySelector('.p-para').value=m.ult.para;toast('Dosis de la última receta: '+(m.ult.dosis||'')+' '+(m.ult.para||''))}
+  inp.dispatchEvent(new Event('input',{bubbles:true}));$('#sug').hidden=true;const c=fila&&fila.querySelector('.p-cant');if(c)c.focus()}
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('p-nom'))mostrarSug(e.target)});
+document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('p-nom')&&e.target.value)mostrarSug(e.target)});
+document.addEventListener('focusout',e=>{if(e.target===sugInput)setTimeout(()=>{$('#sug').hidden=true},150)});
+addEventListener('scroll',()=>{if(!$('#sug').hidden&&sugInput){const r=sugInput.getBoundingClientRect();$('#sug').style.top=(r.bottom+scrollY+6)+'px'}},{passive:true});
 // Separa dosis antiguas escritas a mano ("50 g", "1,5 kg", "10 cc", "1 litro")
 function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=String(p.dosis||'').trim();if(!t)return{cant:'',u:'cc'};
   const m=t.match(/(\d+(?:[.,]\d+)?)\s*([a-zA-Z]*)/);if(!m)return{cant:'',u:'cc'};
@@ -715,13 +784,13 @@ function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=S
   return{cant:m[1].replace(',','.'),u}}
 function addProd(cont,p={}){const dq=partirDosis(p);
   const d=document.createElement('div');d.className='prod';
-  d.innerHTML=`<div><label>Producto</label><input class="p-nom" list="dl-insumos" value="${esc(p.nom)}"></div>
+  d.innerHTML=`<div><label>Producto</label><input class="p-nom" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Escriba las primeras letras" value="${esc(p.nom)}"></div>
   <div><label>Dosis</label><div class="area"><input class="p-cant num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="25" value="${esc(String(dq.cant||'').replace('.',','))}"><select class="p-u" aria-label="Unidad de la dosis">${opts(DOSU,dq.u||'cc')}</select></div></div>
   <div><label>Para</label><select class="p-para">${PARA.map(x=>`<option value="${x}"${x===(p.para||'para 20 litros')?' selected':''}>${x.replace('para ','').replace(' litros',' L').replace(' litro',' L')}</option>`).join('')}</select></div>
   <button type="button" class="xp" title="Quitar">×</button>`;
   d.querySelector('.xp').onclick=()=>{if(cont.children.length>1){d.remove();renumerar()}else{d.querySelector('.p-nom').value='';d.querySelector('.p-cant').value=''}};
   cont.appendChild(d);renumerar()}
-function renumerar(){document.querySelectorAll('.cult').forEach((c,i)=>{
+function renumerar(){if(typeof numerarProdsEns==='function')numerarProdsEns();document.querySelectorAll('.cult').forEach((c,i)=>{
   const s=c.querySelector('.c-cul').value,n=s==='Otro'?(c.querySelector('.c-otro').value||'Otro'):s;
   c.querySelector('.tit').textContent=`Cultivo ${i+1}: ${n}`;
   c.querySelectorAll('.trat').forEach((t,j)=>{const ps=probsDe(t);t.querySelector('.tt').textContent=`Tratamiento ${j+1}`+(ps.length?' · '+ps.join(' + '):'');t.querySelectorAll('.prod').forEach((q,n,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(n+1):'Producto')})})}
@@ -769,6 +838,7 @@ const G={pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21
  evento:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6"/>',
  inf:'<path d="M4 20V10M10 20V4M16 20v-7M20.5 20h-17"/>',
  remota:'<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3M9 8.5h6M9 11.5h4"/>',
+ cult:'<path d="M12 21V11"/><path d="M12 11C12 6.5 8.5 4 4.5 4c0 4.5 3 7 7.5 7zM12 14c0-4 3-6.5 7.5-6.5 0 4-3 6.5-7.5 6.5z"/><path d="M7 21h10"/>',
  prods:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.8 2.6 3 5.2"/>'};
 const F_FH=[{k:'fecha',l:'Fecha',ty:'date',req:1},{k:'hi',l:'Hora de inicio',ty:'time',req:1},{k:'hf',l:'Hora de fin',ty:'time'}];
 const MODS={
@@ -784,11 +854,11 @@ const MODS={
  ensayo:{t:'Ensayos',g:'ensayo',c:'#7A4FB5,#583690',titulo:a=>a.nombre||'Ensayo',fotos:1,estado:'estado',
   campos:[{k:'nombre',l:'Nombre del ensayo',ty:'text',req:1,ph:'Ej.: Ultrasol K en llenado de fruto'},...F_FH.map(f=>f.k==='fecha'?{...f,l:'Fecha de registro'}:{...f,req:0}),
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'productor',l:'Productor / finca',ty:'text'},{k:'cultivo',l:'Cultivo',ty:'cult',half:1},{k:'area',l:'Área del ensayo',ty:'text',half:1,ph:'Ej.: 500 m²'},
-   {k:'producto',l:'Producto evaluado',ty:'text',req:1},{k:'dosis',l:'Dosis',ty:'text',half:1,ph:'Ej.: 50 g / 20 L'},{k:'testigo',l:'Testigo / comparación',ty:'text',half:1,ph:'Sin aplicación'},
+   {k:'trats',l:'Tratamientos del ensayo',ty:'ens'},
    {k:'estado',l:'Estado',ty:'sel',op:['Instalado','En evaluación','Finalizado'],half:1},{k:'proxEval',l:'Próxima evaluación',ty:'date',half:1},
    {k:'resultado',l:'Evaluación / resultados',ty:'area'}]},
  activ:{t:'Activaciones',g:'activ',c:'#E07B1F,#B85E0C',titulo:a=>a.tipoA||'Activación',fotos:1,
-  campos:[...F_FH,{k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},
+  campos:[...F_FH,{k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},{k:'acomp',l:'Acompañante(s)',ty:'text',ph:'Ej.: vendedor AGROLEON, ATC ECUAQUIMICA'},
    {k:'tipoA',l:'Tipo de activación',ty:'sel',op:['Impulso en punto de venta','Demostración de producto','Promoción / sorteo','Activación en finca','Otra']},
    {k:'prods',l:'Productos activados',ty:'text',req:1},{k:'personas',l:'Personas contactadas',ty:'num',half:1},{k:'material',l:'Material entregado',ty:'text',half:1,ph:'Ej.: volantes, muestras'},
    {k:'obs',l:'Resultados / observaciones',ty:'area'}]},
@@ -796,7 +866,7 @@ const MODS={
   campos:[...F_FH,{k:'titulo',l:'Nombre del evento',ty:'text',req:1},
    {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión interna / empresa','Capacitación recibida','Otro'],half:1},{k:'asist',l:'Asistentes',ty:'num',half:1},
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},{k:'obs',l:'Descripción / observaciones',ty:'area'}]}};
-const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['productores','Productores','prods','#9A7B3F,#6E5526'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47']];
+const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['productores','Productores','prods','#9A7B3F,#6E5526'],['cultivosSec','Cultivos','cult','#5E8C2F,#3F6A1A'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47']];
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
 function pintarInicio(){
   $('#home').innerHTML=APPS.map(([k,t,g,c])=>{const m=MODS[k];t=t||m.t;g=g||m.g;c=(c||m.c).split(',');
@@ -805,7 +875,7 @@ function pintarInicio(){
     if(k==='nueva'||k==='remota'){const m=k==='nueva'?'visita':'remota';if(modoV!==m||$('#id').value)limpiar();setModo(m);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita');
       if(!$('#productor').value.trim())restaurarBorradorV(m);return}
     irA(k)});
-  const h=hoy(),vh=cache.filter(v=>v.fecha===h),ah=acts.filter(a=>a.fecha===h);
+  const h=hoy(),vh=cache.filter(v=>v.fecha===h&&!v.importado),ah=acts.filter(a=>a.fecha===h);
   const filas=[['Visitas de campo',vh.filter(v=>!v.remota).length],['Recetas a distancia',vh.filter(v=>v.remota).length],...Object.keys(MODS).map(k=>[MODS[k].t,ah.filter(a=>a.mod===k).length]).filter(x=>x[1])];
   const min=vh.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+ah.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
   borrTodos().then(L=>{const box=$('#pendRes');if(!box)return;L=L.filter(d=>d.k.startsWith('m-')||d.util);
@@ -818,7 +888,7 @@ function pintarInicio(){
 let modK=null,modEdit=null,modFotos=[],modVista='form';
 let tBorrM=null;
 function guardarBorradorM(){if(secAct!=='mod'||modVista!=='form'||!$('#fm'))return;const m=MODS[modK],vals={};let util=false;
-  m.campos.forEach(c=>{const el=$('#m_'+c.k);if(!el)return;vals[c.k]=c.ty==='chips'?[...el.querySelectorAll('input:checked')].map(x=>x.value):el.value;
+  m.campos.forEach(c=>{if(c.ty==='ens'){vals[c.k]=leerEnsTrats();if(vals[c.k].some(t=>t.productos.length))util=true;return}const el=$('#m_'+c.k);if(!el)return;vals[c.k]=c.ty==='chips'?[...el.querySelectorAll('input:checked')].map(x=>x.value):el.value;
     if(!['fecha','hi','hf','sucursal','estado','tipoA','tipoE'].includes(c.k)&&(Array.isArray(vals[c.k])?vals[c.k].length:String(vals[c.k]||'').trim()))util=true});
   if(util||modFotos.length)borrGuardar('m-'+modK,{vals,fotos:modFotos.slice(),edit:modEdit,t:Date.now()})}
 const programarBorradorM=()=>{clearTimeout(tBorrM);tBorrM=setTimeout(guardarBorradorM,600)};
@@ -828,10 +898,36 @@ async function abrirMod(k){modK=k;modVista='form';irA('mod',MODS[k].t);nuevoMod(
 function verVista(v){modVista=v;document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $('#modForm').hidden=v!=='form';$('#modHist').hidden=v!=='hist';$('#barra').style.visibility=v==='form'?'visible':'hidden';if(v==='hist')pintarHist()}
 document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>verVista(b.dataset.v));
+/* ---------- Tratamientos de ensayos ---------- */
+function tratsEnsayo(a){if(a&&Array.isArray(a.trats)&&a.trats.length)return a.trats;
+  if(a&&a.producto)return[{nombre:'T1',productos:[{nom:a.producto,dosis:a.dosis||''}]},{nombre:'Testigo',testigo:true,obs:a.testigo||''}];
+  return[{nombre:'T1'},{nombre:'Testigo',testigo:true}]}
+function addEnsTrat(t){const cont=$('#ensTrats');t=t||{};const nuevo=!t.nombre;const n=[...cont.querySelectorAll('.e-test')].filter(x=>!x.checked).length;
+  const d=document.createElement('div');d.className='trat ens';
+  d.innerHTML=`<div class="tt"><input class="e-nom" value="${esc(t.nombre||('T'+(n+1)))}" aria-label="Nombre del tratamiento"></div><button type="button" class="x" title="Quitar">×</button>
+   <label class="tst"><input type="checkbox" class="e-test"${t.testigo?' checked':''}>Es el testigo (sin el producto evaluado)</label>
+   <div class="e-body"><div class="t-prods"></div>
+   <button type="button" class="t-addP"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar otro producto</button>
+   <div class="fila"><div><label>N.º de aplicaciones</label><input class="t-num" type="number" min="1" inputmode="numeric" value="${esc(t.numAplic)}"></div>
+   <div><label>Frecuencia</label><input class="t-fre" value="${esc(t.frecuencia)}" placeholder="Ej.: cada 8 días"></div></div></div>
+   <label>Observación</label><textarea class="t-obsT" rows="2" placeholder="${t.testigo?'Ej.: manejo normal del productor':'Ej.: aplicar al inicio de floración'}">${esc(t.obs)}</textarea>`;
+  const pc=d.querySelector('.t-prods'),cb=d.querySelector('.e-test'),body=d.querySelector('.e-body');
+  const upd=()=>{body.hidden=cb.checked};cb.onchange=upd;upd();
+  (t.productos&&t.productos.length?t.productos:[{}]).forEach(p=>addProd(pc,p));
+  d.querySelector('.t-addP').onclick=()=>{addProd(pc);const ps=pc.querySelectorAll('.prod');ps[ps.length-1].querySelector('.p-nom').focus()};
+  d.querySelector('.x').onclick=()=>dialogo('¿Quitar tratamiento?',`Se quitará ${d.querySelector('.e-nom').value||'este tratamiento'} del ensayo.`,[['Cancelar'],['Quitar',()=>{d.remove();programarBorradorM()}]]);
+  const test1=[...cont.children].find(x=>x.querySelector('.e-test').checked);
+  if(nuevo&&!t.testigo&&test1)cont.insertBefore(d,test1);else cont.appendChild(d);numerarProdsEns();return d}
+function numerarProdsEns(){document.querySelectorAll('#ensTrats .trat').forEach(t=>t.querySelectorAll('.prod').forEach((q,i,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(i+1):'Producto'))}
+function leerEnsTrats(){return[...document.querySelectorAll('#ensTrats .trat')].map(d=>{const test=d.querySelector('.e-test').checked;
+  return{nombre:d.querySelector('.e-nom').value.trim()||'Tratamiento',testigo:test,
+   productos:test?[]:[...d.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+u:'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom),
+   numAplic:test?'':d.querySelector('.t-num').value.trim(),frecuencia:test?'':d.querySelector('.t-fre').value.trim(),obs:d.querySelector('.t-obsT').value.trim()}})}
 function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',lab=`<label for="${id}">${f.l}${f.req?' *':''}</label>`;
   if(f.ty==='suc')return lab+`<select id="${id}"${req}><option value="">— Seleccione —</option>${SUCS.map(x=>`<option${x===v?' selected':''}>${x}</option>`).join('')}</select>`;
   if(f.ty==='sel')return lab+`<select id="${id}">${f.op.map(x=>`<option${x===v?' selected':''}>${x}</option>`).join('')}</select>`;
   if(f.ty==='chips')return`<label>${f.l}</label><div class="chk" id="${id}">${f.op.map(x=>`<label><input type="checkbox" value="${esc(x)}"${(v||[]).includes(x)?' checked':''}>${x}</label>`).join('')}</div>`;
+  if(f.ty==='ens')return`<div class="sub" style="margin-top:22px">${f.l}</div><div class="nota">Agregue un tratamiento por cada producto o dosis que va a comparar, y el testigo.</div><div id="ensTrats"></div><button type="button" class="t-nuevo" id="ensAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar tratamiento</button>`;
   if(f.ty==='area')return lab+`<textarea id="${id}">${esc(v)}</textarea>`;
   if(f.ty==='cult')return lab+`<input id="${id}" list="dl-cultm" value="${esc(v)}">`;
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
@@ -848,6 +944,7 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
    <div style="display:grid;gap:10px;margin-top:24px"><button type="button" class="btn full" id="mGuardar">${ed?'Actualizar':'Guardar'} registro</button>
    ${ed?'<button type="button" class="btn sec2 full" id="mCancelar">Cancelar edición</button>':''}</div></form>`;
   $('#modForm').innerHTML=html;$('#btnGuardar').textContent=ed?'Actualizar':'Guardar';
+  if($('#ensTrats')){(tratsEnsayo(a)).forEach(addEnsTrat);$('#ensAdd').onclick=()=>{const n=addEnsTrat({});n.scrollIntoView({behavior:'smooth',block:'start'});n.querySelector('.p-nom').focus()}}
   $('#modForm').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{$('#m_'+b.dataset.h).value=ahora()});
   const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
   $('#mGuardar').onclick=guardarMod;if(ed)$('#mCancelar').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();verVista('hist')};
@@ -858,8 +955,9 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
 function pintarMFotos(){const b=$('#mFotos');if(!b)return;b.innerHTML=modFotos.map((s,i)=>`<div><img src="${s}" alt=""><button type="button" data-i="${i}">×</button></div>`).join('');
   b.querySelectorAll('button').forEach(x=>x.onclick=()=>{modFotos.splice(+x.dataset.i,1);pintarMFotos()})}
 async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity())return;
+  if($('#ensTrats')&&!leerEnsTrats().some(t=>t.productos.length))return dialogo('Faltan tratamientos','Agregue al menos un tratamiento con el producto a evaluar.',[['Entendido']]);
   const r={id:modEdit||Date.now(),mod:modK};
-  m.campos.forEach(c=>{r[c.k]=c.ty==='chips'?[...document.querySelectorAll('#m_'+c.k+' input:checked')].map(x=>x.value):($('#m_'+c.k).value||'').trim()});
+  m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=c.ty==='chips'?[...document.querySelectorAll('#m_'+c.k+' input:checked')].map(x=>x.value):($('#m_'+c.k).value||'').trim()});
   if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
   if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
@@ -867,7 +965,7 @@ async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity()
 function resumenAct(a){const m=MODS[a.mod];if(!m)return'';const x=[];
   if(a.mod==='percha'){if((a.acts||[]).length)x.push(a.acts.join(', '));if(a.clientes)x.push(a.clientes+' clientes');if(a.consultas)x.push(a.consultas+' consultas')}
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
-  if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(a.producto+(a.dosis?' '+a.dosis:''));if(a.estado)x.push(a.estado)}
+  if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(tratsEnsayo(a).map(t=>t.testigo?t.nombre+(/testigo/i.test(t.nombre)?'':' (testigo)'):t.nombre+': '+(t.productos.map(p=>p.nom+(p.dosis?' '+p.dosis:'')+(p.para?' '+p.para.replace('para ','/ '):'')).join(' + '))).join(' · '));if(a.estado)x.push(a.estado)}
   if(a.mod==='activ'){x.push(a.prods);if(a.lugar)x.push(a.lugar);if(a.personas)x.push(a.personas+' personas')}
   if(a.mod==='evento'){if(a.tipoE)x.push(a.tipoE);if(a.lugar)x.push(a.lugar);if(a.asist)x.push(a.asist+' asistentes')}
   return x.filter(Boolean).join(' · ')}
@@ -899,16 +997,16 @@ $('#buscarP').oninput=pintarProductores;$('#fSucP').onchange=pintarProductores;
 function pintarProductores(){const q=normNom($('#buscarP').value),sc=$('#fSucP').value,G=grupos();
   const cur=$('#fSucP').value;$('#fSucP').innerHTML='<option value="">Todas las sucursales</option>'+[...new Set(G.map(g=>g.regs[0].sucursal).filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');$('#fSucP').value=cur;
   const L=G.filter(g=>{const u=g.regs[0],cul=Object.keys(cultivosDe(g));return(!sc||u.sucursal===sc)&&(!q||normNom([g.nombre,u.comunidad,u.canton,...cul].join(' ')).includes(q))});
-  $('#listaP').innerHTML=L.length?`<p class="nota" style="margin:0 0 8px">${L.length} productor${L.length>1?'es':''}</p>`+L.map(g=>{const u=g.regs[0],cul=cultivosDe(g),nv=g.regs.filter(v=>!v.remota).length,nr=g.regs.length-nv;
+  $('#listaP').innerHTML=L.length?`<p class="nota" style="margin:0 0 8px">${L.length} productor${L.length>1?'es':''}</p>`+L.map(g=>{const u=g.regs[0],cul=cultivosDe(g),nv=g.regs.filter(v=>!v.remota&&!v.importado).length,nr=g.regs.filter(v=>v.remota).length,ni=g.regs.some(v=>v.importado);
     return`<div class="card pcard" data-k="${esc(g.k)}" role="button" tabindex="0"><h3>${esc(g.nombre)}<small>${fmtF(u.fecha)}</small></h3>
     <div class="m">${esc(u.sucursal||'')}${u.comunidad?' · '+esc(u.comunidad.split('\n')[0]):''}</div>
     ${Object.entries(cul).map(([n,o])=>`<span class="tag">${esc(n)}${o.c.area?' · '+esc(fmtArea(o.c)):''}</span>`).join('')}
-    <div class="m" style="margin-top:8px">${nv} visita${nv!==1?'s':''}${nr?' · '+nr+' receta'+(nr>1?'s':'')+' a distancia':''}${g.ens.length?' · '+g.ens.length+' ensayo'+(g.ens.length>1?'s':''):''}</div></div>`}).join('')
+    <div class="m" style="margin-top:8px">${ni?'<span class="tag ge" style="margin:0 6px 0 0">Google Earth</span>':''}${nv} visita${nv!==1?'s':''}${nr?' · '+nr+' receta'+(nr>1?'s':'')+' a distancia':''}${g.ens.length?' · '+g.ens.length+' ensayo'+(g.ens.length>1?'s':''):''}</div></div>`}).join('')
    :'<div class="vacio">No hay productores que coincidan.<br>Se agregan solos al registrar una visita o una receta a distancia.</div>';
   $('#listaP').querySelectorAll('.pcard').forEach(c=>c.onclick=()=>abrirProductor(c.dataset.k))}
 function lineasTrat(c){return(c.tratamientos||[]).map(t=>{normTrat(t);return`${esc(t.problema||'Tratamiento')}${t.objetivo?': '+esc(t.objetivo):''} → ${esc(t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + '))}${t.frecuencia?' · '+esc(t.frecuencia):''}${t.obs?' · <i>'+esc(t.obs)+'</i>':''}`}).join('<br>')}
 function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const u=g.regs[0],cul=cultivosDe(g);
-  const nv=g.regs.filter(v=>!v.remota).length,nr=g.regs.length-nv,prim=g.regs[g.regs.length-1];
+  const nv=g.regs.filter(v=>!v.remota&&!v.importado).length,nr=g.regs.filter(v=>v.remota).length,prim=g.regs[g.regs.length-1];
   const tel=telWa(u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono),gps=g.regs.find(v=>v.lat);
   const prods={};g.regs.forEach(v=>(v.cultivos||[]).forEach(c=>(c.tratamientos||[]).forEach(t=>t.productos.forEach(p=>{if(p.nom)prods[p.nom]=(prods[p.nom]||0)+1}))));
   const ev=[...g.regs.map(v=>({f:v.fecha,h:v.horaInicio,t:v.remota?'rem':'vis',v})),...g.ens.map(a=>({f:a.fecha,h:a.hi,t:'ens',a}))].sort((a,b)=>(b.f+(b.h||'')).localeCompare(a.f+(a.h||'')));
@@ -924,7 +1022,8 @@ function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const 
    ${Object.keys(prods).length?`<h4>Productos recomendados</h4><p>${Object.entries(prods).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`${esc(n)} <span class="nota">(${c})</span>`).join(' · ')}</p>`:''}
    <h4>Historial</h4><div class="tl">${ev.map(e=>{
      if(e.t==='ens'){const a=e.a;return`<div class="ev ens"><div class="cab2">Ensayo: ${esc(a.nombre)}<span>${fmtF(a.fecha)}</span></div><div class="lin">${esc(resumenAct(a))}${a.resultado?'<br>'+esc(a.resultado):''}</div></div>`}
-     const v=e.v;return`<div class="ev ${e.t==='rem'?'rem':''}"><div class="cab2">${v.remota?'Receta a distancia':esc(v.tipo||'Visita de campo')}<span>${fmtF(v.fecha)}${v.horaInicio?' · '+esc(v.horaInicio):''}</span></div>
+     const v=e.v;if(v.importado)return`<div class="ev ge"><div class="cab2">Datos importados de Google Earth<span>${fmtF(v.fecha)}</span></div>${(v.cultivos||[]).map(c=>`<div class="lin"><b>${esc(nomCult(c))}</b>${c.area?' · '+esc(fmtArea(c)):''}</div>`).join('')}${v.obsGen?`<div class="lin nota">${esc(v.obsGen)}</div>`:''}</div>`;
+     return`<div class="ev ${e.t==='rem'?'rem':''}"><div class="cab2">${v.remota?'Receta a distancia':esc(v.tipo||'Visita de campo')}<span>${fmtF(v.fecha)}${v.horaInicio?' · '+esc(v.horaInicio):''}</span></div>
       ${(v.cultivos||[]).map(c=>`<div class="lin"><b>${esc(nomCult(c))}</b>${c.area?' · '+esc(fmtArea(c)):''}${(c.tratamientos||[]).length?'<br>'+lineasTrat(c):''}${c.obs?'<br><span class="nota">'+esc(c.obs)+'</span>':''}</div>`).join('')}
       ${v.obsGen?`<div class="lin nota">${esc(v.obsGen)}</div>`:''}
       <div class="row-btns noprint"><button class="btn sec2 peq" data-f="${v.id}">Ficha</button><button class="btn sec2 peq" data-r="${v.id}">Receta</button></div></div>`}).join('')}</div>
@@ -936,6 +1035,154 @@ function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const 
   $('#perfilP').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{$('#mProd').style.display='none';abrirReceta(cache.find(x=>x.id==b.dataset.r))});
   $('#mProd').style.display='block';$('#mProd').scrollTop=0}
 $('#mProd').onclick=e=>{if(e.target.id==='mProd')e.target.style.display='none'};
+
+/* ---------- Importar desde Google Earth (KML / KMZ) ---------- */
+async function textoKMZ(buf){const u=new Uint8Array(buf),dv=new DataView(buf);let e=-1;
+  for(let i=u.length-22;i>=Math.max(0,u.length-70000);i--)if(dv.getUint32(i,true)===0x06054b50){e=i;break}
+  if(e<0)throw new Error('El archivo KMZ está dañado');
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const ent=[];
+  for(let k=0;k<n;k++){if(dv.getUint32(p,true)!==0x02014b50)break;
+    const met=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+    const nom=new TextDecoder().decode(u.subarray(p+46,p+46+nl));ent.push({nom,met,cs,off});p+=46+nl+xl+cl}
+  const f=ent.find(x=>/\.kml$/i.test(x.nom)&&/doc\.kml$/i.test(x.nom))||ent.find(x=>/\.kml$/i.test(x.nom));if(!f)throw new Error('El KMZ no contiene un archivo KML');
+  const lo=f.off,ini=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),dat=u.subarray(ini,ini+f.cs);
+  if(f.met===0)return new TextDecoder().decode(dat);
+  if(f.met!==8)throw new Error('Formato de compresión no compatible');
+  if(typeof DecompressionStream==='undefined')throw new Error('Actualice su iPhone (iOS 16.4 o superior) o exporte el archivo como KML');
+  return await new Response(new Blob([dat]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text()}
+function areaPoligono(pts){if(pts.length<3)return 0;const R=6378137,r=x=>x*Math.PI/180;let a=0;
+  for(let i=0;i<pts.length;i++){const[x1,y1]=pts[i],[x2,y2]=pts[(i+1)%pts.length];a+=r(x2-x1)*(2+Math.sin(r(y1))+Math.sin(r(y2)))}return Math.abs(a*R*R/2)/10000}
+const coordsDe=t=>String(t||'').trim().split(/\s+/).map(x=>x.split(',').map(Number)).filter(c=>c.length>=2&&!isNaN(c[0])&&!isNaN(c[1]));
+function analizarKML(txt){const d=new DOMParser().parseFromString(txt,'application/xml');if(d.getElementsByTagName('parsererror').length)throw new Error('El archivo no es un KML válido');
+  const T=(el,tag)=>{const x=el.getElementsByTagNameNS('*',tag)[0];return x?x.textContent.trim():''};
+  const pms=[...d.getElementsByTagNameNS('*','Placemark')],G={};
+  pms.forEach(pm=>{let nombre=[...pm.childNodes].find(n=>n.localName==='name');nombre=nombre?nombre.textContent.trim():'';
+    const desc=(T(pm,'description')||'').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/[ \t]+/g,' ').trim();
+    const ext={};[...pm.getElementsByTagNameNS('*','Data')].forEach(x=>{ext[x.getAttribute('name')||'']=T(x,'value')});
+    [...pm.getElementsByTagNameNS('*','SimpleData')].forEach(x=>{ext[x.getAttribute('name')||'']=x.textContent.trim()});
+    const carp=[];let a=pm.parentNode;while(a&&a.localName){if(a.localName==='Folder'){const n=[...a.childNodes].find(z=>z.localName==='name');if(n)carp.unshift(n.textContent.trim())}a=a.parentNode}
+    const pt=coordsDe(T(pm,'Point')&&pm.getElementsByTagNameNS('*','Point')[0]?T(pm.getElementsByTagNameNS('*','Point')[0],'coordinates'):'');
+    let pol=[];const ob=pm.getElementsByTagNameNS('*','outerBoundaryIs');if(ob.length)[...ob].forEach(o=>pol.push(coordsDe(T(o,'coordinates'))));
+    const k=normNom(nombre)||('sin-nombre-'+pms.indexOf(pm));const g=G[k]||(G[k]={nombre,desc:'',ext:{},carp,pt:null,area:0,pts:[]});
+    if(desc&&!g.desc.includes(desc))g.desc=(g.desc?g.desc+' · ':'')+desc;Object.assign(g.ext,ext);if(pt.length&&!g.pt)g.pt=pt[0];
+    pol.forEach(r=>{g.area+=areaPoligono(r);g.pts.push(...r)})});
+  return Object.values(G).filter(g=>g.pt||g.pts.length).map(g=>{
+    const todo=[g.nombre,g.desc,...Object.entries(g.ext).map(([k,v])=>k+': '+v),...g.carp].join(' \n ');
+    const extK=re=>{const e=Object.entries(g.ext).find(([k])=>re.test(k));return e?e[1]:''};
+    let ha=null;const he=extK(/hect|area|superf|^ha$/i);if(he&&!isNaN(parseFloat(he.replace(',','.'))))ha=parseFloat(he.replace(',','.'))*(/m2|m²|metro/i.test(he)?1/10000:1);
+    if(ha==null){const m=todo.match(/(\d+(?:[.,]\d+)?)\s*(?:ha\b|has\b|hect)/i);if(m)ha=parseFloat(m[1].replace(',','.'))}
+    if(ha==null){const m=todo.match(/(\d+(?:[.,]\d+)?)\s*(?:m2|m²|mts2|metros)/i);if(m)ha=parseFloat(m[1].replace(',','.'))/10000}
+    const fuente=ha!=null?'texto':(g.area?'polígono':'');if(ha==null&&g.area)ha=Math.round(g.area*100)/100;
+    const c=g.pt||[g.pts.reduce((s,x)=>s+x[0],0)/g.pts.length,g.pts.reduce((s,x)=>s+x[1],0)/g.pts.length];
+    const tel=(extK(/tel|cel|fono|whats/i)||(todo.match(/(?:\+?593\s?|0)9\d[\d\s]{7,9}/)||[''])[0]).replace(/\s/g,'');
+    const cultTxt=normNom(extK(/cultivo/i)+' '+todo);let cultivo=CULTIVOS.find(x=>x!=='Otro'&&cultTxt.includes(normNom(x)))||'';
+    const suc=SUCS.find(x=>g.carp.concat(extK(/sucursal/i)).some(c=>normNom(c)===normNom(x)||normNom(x).startsWith(normNom(c)+' ')))||'';
+    const com=extK(/comunidad|sector|parroquia|recinto/i)||g.carp.filter(c=>!SUCS.some(x=>normNom(x).startsWith(normNom(c)))&&!CULTIVOS.some(x=>normNom(x)===normNom(c))).slice(-1)[0]||'';
+    let nom=extK(/productor|propietario|nombre|dueñ/i)||g.nombre;
+    nom=nom.replace(/(\d+(?:[.,]\d+)?)\s*(?:ha\b|has\b|hect[aá]reas?|m2|m²|metros)/ig,'').replace(/(?:\+?593\s?|0)9\d[\d\s]{7,9}/g,'');
+    if(cultivo)nom=nom.replace(new RegExp(cultivo,'ig'),'');nom=nom.replace(/[\-–—|:,()]+/g,' ').replace(/\s+/g,' ').trim()||g.nombre;
+    return{nom,lat:c[1].toFixed(6),lon:c[0].toFixed(6),alt:c[2]&&!isNaN(c[2])?Math.round(c[2]):'',ha,fuente,tel,cultivo,suc,com,canton:extK(/cant[oó]n/i),desc:g.desc.slice(0,200)}})}
+$('#inGE').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{toast('Leyendo archivo…');const buf=await f.arrayBuffer();const u=new Uint8Array(buf);
+    const txt=u[0]===0x50&&u[1]===0x4b?await textoKMZ(buf):new TextDecoder().decode(u);
+    const L=analizarKML(txt);if(!L.length)return dialogo('Sin lugares','No se encontraron puntos ni polígonos en el archivo. Exporte desde Google Earth como KML o KMZ.',[['Entendido']]);
+    previsualizarImport(L,f.name)}catch(x){dialogo('No se pudo leer el archivo',x.message||'Revise que sea un archivo KML o KMZ de Google Earth.',[['Entendido']])}};
+let impL=[];
+function previsualizarImport(L,nombre){impL=L;const ex=new Set(cache.map(v=>normNom(v.productor)));
+  const optC=sel=>`<option value="">Cultivo…</option>`+CULTIVOS.filter(x=>x!=='Otro').map(x=>`<option${x===sel?' selected':''}>${x}</option>`).join('')+`<option value="Sin especificar"${sel==='Sin especificar'?' selected':''}>Sin especificar</option>`;
+  $('#impHoja').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>Importar de Google Earth</h2><div style="font-size:13px">${esc(nombre)} · ${L.length} lugar${L.length!==1?'es':''}</div></div></div>
+  <div class="cuerpo">
+   <p class="nota" style="margin-top:4px">Revise los datos. Puede corregir el nombre, el cultivo, las hectáreas y la comunidad antes de importar. Se crean como productores <b>sin recetas</b>; no cuentan como visitas.</p>
+   <div class="fila"><div><label>Sucursal (si no viene en el archivo)</label><select id="impSuc"><option value="">— Seleccione —</option>${SUCS.map(x=>`<option>${x}</option>`).join('')}</select></div>
+   <div><label>Cultivo (si no viene en el archivo)</label><select id="impCul">${optC('')}</select></div></div>
+   <div id="impLista" style="margin-top:8px">${L.map((x,i)=>`<div class="imp-fila" data-i="${i}">
+     <div class="imp-top"><input type="checkbox" class="i-ok" checked aria-label="Importar"><input class="i-nom" value="${esc(x.nom)}" aria-label="Nombre del productor"></div>
+     <div class="imp-sub"><select class="i-cul">${optC(x.cultivo)}</select><input class="i-ha num-dec" inputmode="decimal" placeholder="ha" value="${x.ha!=null?String(+x.ha.toFixed(2)).replace('.',','):''}">
+      <input class="i-com" placeholder="Comunidad / referencia" value="${esc(x.com)}"></div>
+     <div class="imp-info">GPS ${x.lat}, ${x.lon}${x.fuente==='polígono'?' · hectáreas calculadas del polígono':''}${x.tel?' · Tel. '+esc(x.tel):''}${x.suc?' · '+esc(x.suc):''}${ex.has(normNom(x.nom))?' · <b>ya registrado: se completarán sus datos</b>':''}</div></div>`).join('')}</div>
+   <div class="acciones noprint"><button class="btn" id="impOk">Importar ${L.length}</button><button class="btn sec2" onclick="$('#mImp').style.display='none'">Cancelar</button></div></div>`;
+  const cnt=()=>{const n=$('#impLista').querySelectorAll('.i-ok:checked').length;$('#impOk').textContent=`Importar ${n}`;$('#impOk').disabled=!n};
+  $('#impLista').querySelectorAll('.i-ok').forEach(c=>c.onchange=()=>{c.closest('.imp-fila').classList.toggle('off',!c.checked);cnt()});
+  $('#impOk').onclick=importarGE;$('#mImp').style.display='block';$('#mImp').scrollTop=0}
+async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').value;let nuevos=0,act=0;const base=Date.now();
+  const filas=[...$('#impLista').querySelectorAll('.imp-fila')].filter(f=>f.querySelector('.i-ok').checked);
+  if(!sucD&&filas.some(f=>!impL[+f.dataset.i].suc))return dialogo('Falta la sucursal','Elija la sucursal para los lugares que no la traen en el archivo.',[['Entendido']]);
+  for(const [j,f] of filas.entries()){const x=impL[+f.dataset.i],nom=f.querySelector('.i-nom').value.trim();if(!nom)continue;
+    const cul=f.querySelector('.i-cul').value||culD||'Sin especificar',ha=aNum(f.querySelector('.i-ha').value),com=f.querySelector('.i-com').value.trim();
+    const regs=cache.filter(v=>normNom(v.productor)===normNom(nom));
+    const cultivo=CULTIVOS.includes(cul)?cul:'Otro',otro=cultivo==='Otro'?cul:'',nc=cultivo==='Otro'?otro:cultivo;
+    if(regs.length){act++;for(const r of regs){const n={...r};let c=false;
+        if(!n.lat){Object.assign(n,{lat:x.lat,lon:x.lon,alt:x.alt});c=true}if(!n.telefono&&x.tel){n.telefono=x.tel;c=true}if(!n.comunidad&&com){n.comunidad=com;c=true}
+        if(c)await guardarDB(n)}
+      if(regs.some(r=>(r.cultivos||[]).some(c=>nomCult(c)===nc)))continue}
+    else nuevos++;
+    await guardarDB({id:base+j,fecha:hoy(),horaInicio:'',horaFin:'',importado:true,tipo:'Datos importados (Google Earth)',sucursal:x.suc||sucD,acomp:'',
+      productor:regs.length?regs[0].productor:nom,telefono:x.tel||'',canton:x.canton||'',comunidad:com,lat:x.lat,lon:x.lon,alt:x.alt||'',prec:'',proxima:'',compromiso:'',
+      obsGen:x.desc?'Google Earth: '+x.desc:'',fotos:[],cultivos:[{cultivo,otro,variedad:'',area:ha,areaU:'ha',edad:'',plantas:'',problemas:[],tratamientos:[]}]})}
+  await recargar();$('#mImp').style.display='none';pintarProductores();
+  dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
+$('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
+
+/* ---------- Información por cultivo ---------- */
+// Una fila por productor y cultivo, con los datos de su registro más reciente
+function plantaciones(){const L=[];grupos().forEach(g=>{const loc=g.regs.find(v=>v.comunidad||v.canton)||g.regs[0];
+  Object.entries(cultivosDe(g)).forEach(([n,o])=>{const v=g.regs.find(r=>r.fecha===o.f)||g.regs[0];
+    const tel=(g.regs.find(r=>r.telefono)||{}).telefono||'',gps=g.regs.find(r=>r.lat)||null;
+    L.push({cultivo:n,prod:g.nombre,k:g.k,tel,gps,comFull:(loc.comunidad||'').split('\n')[0],ha:haDe(o.c),c:o.c,f:o.f,suc:v.sucursal||g.regs[0].sucursal||'Sin sucursal',canton:loc.canton||'Sin cantón',com:(loc.comunidad||'').split('\n')[0].split(',')[0].trim()||'Sin comunidad'})})});return L}
+const nf=x=>(Math.round(x*100)/100).toLocaleString('es-EC');
+$('#fSucC').onchange=$('#fCanC').onchange=pintarCultivos;
+function pintarCultivos(){const T=plantaciones(),sc=$('#fSucC').value,cn=$('#fCanC').value;
+  const opt=(id,arr,t)=>{const cur=$(id).value;$(id).innerHTML=`<option value="">${t}</option>`+[...new Set(arr)].sort().map(x=>`<option>${esc(x)}</option>`).join('');$(id).value=cur};
+  opt('#fSucC',T.map(x=>x.suc),'Todas las sucursales');opt('#fCanC',T.filter(x=>!sc||x.suc===sc).map(x=>x.canton),'Todos los cantones');
+  const L=T.filter(x=>(!sc||x.suc===sc)&&(!$('#fCanC').value||x.canton===$('#fCanC').value));
+  const C={};L.forEach(x=>{const o=C[x.cultivo]||(C[x.cultivo]={ha:0,p:new Set(),pl:0,suc:new Set()});o.ha+=x.ha;o.p.add(x.k);o.pl+=+x.c.plantas||0;o.suc.add(x.suc)});
+  const E=Object.entries(C).sort((a,b)=>b[1].ha-a[1].ha||b[1].p.size-a[1].p.size),max=Math.max(...E.map(e=>e[1].ha),0.0001);
+  $('#cResumen').innerHTML=`<div><b>${E.length}</b><span>Cultivos</span></div><div><b>${nf(L.reduce((s,x)=>s+x.ha,0))}</b><span>Hectáreas</span></div><div><b>${new Set(L.map(x=>x.k)).size}</b><span>Productores</span></div>`;
+  $('#listaC').innerHTML=E.length?E.map(([n,o])=>`<div class="card pcard" data-c="${esc(n)}" role="button" tabindex="0"><h3>${esc(n)}<small>${nf(o.ha)} ha</small></h3>
+    <div class="barra"><span style="width:${Math.max(3,o.ha/max*100)}%"></span></div>
+    <div class="m">${o.p.size} productor${o.p.size!==1?'es':''}${o.pl?' · '+o.pl.toLocaleString('es-EC')+' plantas':''} · ${o.suc.size} sucursal${o.suc.size!==1?'es':''}</div></div>`).join('')
+   :'<div class="vacio">Aún no hay cultivos registrados.<br>Se suman solos con cada visita.</div>';
+  $('#listaC').querySelectorAll('.pcard').forEach(c=>c.onclick=()=>abrirCultivo(c.dataset.c,L))}
+function tablaGrupo(L,campo,titulo){const G={};L.forEach(x=>{const k=x[campo]||'—';const o=G[k]||(G[k]={ha:0,p:new Set(),pl:0});o.ha+=x.ha;o.p.add(x.k);o.pl+=+x.c.plantas||0});
+  const E=Object.entries(G).sort((a,b)=>b[1].ha-a[1].ha||b[1].p.size-a[1].p.size),tot=L.reduce((s,x)=>s+x.ha,0)||1;
+  return`<h4>${titulo}</h4><div class="tw" style="overflow-x:auto"><table><tr><th>${titulo.replace('Por ','')}</th><th class="n">Ha</th><th class="n">%</th><th class="n">Productores</th></tr>
+   ${E.map(([k,o])=>`<tr class="clic" data-g="${campo}" data-v="${esc(k)}"><td>${esc(k)} <span class="flecha">›</span></td><td class="n">${nf(o.ha)}</td><td class="n">${Math.round(o.ha/tot*100)}%</td><td class="n">${o.p.size}</td></tr>`).join('')}</table></div>`}
+function abrirCultivo(n,base){const L=base.filter(x=>x.cultivo===n);if(!L.length)return;cultBase=[n,base];
+  const ha=L.reduce((s,x)=>s+x.ha,0),pl=L.reduce((s,x)=>s+(+x.c.plantas||0),0),prom=ha/L.length;
+  const edades=L.map(x=>{normEdad(x.c);return x.c.edad?(+x.c.edad)*EDU[x.c.edadU||'meses']/365:null}).filter(x=>x!=null);
+  const conVar=L.map(x=>({...x,variedad:x.c.variedad||'Sin dato'})),conEt=L.map(x=>({...x,etapa:x.c.etapa||'Sin dato'}));
+  // problemas y productos registrados en ese cultivo
+  const pb={},pr={};cache.forEach(v=>(v.cultivos||[]).filter(c=>nomCult(c)===n&&L.some(x=>x.k===normNom(v.productor))).forEach(c=>(c.tratamientos||[]).forEach(t=>{normTrat(t);
+    t.problemas.forEach(P=>{const o=t.objetivos[P];const k=P+(o?': '+o:'');pb[k]=(pb[k]||0)+1});t.productos.forEach(p=>{if(p.nom)pr[p.nom]=(pr[p.nom]||0)+1})})));
+  const top=(o,t)=>{const E=Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,8);return E.length?`<h4>${t}</h4><p>${E.map(([k,c])=>`${esc(k)} <span class="nota">(${c})</span>`).join(' · ')}</p>`:''};
+  $('#perfilC').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(n)}</h2><div style="font-size:13px">${$('#fSucC').value||'Todas las sucursales'}${$('#fCanC').value?' · '+esc($('#fCanC').value):''}</div></div></div>
+  <div class="cuerpo">
+   <div class="pnum"><div><b>${nf(ha)}</b><span>Hectáreas</span></div><div><b>${new Set(L.map(x=>x.k)).size}</b><span>Productores</span></div><div><b>${nf(prom)}</b><span>Ha promedio por finca</span></div></div>
+   <div class="pnum" style="margin-top:0"><div><b>${pl?pl.toLocaleString('es-EC'):'—'}</b><span>Plantas registradas</span></div><div><b>${edades.length?nf(edades.reduce((a,b)=>a+b,0)/edades.length):'—'}</b><span>Edad promedio (años)</span></div><div><b>${new Set(L.map(x=>x.suc)).size}</b><span>Sucursales</span></div></div>
+   ${tablaGrupo(L,'suc','Por sucursal')}${tablaGrupo(L,'canton','Por cantón')}${tablaGrupo(L,'com','Por comunidad')}
+   ${tablaGrupo(conVar,'variedad','Por variedad')}${tablaGrupo(conEt,'etapa','Por etapa fenológica')}
+   ${top(pb,'Problemas más frecuentes')}${top(pr,'Productos más recomendados')}
+   <h4>Productores con ${esc(n.toLowerCase())}</h4>
+   ${L.sort((a,b)=>b.ha-a.ha).map(x=>`<div class="pend" data-k="${esc(x.k)}" style="cursor:pointer"><span><b>${esc(x.prod)}</b><br><span class="nota" style="margin:0">${esc(x.com)} · ${esc(x.suc)}${x.c.variedad?' · '+esc(x.c.variedad):''}${x.c.edad?' · '+esc(fmtEdad(x.c)):''}</span></span><b style="color:var(--acc);white-space:nowrap">${x.c.area?esc(fmtArea(x.c)):'—'}</b></div>`).join('')}
+   <div class="acciones noprint"><button class="btn sec2" onclick="$('#mCult').style.display='none'">Cerrar</button></div></div>`;
+  $('#perfilC').querySelectorAll('[data-k]').forEach(d=>d.onclick=()=>{$('#mCult').style.display='none';abrirProductor(d.dataset.k)});
+  $('#perfilC').querySelectorAll('tr.clic').forEach(tr=>tr.onclick=()=>{const campo=tr.dataset.g,val=tr.dataset.v;
+    const C=campo==='variedad'?L.filter(x=>(x.c.variedad||'Sin dato')===val):campo==='etapa'?L.filter(x=>(x.c.etapa||'Sin dato')===val):L.filter(x=>x[campo]===val);
+    listaZona(n,val,C)});
+  $('#mCult').style.display='block';$('#mCult').scrollTop=0}
+let cultBase=null;
+// Productores de un cultivo en una sucursal / cantón / comunidad: nombre, contacto, ubicación y cantidad
+function listaZona(n,zona,L){const ha=L.reduce((s,x)=>s+x.ha,0),pl=L.reduce((s,x)=>s+(+x.c.plantas||0),0);
+  $('#perfilC').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${esc(n)} · ${esc(zona)}</h2><div style="font-size:13px">${L.length} productor${L.length!==1?'es':''} · ${nf(ha)} ha${pl?' · '+pl.toLocaleString('es-EC')+' plantas':''}</div></div></div>
+  <div class="cuerpo"><button type="button" class="volver" id="cVolver">‹ ${esc(n)}</button>
+   ${L.sort((a,b)=>b.ha-a.ha).map(x=>{const t=telWa(x.tel);return`<div class="zp">
+     <div class="zh"><b>${esc(x.prod)}</b><span>${x.c.area?esc(fmtArea(x.c)):'—'}${x.c.plantas?' · '+(+x.c.plantas).toLocaleString('es-EC')+' plantas':''}</span></div>
+     <div class="nota" style="margin:2px 0 0">${x.tel?'Tel. '+esc(x.tel):'Sin teléfono'} · ${esc(x.comFull||'Sin comunidad')}${x.canton&&x.canton!=='Sin cantón'?', '+esc(x.canton):''}</div>
+     <div class="row-btns">${t&&t!=='invalido'?`<a class="btn sec2 peq" href="https://wa.me/${t}" target="_blank" rel="noopener">WhatsApp</a><a class="btn sec2 peq" href="tel:${esc(x.tel.replace(/\s/g,''))}">Llamar</a>`:''}
+     ${x.gps?`<a class="btn sec2 peq" href="${mapUrl(x.gps)}" target="_blank" rel="noopener">Ver en mapa</a><a class="btn sec2 peq" href="${rutaUrl(x.gps)}" target="_blank" rel="noopener">Cómo llegar</a>`:'<span class="nota" style="margin:0">Sin ubicación GPS</span>'}</div></div>`}).join('')}
+   <div class="acciones noprint"><button class="btn sec2" onclick="$('#mCult').style.display='none'">Cerrar</button></div></div>`;
+  $('#cVolver').onclick=()=>abrirCultivo(cultBase[0],cultBase[1]);$('#mCult').scrollTop=0}
+$('#mCult').onclick=e=>{if(e.target.id==='mCult')e.target.style.display='none'};
 
 /* ---------- Google Maps ---------- */
 const mapUrl=v=>v.lat&&v.lon?`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lon}`:'';
@@ -958,7 +1205,7 @@ function perfil(nombre){const k=normNom(nombre);if(!k)return null;
 [...$('#tipo').options].forEach(o=>{o.value=o.value});
 function ajustarTipo(P){const sel=$('#tipo'),op=[...sel.options].find(o=>o.value==='Primera visita');if(!op)return;
   if($('#id').value){op.disabled=false;op.textContent='Primera visita';return}
-  if(P&&P.vs.some(v=>!v.remota)){op.disabled=true;op.textContent='Primera visita (ya visitado)';if(sel.value==='Primera visita')sel.value='Seguimiento técnico'}
+  if(P&&P.vs.some(v=>!v.remota&&!v.importado)){op.disabled=true;op.textContent='Primera visita (ya visitado)';if(sel.value==='Primera visita')sel.value='Seguimiento técnico'}
   else{op.disabled=false;op.textContent='Primera visita';if(!sel.dataset.manual&&normNom($('#productor').value))sel.value='Primera visita';else if(!sel.dataset.manual)sel.value='Seguimiento técnico'}}
 $('#tipo').addEventListener('change',()=>{$('#tipo').dataset.manual='1'});
 function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTML='';box.dataset.k='';ajustarTipo(null);return}
@@ -970,7 +1217,7 @@ function mostrarHist(force){const box=$('#hist');if($('#id').value){box.innerHTM
   if(!$('#sucursal').value&&u.sucursal)$('#sucursal').value=u.sucursal;mostrarGps();
   const ya=new Set([...document.querySelectorAll('.cult')].filter(c=>!c.dataset.vacio).map(nomBloque));
   const falta=[!P.vs.some(v=>v.lat)&&'ubicación GPS',!P.vs.some(v=>v.telefono)&&'teléfono',!P.vs.some(v=>v.comunidad)&&'comunidad / referencias',!P.vs.some(v=>v.canton)&&'cantón'].filter(Boolean);
-  box.innerHTML=`<div class="hist"><b>Productor registrado</b> · ${(n=>n+' visita'+(n!==1?'s':''))(P.vs.filter(v=>!v.remota).length)}${(n=>n?' · '+n+' receta'+(n>1?'s':'')+' a distancia':'')(P.vs.filter(v=>v.remota).length)} · último registro ${fmtF(u.fecha)}
+  box.innerHTML=`<div class="hist"><b>Productor registrado</b>${P.vs.some(v=>v.importado)?' <span class="tag ge" style="margin:0 0 0 4px">Google Earth</span>':''} · ${(n=>n+' visita'+(n!==1?'s':''))(P.vs.filter(v=>!v.remota&&!v.importado).length)}${(n=>n?' · '+n+' receta'+(n>1?'s':'')+' a distancia':'')(P.vs.filter(v=>v.remota).length)} · último registro ${fmtF(u.fecha)}
    ${u.lat?`<div class="acc" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${mapBtns(u,1)}</div>`:''}
    <div class="nota" style="margin-top:4px">${Object.keys(P.cul).length>1?"Tiene varios cultivos: toque el que va a revisar hoy (puede elegir más de uno).":"Su cultivo registrado:"}</div>
    <div class="chips">${Object.entries(P.cul).map(([n,c])=>`<button type="button" class="chip${ya.has(n)?' on':''}" data-c="${esc(n)}">${ya.has(n)?'✓ ':'+ '}${esc(n)}${c.area?' · '+esc(fmtArea(c)):''}</button>`).join('')}</div>
@@ -1080,7 +1327,7 @@ async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach
   sel('#fCult',[...new Set(cache.flatMap(v=>(v.cultivos||[]).map(nomCult)))].sort(),'Todos los cultivos')}
 ['#buscar','#fSuc','#fMes','#fCult'].forEach(s=>$(s).oninput=pintarLista);
 function filtradas(){const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,m=$('#fMes').value,c=$('#fCult').value;
-  return cache.filter(v=>{const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(!m||v.fecha.startsWith(m))&&(!c||cs.some(x=>nomCult(x)===c))&&
+  return cache.filter(v=>{if(v.importado)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(!m||v.fecha.startsWith(m))&&(!c||cs.some(x=>nomCult(x)===c))&&
    (!q||[v.productor,v.canton,v.comunidad,v.obsGen,...cs.map(x=>[nomCult(x),x.agente,x.obs,...x.tratamientos.flatMap(t=>t.productos.map(p=>p.nom))].join(' '))].join(' ').toLowerCase().includes(q))})}
 function pintarLista(){const l=filtradas();
   $('#cards').innerHTML=l.length?l.map(v=>{const cs=v.cultivos||[],nt=cs.reduce((s,c)=>s+c.tratamientos.length,0),dm=minutos(v.horaInicio,v.horaFin);
@@ -1217,7 +1464,7 @@ $('#mRec').onclick=e=>{if(e.target.id==='mRec')e.target.style.display='none'};
 
 /* ---------- Resumen ---------- */
 function tabla(obj,h){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return e.length?`<table><tr><th>${h}</th><th>N.º</th></tr>${e.map(([k,n])=>`<tr><td>${esc(k)}</td><td>${n}</td></tr>`).join('')}</table>`:'<p class="nota">Sin datos</p>'}
-function datosMes(mes){const T=cache.filter(v=>(v.fecha||'').startsWith(mes)),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>(a.fecha||'').startsWith(mes));
+function datosMes(mes){const T=cache.filter(v=>(v.fecha||'').startsWith(mes)&&!v.importado),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>(a.fecha||'').startsWith(mes));
   const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,remota:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
   V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
   const dias=new Set([...V.map(v=>v.fecha),...A.map(a=>a.fecha)]);
@@ -1250,7 +1497,7 @@ $('#btnInf').onclick=()=>{const m=$('#mesInf').value;if(!m)return toast('Elija e
 function informe(mes){
   const D=datosMes(mes);if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en '+nomMes(mes));
   const key=s=>String(s||'').trim().toLowerCase();
-  const primera={};cache.forEach(v=>{const k=key(v.productor);if(!primera[k]||v.fecha<primera[k])primera[k]=v.fecha});
+  const primera={};cache.forEach(v=>{const k=key(v.productor),f=v.importado?'0000':v.fecha;if(!primera[k]||f<primera[k])primera[k]=f});
   const prods=new Set(D.V.map(v=>key(v.productor)));const nuevos=[...prods].filter(k=>primera[k]&&primera[k].startsWith(mes)).length;
   const area={};D.V.forEach(v=>(v.cultivos||[]).forEach(c=>{const k=key(v.productor)+'|'+nomCult(c);area[k]=Math.max(area[k]||0,haDe(c))}));
   const haTot=Object.values(area).reduce((a,b)=>a+b,0);
