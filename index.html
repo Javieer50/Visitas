@@ -113,10 +113,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .trat textarea.t-obsT{min-height:54px}
 .tp{border:0;border-radius:999px;padding:6px 11px;background:var(--card);color:var(--txt2);font:500 13px var(--f)}
 .tp.on{background:var(--verde2);color:#fff}
-.sug{position:absolute;z-index:75;background:var(--card);border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22),0 0 0 .5px var(--sep);overflow:hidden;max-height:300px;overflow-y:auto}
+.sug{position:fixed;z-index:75;background:var(--card);border-radius:14px;box-shadow:0 10px 32px rgba(0,0,0,.22),0 0 0 .5px var(--sep);overflow:hidden;max-height:300px;overflow-y:auto}
 .sug button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:46px;padding:10px 14px;border:0;border-bottom:.5px solid var(--sep);background:none;color:var(--txt);font:17px var(--f);text-align:left}
 .sug button:last-child{border-bottom:0}.sug button:active{background:var(--fill)}
 .sug b{font-weight:700;color:var(--acc)}
+.sug-t{padding:9px 14px 4px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt2)}
 .sug .sp{align-items:center;padding:9px 14px}.sug .sp>span{display:flex;flex-direction:column;min-width:0;gap:2px}
 .sug .sp-n{font-size:17px}.sug .sp-d{color:var(--txt2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sug small{color:var(--txt2);font-size:12px;white-space:nowrap}
 .trat.ens .tt input{background:transparent;border:0;min-height:0;padding:0;font:600 16px var(--f);color:var(--acc);box-shadow:none;width:100%}
@@ -551,7 +552,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
   <div id="hist"></div>
   <div class="fila">
     <div><label>Teléfono / WhatsApp</label><input id="telefono" inputmode="tel"></div>
-    <div><label>Cantón</label><input id="canton" list="dl-canton"></div>
+    <div><label>Cantón</label><input id="canton"></div>
   </div>
   <datalist id="dl-canton"><option>Sucúa</option><option>Morona</option><option>Logroño</option><option>Santiago</option><option>Limón Indanza</option><option>Gualaquiza</option><option>San Juan Bosco</option><option>Huamboya</option><option>Pablo Sexto</option><option>Palora</option><option>Taisha</option><option>Tiwintza</option><option>Pastaza</option><option>Tena</option><option>Yantzaza</option></datalist>
   <label>Comunidad / Referencias</label><textarea id="comunidad" placeholder="Comunidad, sector y cómo llegar a la finca"></textarea>
@@ -799,7 +800,7 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   d.innerHTML=`<div class="tit">Cultivo</div><button type="button" class="x" title="Quitar cultivo">×</button>
   <div class="fila"><div><label>Cultivo *</label><select class="c-cul">${opts(CULTIVOS,c.cultivo||'Pitahaya')}</select></div>
   <div class="c-otroW" style="display:none"><label>¿Cuál cultivo?</label><input class="c-otro" value="${esc(c.otro)}"></div>
-  <div class="c-varW"><label>Variedad / material</label><input class="c-var" list="dlv-${_nv}" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
+  <div class="c-varW"><label>Variedad / material</label><input class="c-var" value="${esc(c.variedad)}"><datalist id="dlv-${_nv}"></datalist></div></div>
   <div class="c-varW2" style="display:none"><label>Variedad / material</label><input class="c-var2"></div>
   <div class="fila"><div><label>Área</label><div class="area"><input class="c-area num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej.: 1,5" value="${esc(String(c.area||'').replace('.',','))}"><select class="c-au" aria-label="Unidad de área">${opts(["ha","m²"],c.areaU||"ha")}</select></div><div class="nota c-aeq"></div></div>
   <div><label>Edad del cultivo</label><div class="area"><input class="c-edad num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej.: 8" value="${esc(String(c.edad||'').replace('.',','))}"><select class="c-eu" aria-label="Unidad de edad">${opts(["días","meses","años"],c.edadU||"meses")}</select></div><div class="nota c-eeq">${c._edadNota||''}</div></div></div>
@@ -919,7 +920,7 @@ function mostrarSug(inp){const q=normNom(inp.value),box=$('#sug');if(!q){box.hid
   box.innerHTML=L.map((m,i)=>`<button type="button" data-i="${i}"><span>${resaltar(m.nom)}</span><small>${m.n?`${m.n} ${m.n>1?'veces':'vez'}${m.ult&&m.ult.dosis?' · '+esc(m.ult.dosis):''}`:'catálogo'}</small></button>`).join('');
   box.querySelectorAll('button').forEach(b=>{const m=L[+b.dataset.i];
     b.addEventListener('pointerdown',e=>{e.preventDefault();elegirSug(inp,m)})});
-  const r=inp.getBoundingClientRect();Object.assign(box.style,{left:(r.left+scrollX)+'px',top:(r.bottom+scrollY+6)+'px',width:r.width+'px'});box.hidden=false;sugInput=inp}
+  const r=inp.getBoundingClientRect();posSug(inp);box.hidden=false;sugInput=inp}
 function elegirSug(inp,m){inp.value=m.nom;$('#sug').hidden=true;const fila=inp.closest('.prod');
   if(fila&&m.ult&&!fila.querySelector('.p-cant').value){const dq=partirDosis(m.ult);fila.querySelector('.p-cant').value=String(dq.cant||'').replace('.',',');
     if(dq.u)fila.querySelector('.p-u').value=dq.u;if(m.ult.para)fila.querySelector('.p-para').value=m.ult.para;toast('Dosis de la última receta: '+(m.ult.dosis||'')+' '+(m.ult.para||''))}
@@ -927,6 +928,56 @@ function elegirSug(inp,m){inp.value=m.nom;$('#sug').hidden=true;const fila=inp.c
 document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('p-nom'))mostrarSug(e.target)});
 document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('p-nom')&&e.target.value)mostrarSug(e.target)});
 document.addEventListener('focusout',e=>{if(e.target===sugInput)setTimeout(()=>{$('#sug').hidden=true},150)});
+/* ---------- Autocompletar general: cada campo sugiere lo que ya escribió antes ---------- */
+const DEF_CANTON=['Sucúa','Morona','Logroño','Santiago','Limón Indanza','Gualaquiza','San Juan Bosco','Huamboya','Pablo Sexto','Palora','Taisha','Tiwintza','Pastaza','Tena','Yantzaza'];
+function valoresHist(inp){const V=[],add=(x,peso=1)=>{x=String(x||'').split('\n')[0].trim();if(x&&x.length<90)V.push([x,peso])};
+  const cults=f=>cache.forEach(v=>(v.cultivos||[]).forEach(c=>f(c,v)));
+  const trats=f=>{cults(c=>(c.tratamientos||[]).forEach(t=>f(t)));acts.filter(a=>a.mod==='ensayo').forEach(a=>tratsEnsayo(a).forEach(t=>f(t)))};
+  const id=inp.id||'',cl=inp.classList;
+  if(cl.contains('c-var')||cl.contains('c-var2')||cl.contains('ev-var')){const blk=inp.closest('.cult,.ecul');
+    const cu=blk&&blk.querySelector('.c-cul')?blk.querySelector('.c-cul').value:(blk&&blk.querySelector('.ecab')?blk.querySelector('.ecab').textContent.trim():'');
+    cults(c=>{if(!cu||nomCult(c)===cu)add(c.variedad,2)});(VARS[cu]||[]).forEach(x=>add(x,0));return V}
+  if(id==='canton'||id==='e_can'){cache.forEach(v=>add(v.canton,2));DEF_CANTON.forEach(x=>add(x,0));return V}
+  if(id==='comunidad'||id==='e_com'||cl.contains('i-com')){cache.forEach(v=>add(v.comunidad,2));acts.forEach(a=>add(a.lugar));return V}
+  if(id==='acomp'||id==='m_acomp'){cache.forEach(v=>add(v.acomp,2));acts.forEach(a=>add(a.acomp));return V}
+  if(id==='compromiso'){cache.forEach(v=>add(v.compromiso));return V}
+  if(cl.contains('t-obj')){const P=inp.dataset.p;cults(c=>(c.tratamientos||[]).forEach(t=>{normTrat(t);Object.entries(t.objetivos||{}).forEach(([k,o])=>{if(!P||k===P)add(o,2)})}));return V}
+  if(cl.contains('t-fre')){trats(t=>add(t.frecuencia));['cada 7 días','cada 8 días','cada 10 días','cada 15 días','cada 21 días','cada 30 días'].forEach(x=>add(x,0));return V}
+  if(cl.contains('c-lab')){cults(c=>add(c.labores));return V}
+  if(cl.contains('t-obsT')){trats(t=>add(t.obs));return V}
+  if(id==='m_productor'){grupos().forEach(g=>add(g.nombre,2));return V}
+  if(id==='m_cultivo'){cults(c=>add(nomCult(c)));CULTIVOS.filter(x=>x!=='Otro').forEach(x=>add(x,0));return V}
+  if(id==='m_lugar'){acts.forEach(a=>add(a.lugar,2));cache.forEach(v=>add(v.comunidad));return V}
+  const mk=id.startsWith('m_')?id.slice(2):'';if(['tema','org','prods','material','titulo','nombre','area','dosis'].includes(mk)){acts.forEach(a=>add(a[mk]));return V}
+  if(id==='obsGen'){cache.forEach(v=>add(v.obsGen));return V}
+  return null}
+function mostrarSugGen(inp,alFoco){const V=valoresHist(inp),box=$('#sug');if(!V){return false}
+  const q=normNom(inp.value),M={};V.forEach(([x,p])=>{const k=normNom(x);if(!k)return;const m=M[k]||(M[k]={x,n:0,v:{}});m.n+=p;m.v[x]=(m.v[x]||0)+p});
+  let L=Object.values(M).map(m=>({x:Object.entries(m.v).sort((a,b)=>b[1]-a[1])[0][0],n:m.n,k:normNom(Object.keys(m.v)[0])}));
+  if(q){const ini=L.filter(m=>m.k.startsWith(q)),pal=L.filter(m=>!m.k.startsWith(q)&&m.k.split(/[\s,\-]+/).some(w=>w.startsWith(q)));L=ini.length?ini:pal}
+  else if(!alFoco)L=[];
+  L=L.filter(m=>m.k!==q).sort((a,b)=>b.n-a.n||a.x.localeCompare(b.x,'es')).slice(0,q?8:6);
+  if(!L.length){box.hidden=true;return true}
+  const res=t=>{const k=normNom(t);const i=q&&k.startsWith(q)?0:-1;return i<0?esc(t):'<b>'+esc(t.slice(0,q.length))+'</b>'+esc(t.slice(q.length))};
+  box.innerHTML=(q?'':'<div class="sug-t">Usados antes</div>')+L.map((m,i)=>`<button type="button" data-i="${i}"><span>${res(m.x)}</span>${m.n>1?`<small>${Math.round(m.n)}×</small>`:''}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();inp.value=L[+b.dataset.i].x;box.hidden=true;
+    inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(()=>{box.hidden=true},0)}));
+  posSug(inp);sugInput=inp;return true}
+const esGen=t=>t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA')&&!['productor'].includes(t.id)&&!(t.classList&&t.classList.contains('p-nom'))&&!['date','time','number','file','checkbox','search','email','tel'].includes(t.type);
+document.addEventListener('input',e=>{if(esGen(e.target))mostrarSugGen(e.target,false)});
+document.addEventListener('focusin',e=>{const t=e.target;if(esGen(t)&&t.tagName==='INPUT')mostrarSugGen(t,!t.value);});
+document.addEventListener('focusout',e=>{if(esGen(e.target)&&e.target===sugInput)setTimeout(()=>{if(document.activeElement!==sugInput)$('#sug').hidden=true},150)});
+
+/* ---------- Nombres propios: "marcelo CALLE" -> "Marcelo Calle" ---------- */
+const PARTIC=new Set(['de','del','la','las','los','y','e','da','van','von']);
+function nombrePropio(t){return String(t||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es').split(' ').map((w,i)=>
+  (i>0&&PARTIC.has(w))?w:w.replace(/(^|[-'’])(\p{L})/gu,(m,a,b)=>a+b.toLocaleUpperCase('es'))).join(' ')}
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='productor'||t.id==='e_nom'||t.id==='m_productor'||(t.classList&&t.classList.contains('i-nom'))){const n=nombrePropio(t.value);if(n!==t.value)t.value=n}});
+async function corregirNombres(){let n=0;
+  for(const v of cache){const np=nombrePropio(v.productor);if(v.productor&&np!==v.productor){await guardarDB({...v,productor:np});n++}}
+  for(const a of acts){if(a.mod==='ensayo'&&a.productor){const np=nombrePropio(a.productor);if(np!==a.productor){await guardarA({...a,productor:np});n++}}}
+  if(n){await recargar();await recargarA()}}
+
 /* ---------- Autocompletar productores (historial de clientes) ---------- */
 function mostrarSugProd(inp){const q=normNom(inp.value),box=$('#sug');if(!q||$('#id').value){box.hidden=true;return}
   const sc=$('#sucursal').value,G=grupos();
@@ -941,10 +992,14 @@ function mostrarSugProd(inp){const q=normNom(inp.value),box=$('#sug');if(!q||$('
   box.querySelectorAll('button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();const g=L[+b.dataset.i];
     inp.value=g.nombre;box.hidden=true;if(!$('#sucursal').value&&g.regs[0].sucursal){$('#sucursal').value=g.regs[0].sucursal;sugerirProd()}
     inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));inp.blur()}));
-  const r=inp.getBoundingClientRect();Object.assign(box.style,{left:(r.left+scrollX)+'px',top:(r.bottom+scrollY+6)+'px',width:r.width+'px'});box.hidden=false;sugInput=inp}
+  const r=inp.getBoundingClientRect();posSug(inp);box.hidden=false;sugInput=inp}
 document.addEventListener('input',e=>{if(e.target.id==='productor')mostrarSugProd(e.target)});
 document.addEventListener('focusin',e=>{if(e.target.id==='productor'&&e.target.value)mostrarSugProd(e.target)});
-addEventListener('scroll',()=>{if(!$('#sug').hidden&&sugInput){const r=sugInput.getBoundingClientRect();$('#sug').style.top=(r.bottom+scrollY+6)+'px'}},{passive:true});
+function posSug(inp){const box=$('#sug'),r=inp.getBoundingClientRect(),vh=(window.visualViewport?visualViewport.height:innerHeight);
+  box.style.left=r.left+'px';box.style.width=r.width+'px';box.hidden=false;const h=Math.min(box.scrollHeight,300);
+  const abajo=vh-r.bottom,arriba=r.top;box.style.top=(abajo<h+12&&arriba>abajo?r.top-h-6:r.bottom+6)+'px'}
+document.addEventListener('scroll',()=>{if(!$('#sug').hidden&&sugInput)posSug(sugInput)},{passive:true,capture:true});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!$('#sug').hidden&&sugInput)posSug(sugInput)});
 // Separa dosis antiguas escritas a mano ("50 g", "1,5 kg", "10 cc", "1 litro")
 function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=String(p.dosis||'').trim();if(!t)return{cant:'',u:'cc'};
   const m=t.match(/(\d+(?:[.,]\d+)?)\s*([a-zA-Z]*)/);if(!m)return{cant:'',u:'cc'};
@@ -1103,7 +1158,7 @@ function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',l
   if(f.ty==='chips')return`<label>${f.l}</label><div class="chk" id="${id}">${f.op.map(x=>`<label><input type="checkbox" value="${esc(x)}"${(v||[]).includes(x)?' checked':''}>${x}</label>`).join('')}</div>`;
   if(f.ty==='ens')return`<div class="sub" style="margin-top:22px">${f.l}</div><div class="nota">Agregue un tratamiento por cada producto o dosis que va a comparar, y el testigo.</div><div id="ensTrats"></div><button type="button" class="t-nuevo" id="ensAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar tratamiento</button>`;
   if(f.ty==='area')return lab+`<textarea id="${id}">${esc(v)}</textarea>`;
-  if(f.ty==='cult')return lab+`<input id="${id}" list="dl-cultm" value="${esc(v)}">`;
+  if(f.ty==='cult')return lab+`<input id="${id}" value="${esc(v)}">`;
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
   return lab+`<input id="${id}" type="${t}"${t==='number'?' inputmode="numeric" min="0"':''} value="${esc(v)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}${req}>`}
 function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:null;modFotos=a?(a.fotos||[]).slice():[];
@@ -1132,6 +1187,7 @@ async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity()
   if($('#ensTrats')&&!leerEnsTrats().some(t=>t.productos.length))return dialogo('Faltan tratamientos','Agregue al menos un tratamiento con el producto a evaluar.',[['Entendido']]);
   const r={id:modEdit||Date.now(),mod:modK};
   m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=c.ty==='chips'?[...document.querySelectorAll('#m_'+c.k+' input:checked')].map(x=>x.value):($('#m_'+c.k).value||'').trim()});
+  if(r.productor)r.productor=nombrePropio(r.productor);
   if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
   if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
@@ -1281,7 +1337,7 @@ function previsualizarImport(L,nombre){impL=L;const ex=new Set(cache.map(v=>norm
 async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').value;let nuevos=0,act=0;const base=Date.now();
   const filas=[...$('#impLista').querySelectorAll('.imp-fila')].filter(f=>f.querySelector('.i-ok').checked);
   if(!sucD&&filas.some(f=>!impL[+f.dataset.i].suc))return dialogo('Falta la sucursal','Elija la sucursal para los lugares que no la traen en el archivo.',[['Entendido']]);
-  for(const [j,f] of filas.entries()){const x=impL[+f.dataset.i],nom=f.querySelector('.i-nom').value.trim();if(!nom)continue;
+  for(const [j,f] of filas.entries()){const x=impL[+f.dataset.i],nom=nombrePropio(f.querySelector('.i-nom').value);if(!nom)continue;
     const cul=f.querySelector('.i-cul').value||culD||'Sin especificar',ha=aNum(f.querySelector('.i-ha').value),com=f.querySelector('.i-com').value.trim();
     const regs=cache.filter(v=>normNom(v.productor)===normNom(nom));
     const cultivo=CULTIVOS.includes(cul)?cul:'Otro',otro=cultivo==='Otro'?cul:'',nc=cultivo==='Otro'?otro:cultivo;
@@ -1297,7 +1353,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='3.7';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='3.8';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1491,7 +1547,7 @@ function editarProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const
    </div>
    <div class="grupo"><div class="gt">Ubicación</div>
     <div class="fila"><div><label for="e_suc">Sucursal</label><select id="e_suc"><option value="">—</option>${optE(SUCS,u.sucursal)}</select></div>
-    <div><label for="e_can">Cantón</label><input id="e_can" list="dl-canton" value="${esc(pri('canton'))}"></div></div>
+    <div><label for="e_can">Cantón</label><input id="e_can" value="${esc(pri('canton'))}"></div></div>
     <label for="e_com">Comunidad / referencias</label><textarea id="e_com" placeholder="Comunidad, sector y cómo llegar">${esc(pri('comunidad'))}</textarea>
     <label>Coordenadas GPS</label>
     <div class="fila"><div><input id="e_lat" inputmode="text" placeholder="Latitud" value="${esc(gps.lat||'')}"></div><div><input id="e_lon" inputmode="text" placeholder="Longitud" value="${esc(gps.lon||'')}"></div></div>
@@ -1517,7 +1573,7 @@ function editarProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const
       ()=>{$('#e_gpsN').textContent='No se pudo obtener la ubicación.'},{enableHighAccuracy:true,timeout:60000,maximumAge:0})};
   $('#e_peg').onclick=async()=>{let t='';try{t=await navigator.clipboard.readText()}catch(e){}
     const c=t&&leerCoord(t);if(c){$('#e_lat').value=(+c[0]).toFixed(6);$('#e_lon').value=(+c[1]).toFixed(6);$('#e_gpsN').textContent='Coordenadas pegadas'}else toast('Copie primero las coordenadas en Google Maps')};
-  $('#e_ok').onclick=async()=>{const nom=$('#e_nom').value.trim();if(!nom)return toast('Escriba el nombre');
+  $('#e_ok').onclick=async()=>{const nom=nombrePropio($('#e_nom').value);if(!nom)return toast('Escriba el nombre');
     let la=numCoord($('#e_lat').value),lo=numCoord($('#e_lon').value);
     if((la||lo)&&(isNaN(+la)||isNaN(+lo)||!la||!lo))return dialogo('Coordenadas incompletas','Escriba latitud y longitud, o déjelas vacías.',[['Corregir']]);
     if(lo&&+lo>0&&+lo<82)lo=String(-lo);
@@ -1565,7 +1621,7 @@ const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
   const rem=modoV==='remota';
   if(!rem){if($('#horaInicio').value&&!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
   if($('#horaInicio').value&&!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;}
-  const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());
+  const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());v.productor=nombrePropio(v.productor);$('#productor').value=v.productor;
   v.cultivos=leerCultivos();v.fotos=fotosTmp.slice();v.actualizado=new Date().toISOString();
   v.remota=rem;if(rem){v.tipo='Receta a distancia';v.horaInicio='';v.horaFin='';['lat','lon','alt','prec'].forEach(k=>{if(!v[k]){const P=perfil(v.productor);if(P)v[k]=P.vs[0][k]||''}})}
   try{await guardarDB(v);
@@ -1843,7 +1899,7 @@ $('#impJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{cons
   for(const v of (Array.isArray(vs)?vs:[])){if(v&&v.id&&v.productor){await guardarDB(v);n++}}let na=0;for(const a of (d.actividades||[])){if(a&&a.id&&a.mod){await guardarA(a);na++}}if(d.perfil){PERFIL={...PERFIL_DEF,...d.perfil};await guardarPerfil()}await recargar();await recargarA();pintarResumen();toast(`${n} visitas y ${na} actividades restauradas`)}catch(x){alert('Archivo no válido')}e.target.value=''};
 
 /* ---------- Inicio ---------- */
-(async()=>{try{await abrirDB();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();await recargar();await recargarA();await cargarPerfil()}
+(async()=>{try{await abrirDB();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();await recargar();await recargarA();await cargarPerfil();await corregirNombres()}
  catch(e){alert('Este navegador no permite guardar datos: '+e.message)}limpiar();irA('inicio')})();
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
