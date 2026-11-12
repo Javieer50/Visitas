@@ -109,7 +109,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .prod{display:grid;grid-template-columns:1.15fr 1fr 32px;gap:0 8px;align-items:end;margin-top:10px;padding-top:2px;border-top:.5px solid var(--sep)}
 .prod>div{min-width:0}.prod>div:first-child{grid-column:1/-1}
 .prod .xp{width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}
-.t-probs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}.t-probs:empty{display:none}
+.t-probs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.t-probs:empty{display:none}
+.trat textarea.t-obsT{min-height:54px}
 .tp{border:0;border-radius:999px;padding:6px 11px;background:var(--card);color:var(--txt2);font:500 13px var(--f)}
 .tp.on{background:var(--verde2);color:#fff}
 .t-addP{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:12px;min-height:44px;border:1.5px dashed var(--acc);border-radius:12px;background:var(--card);color:var(--acc);font:600 15px var(--f)}
@@ -479,7 +480,7 @@ nav.tabbar button.act svg{fill:var(--tintbg)}
         <input type="file" id="impJson" accept=".json,application/json" style="display:none"></label>
     </div>
   </fieldset>
-  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.12<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
+  <p class="nota" style="text-align:center;margin-top:24px">AGROLEON · versión 2.13<br><span id="offEstado">Comprobando modo sin conexión…</span></p>
 </section>
 </main>
 
@@ -618,8 +619,7 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   <div class="chk">${PROBS.map(p=>`<label><input type="checkbox" value="${p}"${(c.problemas||[]).includes(p)?' checked':''}>${p}</label>`).join('')}</div>
   <input type="hidden" class="c-agente" value="${esc(c.agente)}">
   <div class="c-trats"></div>
-  <label>Manejo actual del productor</label><textarea class="c-manejo">${esc(c.manejo)}</textarea>
-  <label>Observaciones del cultivo</label><textarea class="c-obs">${esc(c.obs)}</textarea>
+  <input type="hidden" class="c-manejo" value="${esc(c.manejo)}"><input type="hidden" class="c-obs" value="${esc(c.obs)}">
   <label>Labores culturales</label><textarea class="c-lab" placeholder="Podas, drenaje, encalado, deshierbe...">${esc(c.labores)}</textarea>`;
   const eq=()=>{const a=parseFloat(aNum(d.querySelector('.c-area').value)),u=d.querySelector('.c-au').value;
     d.querySelector('.c-aeq').textContent=a?(u==='m²'?`= ${(a/10000).toLocaleString('es-EC',{maximumFractionDigits:4})} ha`:`= ${Math.round(a*10000).toLocaleString('es-EC')} m²`):''};
@@ -674,9 +674,9 @@ function pintarIds(d){const ps=probsDe(d),box=d.querySelector('.t-ids'),prev={};
     :'<div><label>Objetivo</label><input class="t-obj" data-p="" value="'+esc(prev['']||'')+'" placeholder="Ej.: control de trips"></div>';
   box.querySelectorAll('input').forEach(i=>i.oninput=()=>{d._obj[i.dataset.p]=i.value})}
 function refrescarChips(cult){const marc=[...cult.querySelectorAll('.chk input:checked')].map(x=>x.value);
-  cult.querySelectorAll('.trat').forEach(t=>{const ps=probsDe(t),todos=[...new Set([...marc,...ps])];
-    t.querySelector('.t-probs').innerHTML=todos.length>1?'<span class="nota" style="margin:0 6px 0 0">Esta mezcla controla:</span>'+todos.map(P=>`<button type="button" class="tp${ps.includes(P)?' on':''}" data-p="${esc(P)}">${ps.includes(P)?'✓ ':''}${esc(P)}</button>`).join(''):'';
-    t.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');if(!on&&probsDe(t).length<2)return toast('La mezcla debe tener al menos un problema');ponerProb(t,b.dataset.p,on)})})}
+  cult.querySelectorAll('.trat').forEach(t=>{const ps=probsDe(t);
+    t.querySelector('.t-probs').innerHTML=`<span class="nota" style="margin:0 6px 0 0;width:100%">${ps.length?'Este tratamiento controla (toque para agregar o quitar):':'¿Qué controla este tratamiento? Elija uno o varios:'}</span>`+PROBS.map(P=>`<button type="button" class="tp${ps.includes(P)?' on':''}" data-p="${esc(P)}">${ps.includes(P)?'✓ ':''}${esc(P)}</button>`).join('');
+    t.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');ponerProb(t,b.dataset.p,on);if(on){const o=t.querySelector(`.t-obj[data-p="${b.dataset.p}"]`);if(o)o.focus()}})})}
 function ponerProb(t,P,on){let ps=probsDe(t);ps=on?[...new Set([...ps,P])]:ps.filter(x=>x!==P);
   const orden=PROBS.filter(x=>ps.includes(x));t.dataset.probs=JSON.stringify(orden);
   const cult=t.closest('.cult');if(on){const ch=[...cult.querySelectorAll('.chk input')].find(x=>x.value===P);if(ch)ch.checked=true}
@@ -692,12 +692,13 @@ function addTrat(cont,t={}){normTrat(t);
   <button type="button" class="t-addP"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar otro producto</button>
   <div class="fila"><div><label>N.º de aplicaciones</label><input class="t-num" type="number" min="1" inputmode="numeric" value="${esc(t.numAplic)}"></div>
   <div><label>Frecuencia</label><input class="t-fre" value="${esc(t.frecuencia)}" placeholder="Ej.: cada 8 días"></div></div>
-  <button type="button" class="btn peq t-otro" style="margin-top:10px;width:100%">+ Otro tratamiento aparte</button>`;
+  <label>Observación</label><textarea class="t-obsT" rows="2" placeholder="Ej.: aplicar en la tarde, agregar adherente, repetir si llueve">${esc(t.obs)}</textarea>
+  <button type="button" class="btn peq t-otro" style="margin-top:12px;width:100%">+ Otro tratamiento</button>`;
   d.querySelector('.x').onclick=()=>{const cult=cont.closest('.cult'),mis=probsDe(d);d.remove();
     mis.forEach(P=>{if(![...cont.querySelectorAll('.trat')].some(x=>probsDe(x).includes(P))){const ch=[...cult.querySelectorAll('.chk input')].find(c=>c.value===P);if(ch)ch.checked=false}});
     refrescarChips(cult);renumerar()};
   d.querySelector('.t-addP').onclick=()=>{addProd(d.querySelector('.t-prods'));const pp=d.querySelectorAll('.prod');const u=pp[pp.length-1];u.querySelector('.p-nom').focus();u.scrollIntoView({behavior:'smooth',block:'center'})};
-  d.querySelector('.t-otro').onclick=()=>{const n=addTrat(cont,{problemas:probsDe(d).slice(0,1)});d.after(n);renumerar();n.scrollIntoView({behavior:'smooth',block:'center'})};
+  d.querySelector('.t-otro').onclick=()=>{const n=addTrat(cont,{problemas:[]});d.after(n);renumerar();n.scrollIntoView({behavior:'smooth',block:'start'})};
   cont.appendChild(d);pintarIds(d);
   const pz=t.productos&&t.productos.length?t.productos:[{}];pz.forEach(p=>addProd(d.querySelector('.t-prods'),p));
   const cult=cont.closest('.cult');if(cult)refrescarChips(cult);
@@ -725,9 +726,9 @@ function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{co
   etapa:q('.c-eta'),sistema:q('.c-sis'),problemas:[...c.querySelectorAll('.chk input:checked')].map(x=>x.value),agente:q('.c-agente'),
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
-    numAplic:t.querySelector('.t-num').value.trim(),frecuencia:t.querySelector('.t-fre').value.trim(),
+    numAplic:t.querySelector('.t-num').value.trim(),frecuencia:t.querySelector('.t-fre').value.trim(),obs:t.querySelector('.t-obsT').value.trim(),
     productos:[...t.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+u:'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom)}})
-    .filter(t=>t.productos.length||t.objetivo||t.problema)}})}
+    .filter(t=>t.productos.length||t.objetivo||t.problema||t.obs)}})}
 $('#addCult').onclick=()=>{const d=addCultivo({});d.scrollIntoView({behavior:'smooth'})};
 
 
@@ -901,7 +902,7 @@ function pintarProductores(){const q=normNom($('#buscarP').value),sc=$('#fSucP')
     <div class="m" style="margin-top:8px">${nv} visita${nv!==1?'s':''}${nr?' · '+nr+' receta'+(nr>1?'s':'')+' a distancia':''}${g.ens.length?' · '+g.ens.length+' ensayo'+(g.ens.length>1?'s':''):''}</div></div>`}).join('')
    :'<div class="vacio">No hay productores que coincidan.<br>Se agregan solos al registrar una visita o una receta a distancia.</div>';
   $('#listaP').querySelectorAll('.pcard').forEach(c=>c.onclick=()=>abrirProductor(c.dataset.k))}
-function lineasTrat(c){return(c.tratamientos||[]).map(t=>{normTrat(t);return`${esc(t.problema||'Tratamiento')}${t.objetivo?': '+esc(t.objetivo):''} → ${esc(t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + '))}${t.frecuencia?' · '+esc(t.frecuencia):''}`}).join('<br>')}
+function lineasTrat(c){return(c.tratamientos||[]).map(t=>{normTrat(t);return`${esc(t.problema||'Tratamiento')}${t.objetivo?': '+esc(t.objetivo):''} → ${esc(t.productos.map(p=>`${p.nom} ${p.dosis} ${p.para}`).join(' + '))}${t.frecuencia?' · '+esc(t.frecuencia):''}${t.obs?' · <i>'+esc(t.obs)+'</i>':''}`}).join('<br>')}
 function abrirProductor(k){const g=grupos().find(x=>x.k===k);if(!g)return;const u=g.regs[0],cul=cultivosDe(g);
   const nv=g.regs.filter(v=>!v.remota).length,nr=g.regs.length-nv,prim=g.regs[g.regs.length-1];
   const tel=telWa(u.telefono||(g.regs.find(v=>v.telefono)||{}).telefono),gps=g.regs.find(v=>v.lat);
@@ -1120,7 +1121,7 @@ function ficha(v){const r=(t,x)=>x?`<p><b>${t}:</b> ${esc(x)}</p>`:'';const dm=m
    ${r('Problemas',(c.problemas||[]).join(', '))}${r('Identificado',c.agente)}${r('Manejo actual',c.manejo)}${r('Observaciones',c.obs)}
    ${c.tratamientos.map((t,j)=>`<h5>${esc(t.problema||'Tratamiento '+(j+1))}${t.objetivo?': '+esc(t.objetivo):''} · ${esc(t.aplicacion)}</h5>
     ${t.productos.length?`<table><tr><th>Producto</th><th>Dosis</th></tr>${t.productos.map(p=>`<tr><td>${esc(p.nom)}</td><td>${esc(p.dosis)} ${esc(p.para)}</td></tr>`).join('')}</table>`:''}
-    <p>${t.numAplic?'<b>N.º aplicaciones:</b> '+esc(t.numAplic)+' · ':''}${t.frecuencia?'<b>Frecuencia:</b> '+esc(t.frecuencia):''}</p>`).join('')}
+    <p>${t.numAplic?'<b>N.º aplicaciones:</b> '+esc(t.numAplic)+' · ':''}${t.frecuencia?'<b>Frecuencia:</b> '+esc(t.frecuencia):''}</p>${t.obs?`<p><b>Observación:</b> ${esc(t.obs)}</p>`:''}`).join('')}
    ${r('Labores culturales',c.labores)}`).join('')}
   <h4>Seguimiento</h4>${r('Próxima visita',fmtF(v.proxima))}${r('Compromisos',v.compromiso)}${r('Observaciones generales',v.obsGen)}
   ${(v.fotos||[]).length?`<h4>Registro fotográfico</h4><div class="fotos">${v.fotos.map(s=>`<img src="${s}">`).join('')}</div>`:''}
@@ -1166,6 +1167,7 @@ function dibujarReceta(v){
         font(32);x.fillText(`${p.dosis} ${p.para}`.trim(),Math.max(P+10+nw,P+430),y);y+=46});
       const det=[t.numAplic?`N.º de aplicaciones: ${t.numAplic}`:'',t.frecuencia?`Frecuencia: ${t.frecuencia}`:''].filter(Boolean).join('     ');
       if(det){x.fillStyle='#4a5a50';font(28);x.fillText(det,P+10,y+2);y+=42}
+      if(t.obs){x.fillStyle='#4a5a50';x.font=`italic 27px ${F}`;y=wrap('Obs.: '+t.obs,P+10,y+2,W-2*P-10,36)+6}
       y+=22});
     if(c.labores){x.fillStyle='#1d2a22';font(28,1);x.fillText('Labores culturales:',P,y);y+=38;font(28);y=wrap(c.labores,P,y,W-2*P,38)}
     y+=30});
