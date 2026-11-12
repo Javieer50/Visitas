@@ -147,8 +147,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .fila3.fa{grid-template-columns:1.6fr 1fr 1fr}
 /* Menú de inicio estilo iPhone */
 /* Cuadrícula uniforme de 4 columnas, como la pantalla de inicio del iPhone; la última fila queda centrada */
-.home{display:flex;flex-wrap:wrap;justify-content:center;row-gap:22px;padding:26px 0 14px;min-height:calc(100svh - 520px);align-content:center}
-.app{width:25%;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0 2px;color:var(--txt);font:500 12.5px/1.22 var(--f);text-align:center;cursor:pointer}
+.home{display:grid;grid-template-columns:repeat(4,1fr);row-gap:20px;column-gap:4px;padding:6px 0 18px;justify-items:center}
+.app{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0 2px;color:var(--txt);font:500 12.5px/1.22 var(--f);text-align:center;cursor:pointer}
 .app .ico{width:min(18.5vw,78px);height:min(18.5vw,78px);aspect-ratio:1;border-radius:23%;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .12s}
 .app:active .ico{transform:scale(.9)}
 .app .ico svg{width:54%;height:54%;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -484,7 +484,27 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
 .pdfx .concl{background:none!important;padding:0!important}.pdfx .concl:empty{display:none}.pdfx .tw{overflow:visible!important}
 .nm-f{display:flex;gap:8px;align-items:center;margin-top:8px}.nm-f input{flex:1;min-width:0}.nm-f .xp{position:static;flex:none;width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}.mdep[hidden]{display:none!important}
-.perF{margin-top:10px}#perRg{display:grid;grid-template-columns:1fr 1fr;gap:10px}#perRg[hidden],#perDia[hidden]{display:none!important}
+.barra-acts{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 6px 18px}
+#btnPend{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:18px;padding:7px 14px 7px 11px;background:linear-gradient(160deg,#FF9F0A,#D96A00);color:#fff;font:600 14px var(--f);box-shadow:0 3px 10px rgba(217,106,0,.28)}
+#pnSeg .btn{padding:10px;min-height:0;font-size:15px}#pnSeg .btn.on{background:linear-gradient(160deg,#FF9F0A,#D96A00);color:#fff}
+#btnPend svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#btnPend em{font-style:normal;background:rgba(255,255,255,.28);border-radius:9px;padding:0 7px;font-size:12px;line-height:18px}#btnPend em:empty{display:none}#btnPend em.venc{background:#fff;color:#D70015}
+.pd-f{background:var(--fill2);border-radius:12px;padding:10px;margin-top:8px}.pd-f textarea{min-height:0}.pd-r{display:grid;grid-template-columns:auto 1fr 32px;gap:8px;align-items:center;margin-top:6px}
+.pd-r label{margin:0;font-size:13px}.pd-r input{min-width:0}.pd-r .xp{width:32px;height:40px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}
+.pn-it{display:grid;grid-template-columns:34px 1fr;gap:10px;background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.pn-it .ck{width:28px;height:28px;border-radius:50%;border:2px solid #FF9F0A;background:none;display:grid;place-items:center;padding:0;color:#fff;font-size:16px}
+.pn-it.ok .ck{background:#34C759;border-color:#34C759}.pn-it.ok b{text-decoration:line-through;color:var(--txt2)}
+.pn-it b{display:block;font-size:15px;font-weight:600;line-height:1.3}.pn-it p{margin:3px 0 0;font-size:13px;color:var(--txt2)}.pn-it .fl{font-weight:600;color:#C93400}.pn-it .fl.v{color:#D70015}.pn-it .fl.ok{color:#34C759}
+.pn-it a{color:var(--acc);text-decoration:none;cursor:pointer}
+#btnActs{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:18px;padding:7px 14px 7px 11px;background:linear-gradient(160deg,#FF453A,#D70015);color:#fff;font:600 14px var(--f);box-shadow:0 3px 10px rgba(215,0,21,.28)}
+#btnActs svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#btnActs em{font-style:normal;background:rgba(255,255,255,.25);border-radius:9px;padding:0 7px;font-size:12px;line-height:18px}#btnActs em:empty{display:none}
+.perF{margin-top:10px}.perRg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.perRg2[hidden],#aDiaW[hidden]{display:none!important}.perRg2>div{min-width:0}
+.ag-dia{margin-top:18px}.ag-dia h4{margin:0 4px 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--txt2);display:flex;justify-content:space-between}
+.ag-it{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:start;background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.ag-it .h{font:600 14px var(--f);font-variant-numeric:tabular-nums;color:var(--txt)}.ag-it .h small{display:block;font-weight:400;color:var(--txt2);font-size:12px}
+.ag-it .t{display:inline-block;font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px;margin-bottom:4px;letter-spacing:.02em}
+.ag-it b{display:block;font-size:15px}.ag-it p{margin:2px 0 0;font-size:13px;color:var(--txt2);line-height:1.35}#perRg{display:grid;grid-template-columns:1fr 1fr;gap:10px}#perRg[hidden],#perDia[hidden]{display:none!important}
 .perF label{margin-top:0}.perF input{min-width:0;width:100%;box-sizing:border-box}#perRg>div{min-width:0}
 .alm-barra{height:12px;border-radius:6px;background:var(--fill);overflow:hidden;display:flex;margin:10px 0 6px}.alm-barra span{display:block;height:100%}
 .alm-l{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:.5px solid var(--sep);font-size:15px}.alm-l:first-of-type{border-top:0}
@@ -515,6 +535,8 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <main>
 <!-- ============ INICIO (menú) ============ -->
 <section id="inicio" class="sec act">
+  <div class="barra-acts"><button type="button" id="btnActs"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13h3M7.5 16.5h3M13.5 13h3M13.5 16.5h3"/></svg>Actividades<em id="nActs"></em></button>
+   <button type="button" id="btnPend"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l1.5 1.5L12 8M8 15l1.5 1.5L12 14M14.5 9.5H17M14.5 15.5H17"/></svg>Pendientes<em id="nPend"></em></button></div>
   <div class="home" id="home"></div>
   <div class="hoy aviso-inc" id="incRes" hidden></div>
   <div class="hoy" id="pendRes" hidden></div>
@@ -654,6 +676,20 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 </section>
 
 <!-- ============ LISTA ============ -->
+<section id="pendSec" class="sec">
+  <div class="seg" id="pnSeg" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button type="button" class="btn sec2 on" data-v="ab">Pendientes</button><button type="button" class="btn sec2" data-v="ok">Cumplidos</button></div>
+  <div id="pnLista" style="margin-top:14px"></div>
+</section>
+<section id="actsSec" class="sec">
+  <div class="filtros">
+    <select id="aPer"><option value="hoy">Hoy</option><option value="ayer">Ayer</option><option value="7">Últimos 7 días</option><option value="mes">Este mes</option><option value="dia">Un día…</option><option value="rango">Desde – hasta…</option><option value="todas">Todas las fechas</option></select>
+    <select id="aTipo"><option value="">Todas las actividades</option></select>
+  </div>
+  <div id="aDiaW" class="perF" hidden><label>Día</label><input type="date" id="aDia"></div>
+  <div id="aRgW" class="perF perRg2" hidden><div><label>Desde</label><input type="date" id="aDe"></div><div><label>Hasta</label><input type="date" id="aHa"></div></div>
+  <div class="stat" id="aStat" style="margin-top:14px"></div>
+  <div id="aLista"></div>
+</section>
 <section id="lista" class="sec">
   <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscar" type="search" placeholder="Buscar productor, cultivo, producto"></div>
   <label class="solo-inc"><input type="checkbox" id="soloInc">Solo incompletas</label>
@@ -793,7 +829,7 @@ const opts=(arr,sel)=>arr.map(x=>`<option${x===sel?' selected':''}>${x}</option>
 const CAMPOS=['fecha','horaInicio','horaFin','sucursal','tipo','acomp','productor','telefono','canton','comunidad','lat','lon','alt','prec','proxima','compromiso','obsGen'];
 
 /* ---------- Pestañas ---------- */
-const TIT={perfilSec:'Mi perfil',cultivosSec:'Cultivos',productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
+const TIT={pendSec:'Pendientes',actsSec:'Actividades',perfilSec:'Mi perfil',cultivosSec:'Cultivos',productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe',mod:''};
 let secAct='inicio',modoV='visita';
 function setModo(m){modoV=m;const r=m==='remota';$('#f').classList.toggle('remota',r);$('#avisoRem').hidden=!r;
   $('#horaInicio').required=false;$('#lgDatos').textContent=r?'Fecha de la consulta':'Datos de la visita';
@@ -807,7 +843,7 @@ function irA(t,titulo){secAct=t;document.documentElement.classList.toggle('en-in
   document.querySelectorAll('.sec').forEach(x=>x.classList.toggle('act',x.id===t));
   $('#btnBack').hidden=t==='inicio';
   $('#barra').style.visibility=(t==='nueva'||(t==='mod'&&modVista==='form'))?'visible':'hidden';
-  if(t==='inicio')pintarInicio();if(t==='productores')pintarProductores();if(t==='cultivosSec')pintarCultivos();if(t==='perfilSec')pintarPerfil();if(t==='lista')pintarLista();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
+  if(t==='inicio')pintarInicio();if(t==='productores')pintarProductores();if(t==='cultivosSec')pintarCultivos();if(t==='perfilSec')pintarPerfil();if(t==='lista')pintarLista();if(t==='actsSec')pintarActs();if(t==='pendSec')pintarPend();if(t==='datos')pintarResumen();window.scrollTo(0,0)}
 $('#btnBack').onclick=()=>irA('inicio');
 
 /* ---------- Horas ---------- */
@@ -1093,7 +1129,7 @@ function pintarOcup(el,fecha,excl){if(!el)return;const L=ocupados(fecha,excl);
 
 /* ---------- Módulos de actividades ---------- */
 const SUCS=['Sucúa (Matriz)','Tena','Puyo','Macas','Santa Ana (Macas)','Logroño','Méndez','Limón Indanza','Gualaquiza','Yantzaza'];
-const G={pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+const G={agenda:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M7.5 13h3M7.5 16.5h3M13.5 13h3M13.5 16.5h3"/>',pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
  percha:'<path d="M4 4v16M20 4v16M4 9h16M4 15h16"/><rect x="7" y="5.5" width="3" height="3.5" rx=".5"/><rect x="12" y="11" width="3" height="4" rx=".5"/><rect x="7" y="16.5" width="4" height="3.5" rx=".5"/>',
  visita:'<path d="M12 21c-4-4-7-7.5-7-11a7 7 0 0 1 14 0c0 3.5-3 7-7 11z"/><path d="M12 7v6M9 10h6"/>',
  lista:'<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5v2h6v-2M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/>',
@@ -1112,22 +1148,22 @@ const MODS={
   campos:[...F_FH,{k:'sucursal',l:'Sucursal',ty:'suc',req:1},
    {k:'acts',l:'Actividades realizadas',ty:'chips',op:['Atención a clientes','Asesoría técnica en mostrador','Exhibición y orden de percha','Revisión de inventario','Capacitación a vendedores','Toma de pedidos','Material POP']},
    {k:'clientes',l:'Clientes atendidos',ty:'num',half:1},{k:'consultas',l:'Consultas técnicas',ty:'num',half:1},
-   {k:'prods',l:'Productos promocionados',ty:'text',ph:'Ej.: Engeo, Ultrasol K'},{k:'obs',l:'Observaciones',ty:'area'}]},
+   {k:'prods',l:'Productos promocionados',ty:'text',ph:'Ej.: Engeo, Ultrasol K'},{k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Observaciones',ty:'area'}]},
  charla:{t:'Charla técnica',g:'charla',c:'#2F6FB3,#1E4F86',titulo:a=>a.tema||'Charla técnica',fotos:1,
   campos:[...F_FH,{k:'sucursal',l:'Sucursal de referencia',ty:'suc'},{k:'lugar',l:'Lugar / comunidad',ty:'text',req:1},
    {k:'tema',l:'Tema',ty:'text',req:1,ph:'Ej.: Manejo de antracnosis en pitahaya'},{k:'cultivo',l:'Cultivo',ty:'cult',half:1},{k:'asist',l:'N.º de asistentes',ty:'num',half:1},
-   {k:'org',l:'Organización / grupo',ty:'text',ph:'Ej.: Asociación de pitahayeros'},{k:'prods',l:'Productos presentados',ty:'text'},{k:'obs',l:'Observaciones',ty:'area'}]},
+   {k:'org',l:'Organización / grupo',ty:'text',ph:'Ej.: Asociación de pitahayeros'},{k:'prods',l:'Productos presentados',ty:'text'},{k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Observaciones',ty:'area'}]},
  ensayo:{t:'Ensayos',g:'ensayo',c:'#7A4FB5,#583690',titulo:a=>a.nombre||'Ensayo',fotos:1,estado:'estado',
   campos:[{k:'nombre',l:'Nombre del ensayo',ty:'text',req:1,ph:'Ej.: Ultrasol K en llenado de fruto'},...F_FH.map(f=>f.k==='fecha'?{...f,l:'Fecha de registro'}:{...f,req:0}),
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'productor',l:'Productor / finca',ty:'text'},{k:'cultivo',l:'Cultivo',ty:'cult',half:1},{k:'area',l:'Área del ensayo',ty:'text',half:1,ph:'Ej.: 500 m²'},
    {k:'trats',l:'Tratamientos del ensayo',ty:'ens'},
    {k:'estado',l:'Estado',ty:'sel',op:['Instalado','En evaluación','Finalizado'],half:1},{k:'proxEval',l:'Próxima evaluación',ty:'date',half:1},
-   {k:'resultado',l:'Evaluación / resultados',ty:'area'}]},
+   {k:'resultado',l:'Evaluación / resultados',ty:'area'},{k:'pends',l:'Acuerdos o pendientes',ty:'pends'}]},
  activ:{t:'Activaciones',g:'activ',c:'#E07B1F,#B85E0C',titulo:a=>a.tipoA||'Activación',fotos:1,
   campos:[...F_FH,{k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},{k:'acomp',l:'Acompañante(s)',ty:'text',ph:'Ej.: vendedor AGROLEON, ATC ECUAQUIMICA'},
    {k:'tipoA',l:'Tipo de activación',ty:'sel',op:['Impulso en punto de venta','Demostración de producto','Promoción / sorteo','Activación en finca','Otra']},
    {k:'prods',l:'Productos activados',ty:'text',req:1},{k:'personas',l:'Personas contactadas',ty:'num',half:1},{k:'material',l:'Material entregado',ty:'text',half:1,ph:'Ej.: volantes, muestras'},
-   {k:'obs',l:'Resultados / observaciones',ty:'area'}]},
+   {k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Resultados / observaciones',ty:'area'}]},
  evento:{t:'Eventos varios',g:'evento',c:'#C2410C,#9A3412',titulo:a=>a.titulo||'Evento',fotos:1,
   campos:[...F_FH,{k:'titulo',l:'Nombre del evento',ty:'text',req:1},
    {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión con empresa o institución','Reunión interna / empresa','Capacitación recibida','Otro']},{k:'asist',l:'N.º de asistentes',ty:'num',ph:'Se cuenta solo si agrega los nombres abajo'},
@@ -1135,19 +1171,45 @@ const MODS={
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},
    {k:'personas',l:'Personas asistentes',ty:'nombres',add:'Agregar asistente',ph:'Nombre y cargo. Ej.: Juan Pérez – técnico MAG'},
    {k:'acomps',l:'Acompañantes',ty:'nombres',add:'Agregar acompañante',ph:'Ej.: vendedor AGROLEON, ATC ECUAQUIMICA'},
-   {k:'obs',l:'Descripción / acuerdos',ty:'area'}]}};
+   {k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Descripción',ty:'area'}]}};
 function filaNombre(cont,v,ph){const d=document.createElement('div');d.className='nm-f';
   d.innerHTML=`<input class="nm-in" value="${esc(v||'')}" placeholder="${esc(ph||'Nombre')}" autocapitalize="words"><button type="button" class="xp" title="Quitar">×</button>`;
   d.querySelector('.xp').onclick=()=>{if(cont.children.length>1)d.remove();else d.querySelector('input').value='';programarBorradorM()};
   d.querySelector('input').addEventListener('change',e=>{const t=e.target;if(t.closest('[data-k="personas"]')){const n=nombrePropio(t.value.split(/\s[–-]\s/)[0]);const r=t.value.split(/\s[–-]\s/).slice(1).join(' – ');t.value=n+(r?' – '+r:'')}});
   cont.appendChild(d);return d}
-function leerCampoMod(c){const el=$('#m_'+c.k);if(!el)return c.ty==='chips'||c.ty==='nombres'?[]:'';
+function filaPend(cont,o){o=o||{};const d=document.createElement('div');d.className='pd-f';d.dataset.id=o.id||('p'+Date.now()+Math.random().toString(36).slice(2,6));d.dataset.ok=o.ok?'1':'';d.dataset.okf=o.okf||'';
+  d.innerHTML=`<textarea class="pd-t" rows="2" placeholder="Ej.: enviar cotización de Cal Agrícola al GAD; volver con muestras">${esc(o.t||'')}</textarea>
+   <div class="pd-r"><label>Fecha límite</label><input type="date" class="pd-fe" value="${esc(o.f||'')}"><button type="button" class="xp" title="Quitar">×</button></div>`;
+  d.querySelector('.xp').onclick=()=>{if(cont.children.length>1)d.remove();else{d.querySelector('.pd-t').value='';d.querySelector('.pd-fe').value=''}programarBorradorM()};
+  cont.appendChild(d);return d}
+function leerCampoMod(c){const el=$('#m_'+c.k);if(!el)return c.ty==='chips'||c.ty==='nombres'||c.ty==='pends'?[]:'';
+  if(c.ty==='pends')return[...el.querySelectorAll('.pd-f')].map(d=>({id:d.dataset.id,t:d.querySelector('.pd-t').value.trim(),f:d.querySelector('.pd-fe').value,ok:!!d.dataset.ok,okf:d.dataset.okf||''})).filter(x=>x.t);
   if(c.ty==='chips')return[...el.querySelectorAll('input:checked')].map(x=>x.value);
   if(c.ty==='nombres')return[...el.querySelectorAll('.nm-in')].map(x=>x.value.trim()).filter(Boolean);
   return(el.value||'').trim()}
-const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['productores','Productores','prods','#9A7B3F,#6E5526'],['cultivosSec','Cultivos','cult','#5E8C2F,#3F6A1A'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['charla'],['ensayo'],['activ'],['evento'],['datos','Informe mensual','inf','#5A6472,#363D47'],['perfilSec','Mi perfil','perfil','#8A8F98,#565B63']];
+const APPS=[['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['productores','Productores','prods','#9A7B3F,#6E5526'],['percha'],['charla'],['activ'],['evento'],['ensayo'],['cultivosSec','Cultivos','cult','#5E8C2F,#3F6A1A'],['datos','Informe','inf','#5A6472,#363D47'],['perfilSec','Mi perfil','perfil','#8A8F98,#565B63']];
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
-function pintarInicio(){
+$('#btnPend').onclick=()=>irA('pendSec');
+let pnVista='ab';$('#pnSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;pnVista=b.dataset.v;$('#pnSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));pintarPend()};
+function listaPend(){const L=[];
+  acts.forEach(a=>(a.pends||[]).forEach(p=>L.push({src:'a',a,p,t:p.t,f:p.f,ok:p.ok,okf:p.okf,fe:a.fecha,org:(MODS[a.mod]?MODS[a.mod].t:'')+' · '+(MODS[a.mod]?MODS[a.mod].titulo(a):'')})));
+  cache.filter(v=>!v.importado&&String(v.compromiso||'').trim()).forEach(v=>L.push({src:'v',v,t:v.compromiso,f:v.proxima||'',ok:!!v.compOk,okf:v.compOkf||'',fe:v.fecha,org:'Visita · '+v.productor}));
+  return L}
+function contarPend(){const L=listaPend().filter(x=>!x.ok),h=hoy();return[L.length,L.filter(x=>x.f&&x.f<h).length]}
+function pintarPend(){$('#pnSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===pnVista));const h=hoy(),L=listaPend().filter(x=>pnVista==='ok'?x.ok:!x.ok)
+    .sort((a,b)=>pnVista==='ok'?(b.okf||'').localeCompare(a.okf||''):((a.f||'9999')+a.fe).localeCompare((b.f||'9999')+b.fe));
+  $('#pnLista').innerHTML=L.length?L.map((x,i)=>{const venc=!x.ok&&x.f&&x.f<h,hoyF=x.f===h;
+    return`<div class="pn-it${x.ok?' ok':''}"><button type="button" class="ck" data-i="${i}" aria-label="Marcar cumplido">${x.ok?'✓':''}</button>
+     <div><b>${esc(x.t)}</b><p>${x.ok?`<span class="fl ok">Cumplido ${fmtF(x.okf)}</span> · `:x.f?`<span class="fl${venc?' v':''}">${venc?'Vencido · ':hoyF?'Hoy · ':'Hasta '}${fmtF(x.f)}</span> · `:''}<a data-o="${i}">${esc(x.org)}</a> · ${fmtF(x.fe)}</p></div></div>`}).join('')
+   :`<div class="vacio">${pnVista==='ok'?'Aún no hay pendientes cumplidos.':'No tiene pendientes. 👍<br>Se agregan en <b>Acuerdos o pendientes</b> de charlas, activaciones, eventos, percha y ensayos, y en Compromisos de las visitas.'}</div>`;
+  $('#pnLista').querySelectorAll('.ck').forEach(b=>b.onclick=async()=>{const x=L[+b.dataset.i],ok=!x.ok,f=ok?hoy():'';
+    if(x.src==='a'){const a={...x.a,pends:x.a.pends.map(p=>p===x.p?{...p,ok,okf:f}:p)};await guardarA(a);await recargarA()}
+    else{await guardarDB({...x.v,compOk:ok,compOkf:f});await recargar()}
+    toast(ok?'Pendiente cumplido ✔':'Marcado como pendiente');pintarPend()});
+  $('#pnLista').querySelectorAll('[data-o]').forEach(e=>e.onclick=async()=>{const x=L[+e.dataset.o];if(x.src==='v')return ficha(x.v);
+    await abrirMod(x.a.mod);nuevoMod(x.a);$('#borrM').hidden=true;verVista('form');scrollTo(0,0)})}
+$('#btnActs').onclick=()=>{$('#aPer').value='hoy';$('#aPer').onchange();irA('actsSec')};
+function pintarInicio(){{const h=hoy(),n=cache.filter(v=>v.fecha===h&&!v.importado).length+acts.filter(a=>a.fecha===h).length;$('#nActs').textContent=n?String(n):'';const[np,nv]=contarPend();$('#nPend').textContent=np?String(np):'';$('#nPend').classList.toggle('venc',nv>0)}
   $('#home').innerHTML=APPS.map(([k,t,g,c])=>{const m=MODS[k];t=t||m.t;g=g||m.g;c=(c||m.c).split(',');
     const nInc=k==='lista'?incompletas().length:0;return`<button type="button" class="app" data-k="${k}">${nInc?`<em class="insignia">${nInc}</em>`:''}<span class="ico" style="background:linear-gradient(160deg,${c[0]},${c[1]})">${k==='perfilSec'&&PERFIL.foto?`<img src="${PERFIL.foto}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:svgG(g)}</span><span>${t}</span></button>`}).join('');
   $('#home').querySelectorAll('.app').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(MODS[k])return abrirMod(k);
@@ -1213,6 +1275,7 @@ function campoHTML(f,val){if(f.dep&&!f._w)return`<div class="mdep" data-dk="${f.
   if(f.ty==='chips')return`<label>${f.l}</label><div class="chk" id="${id}">${f.op.map(x=>`<label><input type="checkbox" value="${esc(x)}"${(v||[]).includes(x)?' checked':''}>${x}</label>`).join('')}</div>`;
   if(f.ty==='ens')return`<div class="sub" style="margin-top:22px">${f.l}</div><div class="nota">Agregue un tratamiento por cada producto o dosis que va a comparar, y el testigo.</div><div id="ensTrats"></div><button type="button" class="t-nuevo" id="ensAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar tratamiento</button>`;
   if(f.ty==='area')return lab+`<textarea id="${id}">${esc(v)}</textarea>`;
+  if(f.ty==='pends')return`<div class="sub" style="margin-top:22px">${f.l}</div><div class="nota">Lo que se acordó o quedó por hacer. Aparecerá en <b>Pendientes</b> del inicio hasta que lo marque como cumplido.</div><div class="pd-lista" id="${id}" data-v="${esc(JSON.stringify(Array.isArray(v)?v:[]))}"></div><button type="button" class="t-addP pd-add" data-for="${id}"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Agregar acuerdo o pendiente</button>`;
   if(f.ty==='nombres')return`<label>${f.l}</label><div class="nm-lista" id="${id}" data-k="${f.k}" data-ph="${esc(f.ph||'')}" data-v="${esc(JSON.stringify(Array.isArray(v)?v:(v?[v]:[])))}"></div><button type="button" class="t-addP nm-add" data-for="${id}"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>${esc(f.add||'Agregar')}</button>`;
   if(f.ty==='cult')return lab+`<input id="${id}" value="${esc(v)}">`;
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
@@ -1232,6 +1295,8 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
   if($('#ensTrats')){(tratsEnsayo(a)).forEach(addEnsTrat);$('#ensAdd').onclick=()=>{const n=addEnsTrat({});n.scrollIntoView({behavior:'smooth',block:'start'});n.querySelector('.p-nom').focus()}}
   $('#modForm').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{$('#m_'+b.dataset.h).value=ahora()});
   $('#modForm').querySelectorAll('.nm-lista').forEach(c=>{let L=[];try{L=JSON.parse(c.dataset.v||'[]')}catch(e){}(L.length?L:['']).forEach(x=>filaNombre(c,x,c.dataset.ph))});
+  $('#modForm').querySelectorAll('.pd-lista').forEach(c=>{let L=[];try{L=JSON.parse(c.dataset.v||'[]')}catch(e){}(L.length?L:[{}]).forEach(x=>filaPend(c,x))});
+  $('#modForm').querySelectorAll('.pd-add').forEach(b=>b.onclick=()=>{const f=filaPend($('#'+b.dataset.for));f.querySelector('textarea').focus()});
   $('#modForm').querySelectorAll('.nm-add').forEach(b=>b.onclick=()=>{const c=$('#'+b.dataset.for);const f=filaNombre(c,'',c.dataset.ph);f.querySelector('input').focus()});
   const deps=()=>$('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);w.hidden=!(s&&s.value===w.dataset.dv)});
   $('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);if(s)s.addEventListener('change',deps)});deps();
@@ -1253,11 +1318,12 @@ async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity()
   if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
   try{await guardarA(r);await recargarA();borrBorrar('m-'+modK);toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
-function resumenAct(a){const m=MODS[a.mod];if(!m)return'';const x=[];
+function resumenAct(a,sinPend){const m=MODS[a.mod];if(!m)return'';const x=[];
   if(a.mod==='percha'){if((a.acts||[]).length)x.push(a.acts.join(', '));if(a.clientes)x.push(a.clientes+' clientes');if(a.consultas)x.push(a.consultas+' consultas')}
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
   if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(tratsEnsayo(a).map(t=>t.testigo?t.nombre+(/testigo/i.test(t.nombre)?'':' (testigo)'):t.nombre+': '+(t.productos.map(p=>p.nom+(p.dosis?' '+p.dosis:'')+(p.para?' '+p.para.replace('para ','/ '):'')).join(' + '))).join(' · '));if(a.estado)x.push(a.estado)}
   if(a.mod==='activ'){x.push(a.prods);if(a.lugar)x.push(a.lugar);if(a.personas)x.push(a.personas+' personas')}
+  if(!sinPend&&(a.pends||[]).length)x.push('Acuerdos: '+a.pends.map(p=>p.t).join('; '));
   if(a.mod==='evento'){if(a.tipoE)x.push(a.tipoE+(a.entidad?': '+a.entidad:''));if(a.lugar)x.push(a.lugar);if(a.asist)x.push(a.asist+' asistentes');
     if((a.personas||[]).length)x.push('Asistentes: '+a.personas.join(', '));if((a.acomps||[]).length)x.push('Acompañantes: '+a.acomps.join(', '))}
   return x.filter(Boolean).join(' · ')}
@@ -1417,7 +1483,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='5.4';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.8';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1785,6 +1851,38 @@ function rangoLista(){const t=$('#fPer').value,h=hoy();
   if(t==='hoy')return[h,h,'Hoy'];if(t==='ayer'){const a=sumarDias(h,-1);return[a,a,'Ayer']}if(t==='7')return[sumarDias(h,-6),h,'Últimos 7 días'];
   if(t==='mes')return[h.slice(0,8)+'01',h,'Este mes'];if(t==='dia'){const d=$('#fDia').value||h;return[d,d,fmtF(d)]}
   if(t==='rango'){let a=$('#fDe').value||'0000',b=$('#fHa').value||'9999';if(a>b)[a,b]=[b,a];return[a,b,`Del ${fmtF(a)||'inicio'} al ${fmtF(b)||'hoy'}`]}return['0000','9999','Todas las fechas']}
+/* ---------- Actividades del día (todo lo registrado) ---------- */
+function rangoPer(t,dia,de,ha){const h=hoy();
+  if(t==='hoy')return[h,h,'Hoy'];if(t==='ayer'){const a=sumarDias(h,-1);return[a,a,'Ayer']}if(t==='7')return[sumarDias(h,-6),h,'Últimos 7 días'];
+  if(t==='mes')return[h.slice(0,8)+'01',h,'Este mes'];if(t==='dia'){const d=dia||h;return[d,d,fmtF(d)]}
+  if(t==='rango'){let a=de||'0000',b=ha||'9999';if(a>b)[a,b]=[b,a];return[a,b,`Del ${fmtF(a)||'inicio'} al ${fmtF(b)||'hoy'}`]}return['0000','9999','Todas las fechas']}
+const TIPOS_AG={vis:['Visita de campo','#3B7550'],rem:['Receta a distancia','#1F8F7A']};
+function itemsAgenda(){const L=[];
+  cache.filter(v=>!v.importado).forEach(v=>L.push({k:v.remota?'rem':'vis',f:v.fecha,hi:v.horaInicio||'',hf:v.horaFin||'',suc:v.sucursal,tit:v.productor,
+    det:[(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · '),v}));
+  acts.forEach(a=>{const m=MODS[a.mod];if(!m)return;L.push({k:a.mod,f:a.fecha,hi:a.hi||'',hf:a.hf||'',suc:a.sucursal,tit:a.mod==='percha'?'Percha · '+(a.sucursal||''):m.titulo(a),det:resumenAct(a),a})});
+  return L}
+['#aTipo','#aDia','#aDe','#aHa'].forEach(x=>{$(x).onchange=pintarActs});
+$('#aPer').onchange=()=>{const t=$('#aPer').value;$('#aDiaW').hidden=t!=='dia';$('#aRgW').hidden=t!=='rango';
+  if(t==='dia'&&!$('#aDia').value)$('#aDia').value=hoy();if(t==='rango'){if(!$('#aDe').value)$('#aDe').value=hoy().slice(0,8)+'01';if(!$('#aHa').value)$('#aHa').value=hoy()}pintarActs()};
+function pintarActs(){const[d1,d2,etq]=rangoPer($('#aPer').value,$('#aDia').value,$('#aDe').value,$('#aHa').value);
+  const nomT=k=>TIPOS_AG[k]?TIPOS_AG[k][0]:MODS[k].t,colT=k=>TIPOS_AG[k]?TIPOS_AG[k][1]:MODS[k].c.split(',')[0];
+  const todos=itemsAgenda().filter(x=>x.f>=d1&&x.f<=d2);
+  const cur=$('#aTipo').value,ks=[...new Set(todos.map(x=>x.k))];
+  $('#aTipo').innerHTML='<option value="">Todas las actividades</option>'+['vis','rem',...Object.keys(MODS)].filter(k=>ks.includes(k)||k===cur).map(k=>`<option value="${k}">${nomT(k)}</option>`).join('');$('#aTipo').value=cur;
+  const L=todos.filter(x=>!cur||x.k===cur).sort((a,b)=>(b.f+(b.hi||'')).localeCompare(a.f+(a.hi||'')));
+  const min=L.reduce((s,x)=>s+minutos(x.hi,x.hf),0),dias=new Set(L.map(x=>x.f)).size;
+  $('#aStat').innerHTML=`<div><b>${L.length}</b><span>Actividades</span></div><div><b>${L.filter(x=>x.k==='vis').length}</b><span>Visitas</span></div><div><b style="font-size:20px;line-height:1.25;white-space:nowrap">${min?fmtDur(min).replace(' min','m').replace(' h ','h '):'—'}</b><span>Tiempo · ${etq}</span></div>`;
+  const porDia={};L.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
+  const nomDia=f=>{const d=new Date(f+'T12:00:00');const n=DIAS[d.getDay()];return(f===hoy()?'Hoy · ':'')+n[0].toUpperCase()+n.slice(1)+' '+fmtF(f)};
+  $('#aLista').innerHTML=L.length?Object.entries(porDia).map(([f,I])=>`<div class="ag-dia"><h4><span>${nomDia(f)}</span><span>${I.length}</span></h4>
+    ${I.slice().sort((a,b)=>(a.hi||'99').localeCompare(b.hi||'99')).map(x=>`<div class="ag-it" data-k="${x.k}" data-id="${(x.v||x.a).id}" role="button" tabindex="0">
+      <div class="h">${esc(x.hi||'—')}${x.hf?`<small>${esc(x.hf)}</small>`:''}</div>
+      <div><span class="t" style="background:${colT(x.k)}">${esc(nomT(x.k))}</span><b>${esc(x.tit||'')}</b><p>${esc([x.suc,x.det].filter(Boolean).join(' · '))}</p></div></div>`).join('')}</div>`).join('')
+   :`<div class="vacio">${$('#aPer').value==='hoy'?'Aún no hay actividades registradas hoy.<br>Para ver otros días, cambie el filtro <b>Hoy</b>.':'No hay actividades en esas fechas.'}</div>`;
+  $('#aLista').querySelectorAll('.ag-it').forEach(e=>e.onclick=async()=>{const k=e.dataset.k,id=+e.dataset.id;
+    if(k==='vis'||k==='rem'){const v=cache.find(x=>x.id===id);if(v)ficha(v);return}
+    const a=acts.find(x=>x.id===id);if(!a)return;await abrirMod(k);nuevoMod(a);$('#borrM').hidden=true;verVista('form');scrollTo(0,0)})}
 function filtradas(){const soloI=$('#soloInc')&&$('#soloInc').checked;const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,c=$('#fCult').value;
   const[d1,d2]=(q||soloI)?['0000','9999']:rangoLista();
   return cache.filter(v=>{if(v.importado)return false;if(soloI&&!faltaV(v).length)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(v.fecha>=d1&&v.fecha<=d2)&&(!c||cs.some(x=>nomCult(x)===c))&&
