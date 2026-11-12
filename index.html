@@ -462,6 +462,20 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .en-inicio .hero h1{font-size:32px;white-space:nowrap}
 @media (max-width:400px){.en-inicio .hero .lgE{padding-left:9px}.lgHero{height:48px}.en-inicio .hero h1{font-size:27px}.en-inicio .hero .lgE{height:22px}.en-inicio .hero .in{gap:8px}}
 .topbar .lgA{transition:opacity .2s}
+/* Recetas incompletas */
+.tag.inc{background:#FFE9C7;color:#8A4B00;font-weight:600}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.inc{background:#4A3210;color:#FFCF8A}}
+.aviso-inc{border:.5px solid rgba(230,140,20,.45)!important;background:linear-gradient(180deg,rgba(255,236,204,.85),var(--glass))!important}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .aviso-inc{background:linear-gradient(180deg,rgba(90,60,15,.55),var(--glass))!important}}
+.aviso-inc h3{color:#A65A00!important;display:flex;align-items:center;gap:8px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .aviso-inc h3{color:#FFC266!important}}
+.punto{width:9px;height:9px;border-radius:50%;background:#FF9500;box-shadow:0 0 0 4px rgba(255,149,0,.2);animation:latido 1.6s ease-in-out infinite}
+@keyframes latido{50%{box-shadow:0 0 0 7px rgba(255,149,0,0)}}
+.app{position:relative}
+.insignia{position:absolute;z-index:3;top:-6px;left:calc(50% + min(18.5vw,78px)/2 - 14px);min-width:22px;height:22px;padding:0 6px;border-radius:11px;
+  background:#FF3B30;color:#fff;font:700 13px/22px var(--f);font-style:normal;box-shadow:0 2px 6px rgba(255,59,48,.45),0 0 0 2px var(--fondo1)}
+.solo-inc{display:flex!important;align-items:center;gap:8px;margin:12px 2px 0!important;font-size:15px!important;color:var(--txt)!important}
+.solo-inc input{width:20px;height:20px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;accent-color:#FF9500;background:none}
 @media print{
   :root{--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;--verde:#2E5E3F;--verde2:#2E5E3F;color-scheme:light}
   body::before,.topbar,.hero,main,nav.tabbar,.noprint,.toast{display:none!important}
@@ -483,6 +497,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <!-- ============ INICIO (menú) ============ -->
 <section id="inicio" class="sec act">
   <div class="home" id="home"></div>
+  <div class="hoy aviso-inc" id="incRes" hidden></div>
   <div class="hoy" id="pendRes" hidden></div>
   <div class="hoy" id="hoyRes"></div>
 </section>
@@ -519,7 +534,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <div class="aviso" id="avisoRem" hidden><b>Receta a distancia</b> · Para clientes que le escriben por WhatsApp. No ocupa horario ni cuenta como visita de campo; al guardar se abre la receta para enviarla.</div>
 <fieldset><legend>Sucursal</legend>
   <label for="sucursal">Sucursal AGROLEON *</label>
-  <select id="sucursal" required>
+  <select id="sucursal">
     <option value="">— Seleccione —</option>
     <option>Sucúa (Matriz)</option><option>Tena</option><option>Puyo</option><option>Macas</option>
     <option>Santa Ana (Macas)</option><option>Logroño</option><option>Méndez</option>
@@ -622,6 +637,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <!-- ============ LISTA ============ -->
 <section id="lista" class="sec">
   <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscar" type="search" placeholder="Buscar productor, cultivo, producto"></div>
+  <label class="solo-inc"><input type="checkbox" id="soloInc">Solo incompletas</label>
   <div class="filtros">
     <select id="fSuc"><option value="">Todas las sucursales</option></select>
     <select id="fMes"><option value="">Todos los meses</option></select>
@@ -754,7 +770,7 @@ const CAMPOS=['fecha','horaInicio','horaFin','sucursal','tipo','acomp','producto
 const TIT={perfilSec:'Mi perfil',cultivosSec:'Cultivos',productores:'Productores',inicio:'Inicio',nueva:'Nueva visita',lista:'Mis visitas',datos:'Informe mensual',mod:''};
 let secAct='inicio',modoV='visita';
 function setModo(m){modoV=m;const r=m==='remota';$('#f').classList.toggle('remota',r);$('#avisoRem').hidden=!r;
-  $('#horaInicio').required=!r;$('#lgDatos').textContent=r?'Fecha de la consulta':'Datos de la visita';
+  $('#horaInicio').required=false;$('#lgDatos').textContent=r?'Fecha de la consulta':'Datos de la visita';
   $('#lgFotos').textContent=r?'Fotos enviadas por el productor':'Fotos';setGuardar(!!$('#id').value)}
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 {const d=new Date();const dd=DIAS[d.getDay()];$('#hoyTxt').textContent=`${dd[0].toUpperCase()+dd.slice(1)}, ${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`}
@@ -1004,7 +1020,7 @@ const APPS=[['percha'],['nueva','Nueva visita','visita','#3B7550,#24492F'],['rem
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
 function pintarInicio(){
   $('#home').innerHTML=APPS.map(([k,t,g,c])=>{const m=MODS[k];t=t||m.t;g=g||m.g;c=(c||m.c).split(',');
-    return`<button type="button" class="app" data-k="${k}"><span class="ico" style="background:linear-gradient(160deg,${c[0]},${c[1]})">${k==='perfilSec'&&PERFIL.foto?`<img src="${PERFIL.foto}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:svgG(g)}</span><span>${t}</span></button>`}).join('');
+    const nInc=k==='lista'?incompletas().length:0;return`<button type="button" class="app" data-k="${k}">${nInc?`<em class="insignia">${nInc}</em>`:''}<span class="ico" style="background:linear-gradient(160deg,${c[0]},${c[1]})">${k==='perfilSec'&&PERFIL.foto?`<img src="${PERFIL.foto}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:svgG(g)}</span><span>${t}</span></button>`}).join('');
   $('#home').querySelectorAll('.app').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(MODS[k])return abrirMod(k);
     if(k==='nueva'||k==='remota'){const m=k==='nueva'?'visita':'remota';if(modoV!==m||$('#id').value)limpiar();setModo(m);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita');
       if(!$('#productor').value.trim())restaurarBorradorV(m);return}
@@ -1018,6 +1034,11 @@ function pintarInicio(){
       return`<div class="pend"><span><b>${esc(t)}</b>${det?' · '+esc(det):''}</span><button type="button" class="btn peq" data-p="${esc(d.k)}">Continuar</button></div>`}).join(''):'';
     box.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const k=b.dataset.p;if(k.startsWith('m-'))return abrirMod(k.slice(2));const m=k==='v-visita'?'visita':'remota';
       setModo(m);irA('nueva',m==='remota'?'Receta a distancia':'Nueva visita');restaurarBorradorV(m)})});
+  const I=incompletas(),ib=$('#incRes');ib.hidden=!I.length;
+  ib.innerHTML=I.length?`<h3><span class="punto"></span>Recetas incompletas · ${I.length}</h3>`+I.slice(0,6).map(v=>`<div class="pend"><span><b>${esc(v.productor)}</b><br><span class="nota" style="margin:0">${fmtF(v.fecha)}${v.remota?' · a distancia':''} · falta ${faltaV(v).join(', ')}</span></span><button type="button" class="btn peq" data-inc="${v.id}">Completar</button></div>`).join('')
+    +(I.length>6?`<div class="pend"><span class="nota" style="margin:0">y ${I.length-6} más</span><button type="button" class="btn sec2 peq" id="incTodas">Ver todas</button></div>`:''):'';
+  ib.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>completar(cache.find(x=>x.id==b.dataset.inc)));
+  if($('#incTodas'))$('#incTodas').onclick=()=>{irA('lista');$('#soloInc').checked=true;pintarLista()};
   $('#hoyRes').innerHTML=`<h3>Hoy</h3>${filas.map(([t,n])=>`<div class="r"><span>${t}</span><b>${n}</b></div>`).join('')}<div class="r"><span>Tiempo registrado</span><b>${fmtDur(min)||'0 min'}</b></div>`}
 let modK=null,modEdit=null,modFotos=[],modVista='form';
 let tBorrM=null;
@@ -1257,7 +1278,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='3.5';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='3.6';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1523,9 +1544,8 @@ $('#btnGuardar').onclick=()=>secAct==='mod'?guardarMod():guardarVisita();
 const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
   for(const c of document.querySelectorAll('.cult'))if(c.querySelector('.c-cul').value==='Otro'&&!c.querySelector('.c-otro').value.trim()){c.querySelector('.c-otro').focus();return toast('Escriba el nombre del cultivo')}
   const rem=modoV==='remota';
-  if(rem){if(!leerCultivos().some(c=>c.tratamientos.length))return dialogo('Falta el tratamiento','Marque el problema y agregue al menos un producto para generar la receta.',[['Entendido']]);}
-  else{if(!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
-  if(!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;}
+  if(!rem){if($('#horaInicio').value&&!$('#horaFin').value&&$('#fecha').value===hoy()&&confirm('¿Registrar la hora actual como fin de la visita?'))$('#horaFin').value=ahora();
+  if($('#horaInicio').value&&!validarHorario($('#fecha').value,$('#horaInicio').value,$('#horaFin').value,{k:'v',id:+$('#id').value||-1}))return;}
   const v={id:$('#id').value?+$('#id').value:Date.now()};CAMPOS.forEach(k=>v[k]=$('#'+k).value.trim());
   v.cultivos=leerCultivos();v.fotos=fotosTmp.slice();v.actualizado=new Date().toISOString();
   v.remota=rem;if(rem){v.tipo='Receta a distancia';v.horaInicio='';v.horaFin='';['lat','lon','alt','prec'].forEach(k=>{if(!v[k]){const P=perfil(v.productor);if(P)v[k]=P.vs[0][k]||''}})}
@@ -1537,7 +1557,9 @@ const guardarVisita=async()=>{const f=$('#f');if(!f.reportValidity())return;
     ['telefono','canton','comunidad'].forEach(f=>{if(!n[f]&&v[f]){n[f]=v[f];cambio=true}});
     if(v.lat&&(!n.lat||(usarUbi&&(n.lat!==v.lat||n.lon!==v.lon)))){Object.assign(n,{lat:v.lat,lon:v.lon,alt:v.alt||n.alt,prec:v.prec});cambio=true}
     if(cambio)await guardarDB(n)}
-  toast(rem?'Receta guardada ✔':'Visita guardada ✔');limpiar();await recargar();if(rem)abrirReceta(v)}catch(e){alert('Error al guardar: '+e.message)}};
+  const inc=faltaV(v);limpiar();await recargar();
+  if(inc.length)dialogo('Guardada como incompleta',`Falta: ${inc.join(', ')}. Quedará en el inicio para completarla cuando pueda.`,[['Entendido']]);
+  else{toast(rem?'Receta guardada ✔':'Visita guardada ✔');if(rem)abrirReceta(v)}}catch(e){alert('Error al guardar: '+e.message)}};
 /* ---------- Borradores automáticos ---------- */
 let tBorr=null,restaurando=false;
 function datosBorradorV(){const d={modo:modoV,id:$('#id').value,campos:{},cultivos:leerCultivos(),fotos:fotosTmp.slice(),t:Date.now()};
@@ -1568,9 +1590,9 @@ async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach
   sel('#fMes',[...new Set(cache.map(v=>(v.fecha||'').slice(0,7)))].filter(Boolean).sort().reverse(),'Todos los meses');
   [...$('#fMes').options].forEach(o=>{const v=o.value;if(v){o.value=v;o.textContent=nomMes(v).replace(/^./,c=>c.toUpperCase())}});
   sel('#fCult',[...new Set(cache.flatMap(v=>(v.cultivos||[]).map(nomCult)))].sort(),'Todos los cultivos')}
-['#buscar','#fSuc','#fMes','#fCult'].forEach(s=>$(s).oninput=pintarLista);
-function filtradas(){const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,m=$('#fMes').value,c=$('#fCult').value;
-  return cache.filter(v=>{if(v.importado)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(!m||v.fecha.startsWith(m))&&(!c||cs.some(x=>nomCult(x)===c))&&
+['#buscar','#fSuc','#fMes','#fCult','#soloInc'].forEach(s=>$(s).oninput=pintarLista);$('#soloInc').onchange=pintarLista;
+function filtradas(){const soloI=$('#soloInc')&&$('#soloInc').checked;const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,m=$('#fMes').value,c=$('#fCult').value;
+  return cache.filter(v=>{if(v.importado)return false;if(soloI&&!faltaV(v).length)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(!m||v.fecha.startsWith(m))&&(!c||cs.some(x=>nomCult(x)===c))&&
    (!q||[v.productor,v.canton,v.comunidad,v.obsGen,...cs.map(x=>[nomCult(x),x.agente,x.obs,...x.tratamientos.flatMap(t=>t.productos.map(p=>p.nom))].join(' '))].join(' ').toLowerCase().includes(q))})}
 function pintarLista(){const l=filtradas();
   $('#cards').innerHTML=l.length?l.map(v=>{const cs=v.cultivos||[],nt=cs.reduce((s,c)=>s+c.tratamientos.length,0),dm=minutos(v.horaInicio,v.horaFin);
@@ -1578,7 +1600,7 @@ function pintarLista(){const l=filtradas();
    <div class="m">${fmtF(v.fecha)}${v.remota?' · <span class="tag rem" style="margin:0">Receta a distancia</span>':' · '+esc(v.horaInicio)+(v.horaFin?' – '+esc(v.horaFin):'')+(dm?' ('+fmtDur(dm)+')':'')}</div>
    <div class="m">${esc(v.sucursal)}${v.canton?' · '+esc(v.canton):''}${v.comunidad?' · '+esc(v.comunidad.split('\n')[0]):''}</div>
    ${cs.map(c=>`<span class="tag">${esc(nomCult(c))}${c.area?' · '+esc(fmtArea(c)):''}</span>`).join('')}
-   ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
+   ${nt?`<span class="tag">${nt} tratamiento${nt>1?'s':''}</span>`:''}${(f=>f.length?`<span class="tag inc">${f.includes('tratamiento')?'Receta incompleta':'Incompleta'}${f.filter(x=>x!=='tratamiento').length?' · falta '+f.filter(x=>x!=='tratamiento').join(', '):''}</span>`:'')(faltaV(v))}${(v.fotos||[]).length?`<span class="tag">${v.fotos.length} foto${v.fotos.length>1?'s':''}</span>`:''}
    <div class="iacc">
     <button class="ib${v.lat?' on':''}" data-a="ubi" data-id="${v.id}" aria-label="Ubicación">${IC.pin}<span>Ubicación</span></button>
     <button class="ib" data-a="ver" data-id="${v.id}" aria-label="Ficha">${IC.ficha}<span>Ficha</span></button>
@@ -1695,7 +1717,14 @@ $('#btnWaProd').onclick=async()=>{const v=recVisit;if(!v)return;const tel=telWa(
   const msg=`Buen día ${nom}, le envío la recomendación técnica de la visita del ${fmtF(v.fecha)}. Cualquier consulta estoy a las órdenes.\n${firmaCorta()} – AGROLEON`;
   toast(copiada?'Receta copiada: en el chat toque Pegar':'Abriendo WhatsApp…');
   setTimeout(()=>{location.href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`},copiada?700:200)};
-function abrirReceta(v){recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar al productor por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
+/* ---------- Visitas y recetas incompletas ---------- */
+const tieneTrat=v=>(v.cultivos||[]).some(c=>(c.tratamientos||[]).some(t=>(t.productos||[]).some(p=>p.nom)));
+function faltaV(v){if(!v||v.importado)return[];const f=[];if(!tieneTrat(v))f.push('tratamiento');if(!v.sucursal)f.push('sucursal');
+  if(!v.remota&&!v.horaInicio)f.push('horario');return f}
+const incompletas=()=>cache.filter(v=>faltaV(v).length).sort((a,b)=>(a.fecha+(a.horaInicio||'')).localeCompare(b.fecha+(b.horaInicio||'')));
+function completar(v){cargar(v);setTimeout(()=>{const f=faltaV(v);
+  const el=f[0]==='sucursal'?$('#sucursal'):f[0]==='horario'?$('#horaInicio'):document.querySelector('.t-nuevo');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},400)}
+function abrirReceta(v){if(!tieneTrat(v))return dialogo('Receta incompleta',`La visita a ${v.productor} todavía no tiene tratamientos. Complétela para generar la receta.`,[['Cancelar'],['Completar',()=>{$('#mFicha').style.display='none';completar(v)}]]);recVisit=v;const tl=telWa(v.telefono);$('#waTxt').textContent=tl&&tl!=='invalido'?`Enviar a ${String(v.productor).split(' ')[0]} por WhatsApp`:'Enviar al productor por WhatsApp';const cv=dibujarReceta(v);$('#recImg').src=cv.toDataURL('image/png');recFile=null;
   const nombre=`Receta_${(v.productor||'productor').replace(/[^\wáéíóúñÁÉÍÓÚÑ]+/g,'_')}_${v.fecha}.png`;
   cv.toBlob(b=>{recFile=new File([b],nombre,{type:'image/png'})},'image/png');
   $('#mRec').style.display='block';$('#mRec').scrollTop=0}
