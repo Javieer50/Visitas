@@ -241,7 +241,7 @@ tr.clic{cursor:pointer}tr.clic:active td{background:var(--fill)}.flecha{color:va
 .dlg h3{margin:18px 16px 4px;font-size:17px;font-weight:600}
 .dlg p{margin:0 16px 16px;font-size:14px;color:var(--txt);line-height:1.35}
 .dlgb{display:flex;border-top:.5px solid var(--sep)}
-.dlgb button{flex:1;background:none;border:0;padding:12px 6px;font:17px var(--f);color:var(--acc)}
+.dlgb button{flex:1;background:none;border:0;padding:12px 6px;font:17px var(--f);color:var(--acc)}.dlgb.vert{flex-direction:column}.dlgb.vert button+button{border-top:.5px solid var(--sep)}.dlgb:not(.vert) button+button{border-left:.5px solid var(--sep)}
 .dlgb button+button{border-left:.5px solid var(--sep);font-weight:600}
 .hist{margin-top:12px;border-radius:12px;padding:12px;background:var(--tintbg);font-size:15px}
 .hist b{color:var(--acc)}
@@ -483,6 +483,16 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .pdfx{position:fixed;left:-20000px;top:0;width:760px;--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;color-scheme:light;background:#fff;color:#000}
 .pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
 .pdfx .concl{background:none!important;padding:0!important}.pdfx .concl:empty{display:none}.pdfx .tw{overflow:visible!important}
+.perF{margin-top:10px}#perRg{display:grid;grid-template-columns:1fr 1fr;gap:10px}#perRg[hidden],#perDia[hidden]{display:none!important}
+.perF label{margin-top:0}.perF input{min-width:0;width:100%;box-sizing:border-box}#perRg>div{min-width:0}
+.alm-barra{height:12px;border-radius:6px;background:var(--fill);overflow:hidden;display:flex;margin:10px 0 6px}.alm-barra span{display:block;height:100%}
+.alm-l{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:.5px solid var(--sep);font-size:15px}.alm-l:first-of-type{border-top:0}
+.alm-l i{width:10px;height:10px;border-radius:50%;flex:none}.alm-l b{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.alm-l button{border:0;background:var(--fill);color:#FF3B30;font:600 13px var(--f);padding:6px 10px;border-radius:14px;margin-left:8px}
+.galeria{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:10px}.galeria label{position:relative;aspect-ratio:1;display:block;margin:0;overflow:hidden;border-radius:6px}
+.galeria img{width:100%;height:100%;object-fit:cover;display:block}.galeria input{position:absolute;top:6px;right:6px;width:22px;height:22px;accent-color:#FF3B30;-webkit-appearance:checkbox;appearance:auto;min-height:0;margin:0;padding:0}
+.galeria small{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:10px;padding:10px 5px 3px}
+.galeria label:has(input:checked) img{opacity:.55}
 .solo-inc input{width:20px;height:20px;min-height:0;padding:0;-webkit-appearance:checkbox;appearance:auto;accent-color:#FF9500;background:none}
 @media print{
   :root{--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;--verde:#2E5E3F;--verde2:#2E5E3F;color-scheme:light}
@@ -647,10 +657,13 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
   <div class="buscador"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="buscar" type="search" placeholder="Buscar productor, cultivo, producto"></div>
   <label class="solo-inc"><input type="checkbox" id="soloInc">Solo incompletas</label>
   <div class="filtros">
+    <select id="fPer"><option value="hoy">Hoy</option><option value="ayer">Ayer</option><option value="7">Últimos 7 días</option><option value="mes">Este mes</option><option value="dia">Un día…</option><option value="rango">Desde – hasta…</option><option value="todas">Todas las fechas</option></select>
     <select id="fSuc"><option value="">Todas las sucursales</option></select>
-    <select id="fMes"><option value="">Todos los meses</option></select>
     <select id="fCult"><option value="">Todos los cultivos</option></select>
   </div>
+  <div id="perDia" class="perF" hidden><label>Día</label><input type="date" id="fDia"></div>
+  <div id="perRg" class="perF" hidden><div><label>Desde</label><input type="date" id="fDe"></div><div><label>Hasta</label><input type="date" id="fHa"></div></div>
+  <p class="nota" id="perTxt" style="margin:10px 2px 0"></p>
   <div id="cards"></div>
 </section>
 
@@ -1364,7 +1377,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='5.0';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.1';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1403,12 +1416,62 @@ function pintarPerfil(){const P=PERFIL,V=cache.filter(v=>!v.importado&&!v.remota
     ${P.telefono&&telWa(P.telefono)!=='invalido'?`<a class="btn sec2 peq" href="https://wa.me/${telWa(P.telefono)}" target="_blank" rel="noopener">Mi WhatsApp</a>`:''}
     ${P.correo?`<a class="btn sec2 peq" href="mailto:${esc(P.correo)}">Mi correo</a>`:''}</div>
     <p class="nota">${desde?'Registros desde el '+fmtF(desde)+'. ':''}${R.length} recetas a distancia · ${acts.length} actividades.</p></fieldset>
+   <fieldset><legend>Almacenamiento</legend><div id="almBox"><p class="nota">Calculando…</p></div></fieldset>
    <p class="nota" style="text-align:center;margin-top:20px">AGROLEON · versión ${VERSION}</p>`;
+  pintarAlm();
   $('#pfFoto').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{PERFIL.foto=await recortarFoto(f);await guardarPerfil();pintarPerfil();toast('Foto actualizada')}catch(x){toast('No se pudo cargar la foto')}};
   $('#pfOk').onclick=async()=>{Object.assign(PERFIL,{nombre:$('#pf_nom').value.trim(),titulo:$('#pf_tit').value.trim(),profesion:$('#pf_pro').value.trim(),cargo:$('#pf_car').value.trim(),
       empresa:$('#pf_emp').value.trim(),cliente:$('#pf_cli').value.trim(),telefono:$('#pf_tel').value.trim(),correo:$('#pf_cor').value.trim(),base:$('#pf_base').value,
       sucursales:[...document.querySelectorAll('#pf_sucs input:checked')].map(x=>x.value),meta:$('#pf_meta').value.trim()});
     await guardarPerfil();$('#lgTitle').textContent='Mi perfil';pintarPerfil();scrollTo({top:0,behavior:'smooth'});toast('Datos guardados ✔')}}
+/* ---------- Almacenamiento ---------- */
+const bytesTxt=x=>typeof x==='string'?(x.startsWith('data:')?Math.round((x.length-x.indexOf(',')-1)*0.75):x.length*2):0;
+const fmtB=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(0)+' KB':b<1073741824?(b/1048576).toFixed(1).replace('.',',')+' MB':(b/1073741824).toFixed(2).replace('.',',')+' GB';
+const sinFotos=o=>JSON.stringify({...o,fotos:undefined}).length*2;
+async function datosAlm(){const B=await borrTodos();
+  const fv=cache.reduce((s,v)=>s+(v.fotos||[]).reduce((a,f)=>a+bytesTxt(f),0),0),nfv=cache.reduce((s,v)=>s+(v.fotos||[]).length,0);
+  const fa=acts.reduce((s,a)=>s+(a.fotos||[]).reduce((x,f)=>x+bytesTxt(f),0),0),nfa=acts.reduce((s,a)=>s+(a.fotos||[]).length,0);
+  const imp=cache.filter(v=>v.importado),bi=imp.reduce((s,v)=>s+sinFotos(v),0);
+  const reg=cache.filter(v=>!v.importado).reduce((s,v)=>s+sinFotos(v),0)+acts.reduce((s,a)=>s+sinFotos(a),0);
+  const borr=B.filter(b=>b.k!=='perfil'),bb=borr.reduce((s,b)=>s+JSON.stringify(b).length*2,0);
+  const pf=bytesTxt(PERFIL.foto||'');let est=null;try{if(navigator.storage&&navigator.storage.estimate)est=await navigator.storage.estimate()}catch(e){}
+  return{fv,nfv,fa,nfa,bi,nimp:imp.length,reg,bb,nb:borr.length,pf,est}}
+async function pintarAlm(){const box=$('#almBox');if(!box)return;const A=await datosAlm();
+  const C=[['Fotos de visitas',A.fv,'#34C759',A.nfv+' foto'+(A.nfv!==1?'s':''),'fv'],['Fotos de actividades',A.fa,'#007AFF',A.nfa+' foto'+(A.nfa!==1?'s':''),'fa'],
+    ['Registros (visitas y actividades)',A.reg,'#FF9500','',''],['Datos de Google Earth',A.bi,'#AF52DE',A.nimp?A.nimp+' registros':'','ge'],['Borradores sin guardar',A.bb,'#8E8E93',A.nb?A.nb+'':'','bo'],['Foto de perfil',A.pf,'#5AC8FA','','']].filter(c=>c[1]>0);
+  const tot=C.reduce((s,c)=>s+c[1],0)||1,uso=A.est&&A.est.usage,cuota=A.est&&A.est.quota;
+  box.innerHTML=`<div style="display:flex;align-items:baseline;gap:8px;margin-top:10px"><b style="font-size:26px;white-space:nowrap">${fmtB(tot)}</b><span class="nota" style="margin:0">usados por la app${uso&&cuota?` · ${fmtB(cuota)} disponibles en el teléfono`:''}</span></div>
+   <div class="alm-barra">${C.map(c=>`<span style="width:${c[1]/tot*100}%;background:${c[2]}"></span>`).join('')}</div>
+   ${C.map(c=>`<div class="alm-l"><i style="background:${c[2]}"></i><span>${c[0]}${c[3]?`<br><small class="nota" style="margin:0">${c[3]}</small>`:''}</span><b>${fmtB(c[1])}</b>${c[4]?`<button type="button" data-al="${c[4]}">${c[4]==='fv'||c[4]==='fa'?'Revisar':'Eliminar'}</button>`:''}</div>`).join('')}
+   <p class="nota">Las imágenes de recetas, fichas e informes PDF no ocupan espacio: se crean al momento cada vez que las abre.</p>
+   ${A.nfv+A.nfa?`<div class="acciones" style="margin-top:6px"><button type="button" class="btn sec2" id="alFotosViejas">Eliminar fotos antiguas</button></div>`:''}
+   <p class="nota">Antes de eliminar, puede guardar un <b>respaldo completo</b> desde Informe → Exportar y respaldar.</p>`;
+  box.querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>{const k=b.dataset.al;
+    if(k==='fv'||k==='fa')return galeriaFotos(k);
+    if(k==='bo')return dialogo('Eliminar borradores',`Se borrarán ${A.nb} borrador(es) de visitas o actividades sin guardar.`,[['Cancelar'],['Eliminar',async()=>{for(const x of await borrTodos())if(x.k!=='perfil')await borrBorrar(x.k);toast('Borradores eliminados');pintarAlm()}]]);
+    if(k==='ge')return dialogo('Eliminar datos de Google Earth',`Se borrarán ${A.nimp} registros importados (ubicaciones y áreas). Sus visitas no se tocan.`,[['Cancelar'],['Eliminar',async()=>{for(const v of cache.filter(v=>v.importado))await borrarDB(v.id);await recargar();toast('Datos importados eliminados');pintarAlm()}]])});
+  const bv=$('#alFotosViejas');if(bv)bv.onclick=()=>{const borrarAntes=async(meses)=>{const lim=new Date();lim.setMonth(lim.getMonth()-meses);const L=lim.toISOString().slice(0,10);let n=0;
+      for(const v of cache)if((v.fotos||[]).length&&(v.fecha||'')<L){n+=v.fotos.length;await guardarDB({...v,fotos:[]})}
+      for(const a of acts)if((a.fotos||[]).length&&(a.fecha||'')<L){n+=a.fotos.length;await guardarA({...a,fotos:[]})}
+      await recargar();await recargarA();toast(n?`${n} foto${n>1?'s':''} eliminada${n>1?'s':''}`:'No hay fotos tan antiguas');pintarAlm()};
+    dialogo('Eliminar fotos antiguas','Se quitan solo las fotos; las visitas, recetas y datos se mantienen. ¿De qué antigüedad?',[['Más de 6 meses',()=>borrarAntes(6)],['Más de 3 meses',()=>borrarAntes(3)],['Más de 1 mes',()=>borrarAntes(1)],['Cancelar']])}}
+function galeriaFotos(tipo){const L=[];(tipo==='fv'?cache:acts).forEach(o=>(o.fotos||[]).forEach((f,i)=>L.push({o,i,f,fe:o.fecha||'',n:tipo==='fv'?o.productor:(MODS[o.mod]?MODS[o.mod].t:'Actividad')})));
+  L.sort((a,b)=>b.fe.localeCompare(a.fe));const tot=L.reduce((s,x)=>s+bytesTxt(x.f),0);
+  $('#perfilC').innerHTML=`<div class="cab"><img class="lgA" src="${LOGO_A}" alt=""><div><h2>${tipo==='fv'?'Fotos de visitas':'Fotos de actividades'}</h2><div style="font-size:13px">${L.length} fotos · ${fmtB(tot)}</div></div></div>
+   <div class="cuerpo"><p class="nota" style="margin-top:4px">Marque las fotos que quiere eliminar. La visita o actividad se mantiene, solo se quita la foto.</p>
+   <div class="row-btns"><button type="button" class="btn sec2 peq" id="gTodas">Seleccionar todas</button><button type="button" class="btn sec2 peq" id="gNing">Ninguna</button></div>
+   <div class="galeria">${L.map((x,j)=>`<label><img src="${x.f}" alt="" loading="lazy"><input type="checkbox" data-j="${j}"><small>${fmtF(x.fe)} · ${esc(String(x.n||'').split(' ').slice(0,2).join(' '))}</small></label>`).join('')}</div>
+   <div class="acciones noprint"><button type="button" class="btn" id="gDel" style="background:#FF3B30">Eliminar seleccionadas</button><button type="button" class="btn sec2" onclick="$('#mCult').style.display='none'">Cerrar</button></div></div>`;
+  const chks=()=>[...$('#perfilC').querySelectorAll('.galeria input')];
+  const act=()=>{const n=chks().filter(c=>c.checked).length;$('#gDel').textContent=n?`Eliminar ${n} foto${n>1?'s':''}`:'Eliminar seleccionadas'};
+  chks().forEach(c=>c.onchange=act);$('#gTodas').onclick=()=>{chks().forEach(c=>c.checked=true);act()};$('#gNing').onclick=()=>{chks().forEach(c=>c.checked=false);act()};
+  $('#gDel').onclick=()=>{const sel=chks().filter(c=>c.checked).map(c=>L[+c.dataset.j]);if(!sel.length)return toast('Marque al menos una foto');
+    dialogo('Eliminar fotos',`Se eliminarán ${sel.length} foto${sel.length>1?'s':''} (${fmtB(sel.reduce((s,x)=>s+bytesTxt(x.f),0))}). No se puede deshacer.`,[['Cancelar'],['Eliminar',async()=>{
+      const por=new Map();sel.forEach(x=>{if(!por.has(x.o))por.set(x.o,new Set());por.get(x.o).add(x.i)});
+      for(const[o,idx]of por){const nu={...o,fotos:(o.fotos||[]).filter((_,i)=>!idx.has(i))};if(tipo==='fv')await guardarDB(nu);else await guardarA(nu)}
+      await recargar();await recargarA();toast('Fotos eliminadas');pintarAlm();galeriaFotos(tipo)}]])};
+  $('#mCult').style.display='block';$('#mCult').scrollTop=0}
+
 function recortarFoto(f){return new Promise((ok,err)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const S=360,c=document.createElement('canvas');c.width=c.height=S;
   const m=Math.min(i.width,i.height);c.getContext('2d').drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,S,S);ok(c.toDataURL('image/jpeg',.82))};i.onerror=err;i.src=r.result};r.onerror=err;r.readAsDataURL(f)})}
 
@@ -1673,14 +1736,21 @@ async function recargar(){cache=(await todas()).map(v=>{(v.cultivos||[]).forEach
   sugerirProd();
   const sel=(id,arr,t)=>{const cur=$(id).value;$(id).innerHTML=`<option value="">${t}</option>`+arr.map(x=>`<option>${esc(x)}</option>`).join('');$(id).value=cur};
   sel('#fSuc',[...new Set(cache.map(v=>v.sucursal))].sort(),'Todas las sucursales');
-  sel('#fMes',[...new Set(cache.map(v=>(v.fecha||'').slice(0,7)))].filter(Boolean).sort().reverse(),'Todos los meses');
-  [...$('#fMes').options].forEach(o=>{const v=o.value;if(v){o.value=v;o.textContent=nomMes(v).replace(/^./,c=>c.toUpperCase())}});
   sel('#fCult',[...new Set(cache.flatMap(v=>(v.cultivos||[]).map(nomCult)))].sort(),'Todos los cultivos')}
-['#buscar','#fSuc','#fMes','#fCult','#soloInc'].forEach(s=>$(s).oninput=pintarLista);$('#soloInc').onchange=pintarLista;
-function filtradas(){const soloI=$('#soloInc')&&$('#soloInc').checked;const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,m=$('#fMes').value,c=$('#fCult').value;
-  return cache.filter(v=>{if(v.importado)return false;if(soloI&&!faltaV(v).length)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(!m||v.fecha.startsWith(m))&&(!c||cs.some(x=>nomCult(x)===c))&&
+['#buscar','#fSuc','#fCult','#soloInc','#fDia','#fDe','#fHa'].forEach(s=>$(s).oninput=pintarLista);$('#soloInc').onchange=pintarLista;['#fDia','#fDe','#fHa'].forEach(s=>$(s).onchange=pintarLista);
+$('#fPer').onchange=()=>{const t=$('#fPer').value;$('#perDia').hidden=t!=='dia';$('#perRg').hidden=t!=='rango';
+  if(t==='dia'&&!$('#fDia').value)$('#fDia').value=hoy();if(t==='rango'){if(!$('#fDe').value)$('#fDe').value=hoy().slice(0,8)+'01';if(!$('#fHa').value)$('#fHa').value=hoy()}pintarLista()};
+const sumarDias=(f,n)=>{const d=new Date(f+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+function rangoLista(){const t=$('#fPer').value,h=hoy();
+  if(t==='hoy')return[h,h,'Hoy'];if(t==='ayer'){const a=sumarDias(h,-1);return[a,a,'Ayer']}if(t==='7')return[sumarDias(h,-6),h,'Últimos 7 días'];
+  if(t==='mes')return[h.slice(0,8)+'01',h,'Este mes'];if(t==='dia'){const d=$('#fDia').value||h;return[d,d,fmtF(d)]}
+  if(t==='rango'){let a=$('#fDe').value||'0000',b=$('#fHa').value||'9999';if(a>b)[a,b]=[b,a];return[a,b,`Del ${fmtF(a)||'inicio'} al ${fmtF(b)||'hoy'}`]}return['0000','9999','Todas las fechas']}
+function filtradas(){const soloI=$('#soloInc')&&$('#soloInc').checked;const q=$('#buscar').value.toLowerCase(),s=$('#fSuc').value,c=$('#fCult').value;
+  const[d1,d2]=(q||soloI)?['0000','9999']:rangoLista();
+  return cache.filter(v=>{if(v.importado)return false;if(soloI&&!faltaV(v).length)return false;const cs=(v.cultivos||[]);return(!s||v.sucursal===s)&&(v.fecha>=d1&&v.fecha<=d2)&&(!c||cs.some(x=>nomCult(x)===c))&&
    (!q||[v.productor,v.canton,v.comunidad,v.obsGen,...cs.map(x=>[nomCult(x),x.agente,x.obs,...x.tratamientos.flatMap(t=>t.productos.map(p=>p.nom))].join(' '))].join(' ').toLowerCase().includes(q))})}
-function pintarLista(){const l=filtradas();
+function pintarLista(){const l=filtradas(),q=$('#buscar').value.trim(),soloI=$('#soloInc').checked,etq=rangoLista()[2];
+  $('#perTxt').textContent=(q||soloI?'Buscando en todas las fechas':etq)+` · ${l.length} registro${l.length!==1?'s':''}`;
   $('#cards').innerHTML=l.length?l.map(v=>{const cs=v.cultivos||[],nt=cs.reduce((s,c)=>s+c.tratamientos.length,0),dm=minutos(v.horaInicio,v.horaFin);
    return`<div class="card"><h3>${esc(v.productor)}</h3>
    <div class="m">${fmtF(v.fecha)}${v.remota?' · <span class="tag rem" style="margin:0">Receta a distancia</span>':' · '+esc(v.horaInicio)+(v.horaFin?' – '+esc(v.horaFin):'')+(dm?' ('+fmtDur(dm)+')':'')}</div>
@@ -1695,7 +1765,7 @@ function pintarLista(){const l=filtradas();
     <button class="ib" data-a="dup" data-id="${v.id}" aria-label="Nueva visita">${IC.nueva}<span>Nueva</span></button>
     <button class="ib roj" data-a="del" data-id="${v.id}" aria-label="Eliminar">${IC.del}<span>Eliminar</span></button>
    </div></div>`}).join('')
-   :'<div class="vacio">No hay visitas que coincidan.<br>Registre una en la pestaña Nueva visita.</div>';
+   :`<div class="vacio">${$('#fPer').value==='hoy'&&!q&&!soloI?'Aún no hay visitas registradas hoy.<br>Para ver anteriores, cambie el filtro <b>Hoy</b> por otro día o rango.':'No hay visitas que coincidan.<br>Pruebe con otras fechas o “Todas las fechas”.'}</div>`;
   $('#cards').querySelectorAll('button[data-a]').forEach(b=>b.onclick=async()=>{const v=cache.find(x=>x.id==b.dataset.id);
    if(b.dataset.a==='rec')abrirReceta(v);
    if(b.dataset.a==='ver')ficha(v);
@@ -1789,7 +1859,7 @@ const IC={pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 
  nueva:'<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
  del:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'};
 let recVisit=null;
-function dialogo(t,m,botones){$('#dlgT').textContent=t;$('#dlgM').textContent=m;const b=$('#dlgB');b.innerHTML='';
+function dialogo(t,m,botones){$('#dlgT').textContent=t;$('#dlgM').textContent=m;const b=$('#dlgB');b.innerHTML='';b.classList.toggle('vert',botones.length>2);
   botones.forEach(([txt,fn])=>{const x=document.createElement('button');x.textContent=txt;x.onclick=()=>{$('#dlg').hidden=true;fn&&fn()};b.appendChild(x)});$('#dlg').hidden=false}
 function telWa(t){let d=String(t||'').replace(/\D/g,'');if(!d)return'';
   if(d.startsWith('593'))d=d;else if(d.startsWith('0'))d='593'+d.slice(1);else if(d.length===9)d='593'+d;
