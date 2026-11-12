@@ -754,7 +754,7 @@ function edadActual(c,fechaUlt){normEdad(c);if(!c.edad||!fechaUlt)return c;
 const aNum=x=>{x=String(x||'').trim().replace(/\s/g,'');if(!x)return'';x=x.replace(',','.');const n=parseFloat(x);return isNaN(n)?'':String(n)};
 document.addEventListener('input',e=>{const t=e.target;if(!t.classList||!t.classList.contains('num-dec'))return;
   let v=t.value.replace(/[^0-9.,]/g,'');const i=v.search(/[.,]/);if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/[.,]/g,'');if(v!==t.value)t.value=v});
-const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Suelo / acidez','Clima / estrés'];
+const PROBS=['Plaga','Enfermedad','Malezas','Nutrición','Fertilización','Suelo / acidez','Clima / estrés'];
 
 /* ---------- Base de datos local (IndexedDB) ---------- */
 const DBN='visitasAgroleon',ST='visitas';
@@ -877,8 +877,24 @@ function addCultivo(c={}){normCult(c);normEdad(c);const _nv=++_nvC;
   upd();return d}
 const PH={'Plaga':['¿Qué plaga?','Ej.: trips, picudo, ácaros'],'Enfermedad':['¿Qué enfermedad?','Ej.: antracnosis, monilia'],
   'Malezas':['¿Qué malezas?','Ej.: hoja ancha, gramíneas'],'Nutrición':['¿Qué deficiencia?','Ej.: deficiencia de Mg, K'],
+  'Fertilización':['¿Qué etapa u objetivo?','Ej.: crecimiento, floración, llenado de fruto'],
   'Suelo / acidez':['¿Qué problema de suelo?','Ej.: pH ácido, aluminio'],'Clima / estrés':['¿Qué estrés?','Ej.: exceso de lluvia, sequía']};
-const APD={'Malezas':'Herbicida dirigido','Suelo / acidez':'Al suelo'};
+const APD={'Malezas':'Herbicida dirigido','Suelo / acidez':'Al suelo','Fertilización':'Al suelo'};
+// Dosis según el tipo de tratamiento: enmiendas por planta, fertilizantes granulados en quintales
+const MODO_DOSIS={liq:{u:['cucharadas','g','kg','cc','L'],para:PARA,du:'cc',dp:'para 20 litros'},
+  suelo:{u:['g','kg','qq','cucharadas','cc','L'],para:['por planta','por hectárea','en total',...PARA],du:'g',dp:'por planta'},
+  fer:{u:['qq','kg','g'],para:['en total','por hectárea','por planta'],du:'qq',dp:'en total'}};
+function modoDosis(ps){ps=(ps||[]).filter(Boolean);if(!ps.length)return'liq';if(ps.every(x=>x==='Fertilización'))return'fer';
+  if(ps.every(x=>x==='Suelo / acidez'))return'suelo';if(ps.every(x=>x==='Fertilización'||x==='Suelo / acidez'))return'fer';return'liq'}
+const uTxt=(cant,u)=>u==='cucharadas'&&+cant===1?'cucharada':u;
+const etqPara=x=>x.replace('para ','').replace(' litros',' L').replace(' litro',' L');
+function ajustarProd(fila,modo,p){const M=MODO_DOSIS[modo]||MODO_DOSIS.liq,su=fila.querySelector('.p-u'),sp=fila.querySelector('.p-para');
+  const u=p&&p.u!=null?p.u:su.value,pa=p&&p.para!=null?p.para:sp.value;
+  const U=[...new Set([...M.u,...(u&&!M.u.includes(u)&&p?[u]:[])])],PA=[...new Set([...M.para,...(pa&&!M.para.includes(pa)&&p?[pa]:[])])];
+  su.innerHTML=U.map(x=>`<option${x===u?' selected':''}>${x}</option>`).join('');if(!U.includes(u))su.value=M.du;
+  sp.innerHTML=PA.map(x=>`<option value="${x}"${x===pa?' selected':''}>${etqPara(x)}</option>`).join('');if(!PA.includes(pa))sp.value=M.dp;
+  fila.dataset.modo=modo;fila.querySelector('.p-cant').placeholder=modo==='fer'?'1,5':modo==='suelo'?'200':'25'}
+function ajustarDosisTrat(t){const m=modoDosis(probsDe(t));t.querySelectorAll('.prod').forEach(f=>{if((f.dataset.modo||'liq')!==m){const M=MODO_DOSIS[m];if(!f.querySelector('.p-cant').value.trim()){f.querySelector('.p-u').value='';f.querySelector('.p-para').value=''}ajustarProd(f,m);if(!f.querySelector('.p-cant').value.trim()){f.querySelector('.p-u').value=M.du;f.querySelector('.p-para').value=M.dp}}})}
 function normTrat(t){if(!t)return t;if(!Array.isArray(t.problemas)){t.problemas=t.problema?String(t.problema).split(' + ').filter(Boolean):[];
     t.objetivos=t.objetivos||(t.problemas.length===1?{[t.problemas[0]]:t.objetivo||''}:{})}
   t.objetivos=t.objetivos||{};return t}
@@ -897,7 +913,8 @@ function ponerProb(t,P,on){let ps=probsDe(t);ps=on?[...new Set([...ps,P])]:ps.fi
   const orden=PROBS.filter(x=>ps.includes(x));t.dataset.probs=JSON.stringify(orden);
   const cult=t.closest('.cult'),ch=[...cult.querySelectorAll('.chk input')].find(x=>x.value===P);
   if(ch)ch.checked=on||[...cult.querySelectorAll('.trat')].some(x=>probsDe(x).includes(P));
-  pintarIds(t);refrescarChips(cult);renumerar()}
+  const ap=t.querySelector('.t-apl');if(ap){const pr=orden[0];if(on&&APD[P]&&orden.every(x=>APD[x]===APD[P])&&ap.value==='Foliar')ap.value=APD[P];else if(!orden.some(x=>APD[x])&&Object.values(APD).includes(ap.value)&&!on)ap.value='Foliar'}
+  pintarIds(t);refrescarChips(cult);ajustarDosisTrat(t);renumerar()}
 function addTrat(cont,t={}){normTrat(t);
   const ps=PROBS.filter(x=>t.problemas.includes(x)),pr=ps[0]||'';
   const d=document.createElement('div');d.className='trat';d.dataset.probs=JSON.stringify(ps);d._obj={...t.objetivos};
@@ -920,7 +937,7 @@ function addTrat(cont,t={}){normTrat(t);
   const pz=t.productos&&t.productos.length?t.productos:[{}];pz.forEach(p=>addProd(d.querySelector('.t-prods'),p));
   const cult=cont.closest('.cult');if(cult)refrescarChips(cult);
   renumerar();return d}
-const DOSU=['cc','L','g','kg'];
+const DOSU=['cucharadas','g','kg','cc','L'];
 /* ---------- Autocompletar productos (aprende de lo que va recetando) ---------- */
 const CATALOGO=[...document.querySelectorAll('#dl-insumos option')].map(o=>o.value);
 function memoriaProductos(){const M={};
@@ -1025,7 +1042,7 @@ if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!$('#s
 // Separa dosis antiguas escritas a mano ("50 g", "1,5 kg", "10 cc", "1 litro")
 function partirDosis(p){if(p.cant!=null&&p.u)return{cant:p.cant,u:p.u};const t=String(p.dosis||'').trim();if(!t)return{cant:'',u:'cc'};
   const m=t.match(/(\d+(?:[.,]\d+)?)\s*([a-zA-Z]*)/);if(!m)return{cant:'',u:'cc'};
-  const w=(m[2]||'').toLowerCase(),u=/^(kg|kilo)/.test(w)?'kg':/^(g|gr)/.test(w)?'g':/^(l|lt|lit)/.test(w)?'L':'cc';
+  const w=(m[2]||'').toLowerCase(),u=/^cuchar/.test(w)?'cucharadas':/^(qq|quint)/.test(w)?'qq':/^(kg|kilo)/.test(w)?'kg':/^(g|gr)/.test(w)?'g':/^(l|lt|lit)/.test(w)?'L':'cc';
   return{cant:m[1].replace(',','.'),u}}
 function addProd(cont,p={}){const dq=partirDosis(p);
   const d=document.createElement('div');d.className='prod';
@@ -1033,6 +1050,7 @@ function addProd(cont,p={}){const dq=partirDosis(p);
   <div><label>Dosis</label><div class="area"><input class="p-cant num-dec" type="text" inputmode="decimal" autocomplete="off" placeholder="25" value="${esc(String(dq.cant||'').replace('.',','))}"><select class="p-u" aria-label="Unidad de la dosis">${opts(DOSU,dq.u||'cc')}</select></div></div>
   <div><label>Para</label><select class="p-para">${PARA.map(x=>`<option value="${x}"${x===(p.para||'para 20 litros')?' selected':''}>${x.replace('para ','').replace(' litros',' L').replace(' litro',' L')}</option>`).join('')}</select></div>
   <button type="button" class="xp" title="Quitar">×</button>`;
+  {const tr=cont.closest&&cont.closest('.trat');const md=tr?modoDosis(probsDe(tr)):'liq';if(md!=='liq'||(dq.u&&!DOSU.includes(dq.u))||(p.para&&!PARA.includes(p.para)))ajustarProd(d,md,p.nom||p.para?{u:dq.u,para:p.para}:null)}
   d.querySelector('.xp').onclick=()=>{if(cont.children.length>1){d.remove();renumerar()}else{d.querySelector('.p-nom').value='';d.querySelector('.p-cant').value=''}};
   cont.appendChild(d);renumerar()}
 function renumerar(){if(typeof numerarProdsEns==='function')numerarProdsEns();document.querySelectorAll('.cult').forEach((c,i)=>{
@@ -1045,7 +1063,7 @@ function leerCultivos(){return[...document.querySelectorAll('.cult')].map(c=>{co
   manejo:q('.c-manejo'),obs:q('.c-obs'),labores:q('.c-lab'),
   tratamientos:[...c.querySelectorAll('.trat')].map(t=>{const ps=probsDe(t),ob={};t.querySelectorAll('.t-obj').forEach(i=>{if(i.value.trim())ob[i.dataset.p]=i.value.trim()});const tx=textoTrat({problemas:ps,objetivos:ob});return{problemas:ps,objetivos:ob,problema:tx.problema,objetivo:tx.objetivo||ob['']||'',aplicacion:t.querySelector('.t-apl').value,
     numAplic:t.querySelector('.t-num').value.trim(),frecuencia:t.querySelector('.t-fre').value.trim(),obs:t.querySelector('.t-obsT').value.trim(),
-    productos:[...t.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+u:'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom)}})
+    productos:[...t.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+uTxt(cant,u):'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom)}})
     .filter(t=>t.productos.length||t.objetivo||t.problema||t.obs)}})}
 $('#addCult').onclick=()=>{const d=addCultivo({});d.scrollIntoView({behavior:'smooth'})};
 
@@ -1172,7 +1190,7 @@ function addEnsTrat(t){const cont=$('#ensTrats');t=t||{};const nuevo=!t.nombre;c
 function numerarProdsEns(){document.querySelectorAll('#ensTrats .trat').forEach(t=>t.querySelectorAll('.prod').forEach((q,i,all)=>q.querySelector('label').textContent=all.length>1?'Producto '+(i+1):'Producto'))}
 function leerEnsTrats(){return[...document.querySelectorAll('#ensTrats .trat')].map(d=>{const test=d.querySelector('.e-test').checked;
   return{nombre:d.querySelector('.e-nom').value.trim()||'Tratamiento',testigo:test,
-   productos:test?[]:[...d.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+u:'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom),
+   productos:test?[]:[...d.querySelectorAll('.prod')].map(p=>{const cant=aNum(p.querySelector('.p-cant').value),u=p.querySelector('.p-u').value;return{nom:p.querySelector('.p-nom').value.trim(),cant,u,dosis:cant?String(cant).replace('.',',')+' '+uTxt(cant,u):'',para:p.querySelector('.p-para').value}}).filter(p=>p.nom),
    numAplic:test?'':d.querySelector('.t-num').value.trim(),frecuencia:test?'':d.querySelector('.t-fre').value.trim(),obs:d.querySelector('.t-obsT').value.trim()}})}
 function campoHTML(f,val){const id='m_'+f.k,v=val??'',req=f.req?' required':'',lab=`<label for="${id}">${f.l}${f.req?' *':''}</label>`;
   if(f.ty==='suc')return lab+`<select id="${id}"${req}><option value="">— Seleccione —</option>${SUCS.map(x=>`<option${x===v?' selected':''}>${x}</option>`).join('')}</select>`;
@@ -1377,7 +1395,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='5.1';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.3';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
