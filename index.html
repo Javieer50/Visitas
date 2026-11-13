@@ -483,8 +483,11 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 .pdfx{position:fixed;left:-20000px;top:0;width:760px;--bg:#fff;--card:#fff;--fill:#f2f2f2;--fill2:#f5f5f5;--sep:#ccc;--txt:#000;--txt2:#555;--acc:#2E5E3F;color-scheme:light;background:#fff;color:#000}
 .pdfx .hoja{animation:none;border-radius:0;min-height:0;max-width:none;padding-bottom:16px}.pdfx .noprint,.pdfx .hoja .cab::before{display:none!important}
 .pdfx .concl{background:none!important;padding:0!important}.pdfx .concl:empty{display:none}.pdfx .tw{overflow:visible!important}
-.nm-f{display:flex;gap:8px;align-items:center;margin-top:8px}.nm-f input{flex:1;min-width:0}.nm-f .xp{position:static;flex:none;width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}.mdep[hidden]{display:none!important}
-.barra-acts{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 6px 18px}
+.nm-f{display:flex;gap:8px;align-items:center;margin-top:8px}.nm-f input{flex:1;min-width:0}.nm-f .xp{position:static;flex:none;width:32px;height:46px;border:0;background:none;color:var(--rojo);font-size:22px;padding:0}.mdep[hidden],.horas[hidden],.row-btns[hidden]{display:none!important}
+.barra-acts{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:4px 0 18px}
+.barra-acts button{font-size:13.5px!important;padding:7px 11px 7px 9px!important;gap:5px!important;white-space:nowrap}
+#btnImp{display:inline-flex;align-items:center;border:0;border-radius:18px;background:linear-gradient(160deg,#636366,#3A3A3C);color:#fff;font:600 14px var(--f);box-shadow:0 3px 10px rgba(0,0,0,.22)}
+#btnImp svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #btnPend{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:18px;padding:7px 14px 7px 11px;background:linear-gradient(160deg,#FF9F0A,#D96A00);color:#fff;font:600 14px var(--f);box-shadow:0 3px 10px rgba(217,106,0,.28)}
 #pnSeg .btn{padding:10px;min-height:0;font-size:15px}#pnSeg .btn.on{background:linear-gradient(160deg,#FF9F0A,#D96A00);color:#fff}
 #btnPend svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -536,6 +539,7 @@ input:focus,select:focus,textarea:focus{background-color:var(--card);box-shadow:
 <!-- ============ INICIO (menú) ============ -->
 <section id="inicio" class="sec act">
   <div class="barra-acts"><button type="button" id="btnActs"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13h3M7.5 16.5h3M13.5 13h3M13.5 16.5h3"/></svg>Actividades<em id="nActs"></em></button>
+   <button type="button" id="btnImp"><svg viewBox="0 0 24 24"><path d="M12 3.5L2.8 19.5h18.4z"/><path d="M12 10v4.5"/><circle cx="12" cy="17" r=".6"/></svg>Imprevisto</button>
    <button type="button" id="btnPend"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l1.5 1.5L12 8M8 15l1.5 1.5L12 14M14.5 9.5H17M14.5 15.5H17"/></svg>Pendientes<em id="nPend"></em></button></div>
   <div class="home" id="home"></div>
   <div class="hoy aviso-inc" id="incRes" hidden></div>
@@ -1112,7 +1116,7 @@ const hhmm=n=>p2(Math.floor(n/60)%24)+':'+p2(n%60);
 function ocupados(fecha,excl={}){const o=[];
   cache.forEach(v=>{if(v.fecha!==fecha||(excl.k==='v'&&v.id==excl.id))return;const i=aMin(v.horaInicio);if(i==null)return;
     const f=aMin(v.horaFin);o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:v.horaInicio,hf:v.horaFin,txt:'Visita a '+v.productor})});
-  acts.forEach(a=>{if(a.fecha!==fecha||(excl.k==='a'&&a.id==excl.id))return;const i=aMin(a.hi);if(i==null)return;
+  acts.forEach(a=>{if(a.mod==='imprev'||a.fecha!==fecha||(excl.k==='a'&&a.id==excl.id))return;const i=aMin(a.hi);if(i==null)return;
     const f=aMin(a.hf);const m=MODS[a.mod];o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:a.hi,hf:a.hf,txt:(m?m.t:'Actividad')+(a.sucursal?' · '+a.sucursal:'')})});
   return o.sort((a,b)=>a.ini-b.ini)}
 function choque(fecha,hi,hf,excl){const i=aMin(hi);if(i==null)return null;const f0=aMin(hf),f=f0!=null&&f0>i?f0:i+1;
@@ -1129,7 +1133,7 @@ function pintarOcup(el,fecha,excl){if(!el)return;const L=ocupados(fecha,excl);
 
 /* ---------- Módulos de actividades ---------- */
 const SUCS=['Sucúa (Matriz)','Tena','Puyo','Macas','Santa Ana (Macas)','Logroño','Méndez','Limón Indanza','Gualaquiza','Yantzaza'];
-const G={agenda:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M7.5 13h3M7.5 16.5h3M13.5 13h3M13.5 16.5h3"/>',pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+const G={imprev:'<path d="M12 3.5L2.8 19.5h18.4z"/><path d="M12 10v4.5"/><circle cx="12" cy="17" r=".6"/>',agenda:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M7.5 13h3M7.5 16.5h3M13.5 13h3M13.5 16.5h3"/>',pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
  percha:'<path d="M4 4v16M20 4v16M4 9h16M4 15h16"/><rect x="7" y="5.5" width="3" height="3.5" rx=".5"/><rect x="12" y="11" width="3" height="4" rx=".5"/><rect x="7" y="16.5" width="4" height="3.5" rx=".5"/>',
  visita:'<path d="M12 21c-4-4-7-7.5-7-11a7 7 0 0 1 14 0c0 3.5-3 7-7 11z"/><path d="M12 7v6M9 10h6"/>',
  lista:'<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5v2h6v-2M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/>',
@@ -1171,7 +1175,17 @@ const MODS={
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},
    {k:'personas',l:'Personas asistentes',ty:'nombres',add:'Agregar asistente',ph:'Nombre y cargo. Ej.: Juan Pérez – técnico MAG'},
    {k:'acomps',l:'Acompañantes',ty:'nombres',add:'Agregar acompañante',ph:'Ej.: vendedor AGROLEON, ATC ECUAQUIMICA'},
-   {k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Descripción',ty:'area'}]}};
+   {k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Descripción',ty:'area'}]},
+ imprev:{t:'Imprevistos',g:'imprev',c:'#636366,#3A3A3C',titulo:a=>a.tipoI||'Imprevisto',fotos:1,sinHora:1,
+  campos:[{k:'fecha',l:'Fecha',ty:'date',req:1},
+   {k:'tipoI',l:'¿Qué pasó?',ty:'sel',op:['Enfermedad / cita médica','Daño del vehículo','Otra actividad asignada','Permiso personal','Calamidad doméstica','Clima o vía cerrada','Reunión o capacitación no programada','Otro'],req:1},
+   {k:'jornada',l:'Tiempo afectado',ty:'sel',op:['Todo el día','Media mañana','Media tarde','Algunas horas']},
+   {k:'hi',l:'Desde',ty:'time',half:1},{k:'hf',l:'Hasta',ty:'time',half:1},
+   {k:'sucursal',l:'Sucursal / zona',ty:'suc'},
+   {k:'afecto',l:'Actividades afectadas',ty:'text',ph:'Ej.: se suspendieron 3 visitas en Logroño'},
+   {k:'quien',l:'Informado a / asignado por',ty:'text',ph:'Ej.: Danny Leon'},
+   {k:'obs',l:'Detalle',ty:'area',req:1},
+   {k:'pends',l:'Acuerdos o pendientes',ty:'pends'}]}};
 function filaNombre(cont,v,ph){const d=document.createElement('div');d.className='nm-f';
   d.innerHTML=`<input class="nm-in" value="${esc(v||'')}" placeholder="${esc(ph||'Nombre')}" autocapitalize="words"><button type="button" class="xp" title="Quitar">×</button>`;
   d.querySelector('.xp').onclick=()=>{if(cont.children.length>1)d.remove();else d.querySelector('input').value='';programarBorradorM()};
@@ -1189,7 +1203,7 @@ function leerCampoMod(c){const el=$('#m_'+c.k);if(!el)return c.ty==='chips'||c.t
   return(el.value||'').trim()}
 const APPS=[['nueva','Nueva visita','visita','#3B7550,#24492F'],['remota','Receta a distancia','remota','#1F8F7A,#136456'],['lista','Mis visitas','lista','#4E8F63,#2E6B45'],['productores','Productores','prods','#9A7B3F,#6E5526'],['percha'],['charla'],['activ'],['evento'],['ensayo'],['cultivosSec','Cultivos','cult','#5E8C2F,#3F6A1A'],['datos','Informe','inf','#5A6472,#363D47'],['perfilSec','Mi perfil','perfil','#8A8F98,#565B63']];
 const svgG=k=>`<svg viewBox="0 0 24 24">${G[k]}</svg>`;
-$('#btnPend').onclick=()=>irA('pendSec');
+$('#btnPend').onclick=()=>irA('pendSec');$('#btnImp').onclick=()=>abrirMod('imprev');
 let pnVista='ab';$('#pnSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;pnVista=b.dataset.v;$('#pnSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));pintarPend()};
 function listaPend(){const L=[];
   acts.forEach(a=>(a.pends||[]).forEach(p=>L.push({src:'a',a,p,t:p.t,f:p.f,ok:p.ok,okf:p.okf,fe:a.fecha,org:(MODS[a.mod]?MODS[a.mod].t:'')+' · '+(MODS[a.mod]?MODS[a.mod].titulo(a):'')})));
@@ -1281,7 +1295,7 @@ function campoHTML(f,val){if(f.dep&&!f._w)return`<div class="mdep" data-dk="${f.
   const t={date:'date',time:'time',num:'number'}[f.ty]||'text';
   return lab+`<input id="${id}" type="${t}"${t==='number'?' inputmode="numeric" min="0"':''} value="${esc(v)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}${req}>`}
 function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:null;modFotos=a?(a.fotos||[]).slice():[];
-  const val=k=>a?a[k]:(k==='fecha'?hoy():k==='hi'?libreDesde(hoy(),ahora(),{}):undefined);
+  const val=k=>a?a[k]:(k==='fecha'?hoy():k==='hi'&&!m.sinHora?libreDesde(hoy(),ahora(),{}):undefined);
   let html='',cs=m.campos,i=0;const grupos=[];
   while(i<cs.length){const f=cs[i];
     if(f.k==='hi'){grupos.push(`<div class="horas"><div>${campoHTML(f,val('hi'))}</div><div>${campoHTML(cs[i+1],val('hf'))}</div></div><div class="row-btns"><button type="button" class="btn sec2 peq" data-h="hi">Inicio ahora</button><button type="button" class="btn sec2 peq" data-h="hf">Terminar ahora</button></div><div class="nota ocup" id="ocupM"></div>`);i+=2;continue}
@@ -1300,6 +1314,7 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
   $('#modForm').querySelectorAll('.nm-add').forEach(b=>b.onclick=()=>{const c=$('#'+b.dataset.for);const f=filaNombre(c,'',c.dataset.ph);f.querySelector('input').focus()});
   const deps=()=>$('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);w.hidden=!(s&&s.value===w.dataset.dv)});
   $('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);if(s)s.addEventListener('change',deps)});deps();
+  if($('#m_jornada')){const hj=()=>{const td=$('#m_jornada').value==='Todo el día',h=$('#m_hi').closest('.horas');[h,h&&h.nextElementSibling,$('#ocupM')].forEach(e=>{if(e)e.hidden=td})};$('#m_jornada').addEventListener('change',hj);hj()}
   const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
   $('#mGuardar').onclick=guardarMod;if(ed)$('#mCancelar').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();verVista('hist')};
   if(m.fotos){$('#mFoto').onchange=async e=>{for(const f of e.target.files){try{modFotos.push(await comprimir(f))}catch(x){}}e.target.value='';pintarMFotos()};pintarMFotos()}
@@ -1314,8 +1329,9 @@ async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity()
   m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=leerCampoMod(c)});
   if(r.mod==='evento'){if(r.tipoE!=='Reunión con empresa o institución')r.entidad='';if(!r.asist&&(r.personas||[]).length)r.asist=String(r.personas.length)}
   if(r.productor)r.productor=nombrePropio(r.productor);
-  if(r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
-  if(!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
+  if(r.mod!=='imprev'&&r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
+  if(r.mod!=='imprev'&&!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
+  if(r.mod==='imprev'&&r.jornada==='Todo el día'){r.hi='';r.hf=''}
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
   try{await guardarA(r);await recargarA();borrBorrar('m-'+modK);toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
 function resumenAct(a,sinPend){const m=MODS[a.mod];if(!m)return'';const x=[];
@@ -1323,6 +1339,7 @@ function resumenAct(a,sinPend){const m=MODS[a.mod];if(!m)return'';const x=[];
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
   if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(tratsEnsayo(a).map(t=>t.testigo?t.nombre+(/testigo/i.test(t.nombre)?'':' (testigo)'):t.nombre+': '+(t.productos.map(p=>p.nom+(p.dosis?' '+p.dosis:'')+(p.para?' '+p.para.replace('para ','/ '):'')).join(' + '))).join(' · '));if(a.estado)x.push(a.estado)}
   if(a.mod==='activ'){x.push(a.prods);if(a.lugar)x.push(a.lugar);if(a.personas)x.push(a.personas+' personas')}
+  if(a.mod==='imprev'){x.push(a.jornada||'');if(a.afecto)x.push(a.afecto);if(a.obs)x.push(String(a.obs).split('\n')[0]);if(a.quien)x.push('Informado a '+a.quien)}
   if(!sinPend&&(a.pends||[]).length)x.push('Acuerdos: '+a.pends.map(p=>p.t).join('; '));
   if(a.mod==='evento'){if(a.tipoE)x.push(a.tipoE+(a.entidad?': '+a.entidad:''));if(a.lugar)x.push(a.lugar);if(a.asist)x.push(a.asist+' asistentes');
     if((a.personas||[]).length)x.push('Asistentes: '+a.personas.join(', '));if((a.acomps||[]).length)x.push('Acompañantes: '+a.acomps.join(', '))}
@@ -1483,7 +1500,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='5.8';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='5.9';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -2040,7 +2057,7 @@ function datosMes(mes){const P=perDe(mes);const T=cache.filter(v=>enPer(v.fecha,
   const min=V.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+A.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
   const n=k=>A.filter(a=>a.mod===k);
   return{V,R,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minutos(a.hi,a.hf),0),
-    charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length}}
+    charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length,imprev:n('imprev')}}
 function tablaSuc(D,full){const e=Object.entries(D.suc).sort((a,b)=>b[1].min-a[1].min);
   if(!e.length)return'<p class="nota">Sin registros este mes.</p>';
   return`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Percha (h)</th><th class="n">Visitas</th><th class="n">Recetas dist.</th><th class="n">Charlas</th>${full?'<th class="n">Ensayos</th><th class="n">Activ.</th><th class="n">Eventos</th>':''}<th class="n">Horas</th></tr>
@@ -2064,6 +2081,8 @@ function resumenMes(D,X){const pl=(n,a,b)=>n+' '+(n===1?a:b),lista=L=>L.length<2
   const a=[];if(D.percha)a.push(pl(D.percha,'turno en percha','turnos en percha'));if(D.charlas)a.push(pl(D.charlas,'charla técnica','charlas técnicas')+(D.asist?` (${D.asist} asistentes)`:''));
   if(D.ensayos)a.push(pl(D.ensayos,'ensayo','ensayos'));if(D.activ)a.push(pl(D.activ,'activación','activaciones'));if(D.eventos)a.push(pl(D.eventos,'evento','eventos'));
   if(a.length)P.push(`${D.V.length?'Además, cumplí':X.ini+' cumplí'} ${lista(a)}.`);
+  if(D.imprev&&D.imprev.length){const t={};D.imprev.forEach(x=>{const k=(x.tipoI||'otro').split(' / ')[0].toLowerCase();t[k]=(t[k]||0)+1});
+    P.push(`Se ${D.imprev.length===1?'presentó 1 imprevisto':'presentaron '+D.imprev.length+' imprevistos'} (${lista(Object.entries(t).map(([k,n])=>n>1?k+' ×'+n:k))}).`)}
   return P.join(' ')}
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const nomMes=m=>{const[a,b]=m.split('-');return MESES[+b-1]+' '+a};
@@ -2124,8 +2143,9 @@ function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:n
   <div class="kpi">
    ${kpi(D.V.length,'Visitas de campo')}${kpi(prods.size,'Productores atendidos')}${kpi(segui,'Clientes con seguimiento')}${kpi(nuevos,'Clientes nuevos')}
    ${kpi(D.charlas,'Charlas técnicas')}${kpi(D.asist,'Asistentes a charlas')}
-   ${kpi(D.R.length,'Recetas a distancia')}${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}</div>
+   ${kpi(D.R.length,'Recetas a distancia')}${kpi(D.ensayos,'Ensayos')}${kpi(D.activ,'Activaciones')}${kpi(D.eventos,'Eventos')}${kpi(D.imprev.length,'Imprevistos')}</div>
   ${tSuc?H('Actividades por sucursal')+tSuc:''}
+  ${D.imprev.length?H('Imprevistos')+`<div class="tw" style="overflow-x:auto"><table><tr><th>Fecha</th><th>Imprevisto</th><th>Tiempo</th><th>Detalle</th></tr>${D.imprev.slice().sort((a,b)=>(a.fecha+(a.hi||'')).localeCompare(b.fecha+(b.hi||''))).map(a=>`<tr><td>${fmtF(a.fecha)}</td><td>${esc(a.tipoI||'')}</td><td>${esc(a.jornada||'')}${a.hi?'<br><small>'+esc(a.hi)+(a.hf?'–'+esc(a.hf):'')+'</small>':''}</td><td>${esc([a.obs,a.afecto].filter(Boolean).join('. '))}</td></tr>`).join('')}</table></div>`:''}
   ${Object.keys(cul).length?H('Cultivos atendidos en visitas')+`<div class="tw"><table><tr><th>Cultivo</th><th class="n">Visitas</th><th class="n">Productores</th><th class="n">Hectáreas</th></tr>${Object.entries(cul).sort((a,b)=>b[1].v-a[1].v).map(([k,o])=>`<tr><td>${esc(k)}</td><td class="n">${o.v}</td><td class="n">${o.p.size}</td><td class="n">${n1(o.ha)}</td></tr>`).join('')}</table></div>`:''}
   ${items.length?H('Registro diario de actividades'):''}
   ${Object.entries(porDia).map(([f,L])=>`<div class="dia"><h5>${nomDia(f)}</h5>${L.map(x=>`<div class="act"><span class="h">${esc(x.hi||'')}${x.hf?'–'+esc(x.hf):''}</span><span><b>${esc(x.tipo)}</b>${x.suc?' · '+esc(x.suc):''}${x.det?'<br>'+esc(x.det):''}</span></div>`).join('')}</div>`).join('')}
