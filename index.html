@@ -1117,11 +1117,15 @@ $('#addCult').onclick=()=>{const d=addCultivo({});d.scrollIntoView({behavior:'sm
 /* ---------- Control de horarios ocupados ---------- */
 const aMin=t=>{if(!t)return null;const[h,m]=String(t).split(':').map(Number);return isNaN(h)?null:h*60+(m||0)};
 const hhmm=n=>p2(Math.floor(n/60)%24)+':'+p2(n%60);
+const esKit=a=>a&&a.mod==='percha'&&(a.acts||[]).includes('Kits agrícolas');
+const hAct=a=>esKit(a)&&a.kit_hi?[a.kit_hi,a.kit_hf||'']:[a.hi||'',a.hf||''];
+const tAct=a=>esKit(a)?'Kits agrícolas':(MODS[a.mod]?MODS[a.mod].t:'');
+const minAct=a=>{const[h1,h2]=hAct(a);return minutos(h1,h2)};
 function ocupados(fecha,excl={}){const o=[];
   cache.forEach(v=>{if(v.fecha!==fecha||(excl.k==='v'&&v.id==excl.id))return;const i=aMin(v.horaInicio);if(i==null)return;
     const f=aMin(v.horaFin);o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:v.horaInicio,hf:v.horaFin,txt:'Visita a '+v.productor})});
-  acts.forEach(a=>{if(a.mod==='imprev'||a.fecha!==fecha||(excl.k==='a'&&a.id==excl.id))return;const i=aMin(a.hi);if(i==null)return;
-    const f=aMin(a.hf);const m=MODS[a.mod];o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:a.hi,hf:a.hf,txt:(m?m.t:'Actividad')+(a.sucursal?' · '+a.sucursal:'')})});
+  acts.forEach(a=>{if(a.mod==='imprev'||a.fecha!==fecha||(excl.k==='a'&&a.id==excl.id))return;const[h1,h2]=hAct(a);const i=aMin(h1);if(i==null)return;
+    const f=aMin(h2);o.push({ini:i,fin:f!=null&&f>i?f:i+1,hi:h1,hf:h2,txt:(tAct(a)||'Actividad')+(a.sucursal?' · '+a.sucursal:'')})});
   return o.sort((a,b)=>a.ini-b.ini)}
 function choque(fecha,hi,hf,excl){const i=aMin(hi);if(i==null)return null;const f0=aMin(hf),f=f0!=null&&f0>i?f0:i+1;
   return ocupados(fecha,excl).find(o=>i<o.fin&&f>o.ini)||null}
@@ -1198,6 +1202,9 @@ function filaNombre(cont,v,ph){const d=document.createElement('div');d.className
   d.querySelector('.xp').onclick=()=>{if(cont.children.length>1)d.remove();else d.querySelector('input').value='';programarBorradorM()};
   d.querySelector('input').addEventListener('change',e=>{const t=e.target;if(t.closest('[data-k="personas"]')){const n=nombrePropio(t.value.split(/\s[–-]\s/)[0]);const r=t.value.split(/\s[–-]\s/).slice(1).join(' – ');t.value=n+(r?' – '+r:'')}});
   cont.appendChild(d);return d}
+function reqKits(){if(modK!=='percha'||!$('#m_acts'))return;const k=[...$('#m_acts').querySelectorAll('input:checked')].some(x=>x.value==='Kits agrícolas');
+  [['sucursal','Sucursal'],['hi','Hora de inicio']].forEach(([c,t])=>{const el=$('#m_'+c);if(!el)return;el.required=!k;const lb=document.querySelector(`label[for="m_${c}"]`);if(lb)lb.textContent=t+(k?'':' *')});
+  const kh=$('#m_kit_hi');if(kh){kh.required=k;const lb=document.querySelector('label[for="m_kit_hi"]');if(lb)lb.textContent='Kits agrícolas · desde'+(k?' *':'')}}
 function filaPend(cont,o){o=o||{};const d=document.createElement('div');d.className='pd-f';d.dataset.id=o.id||('p'+Date.now()+Math.random().toString(36).slice(2,6));d.dataset.ok=o.ok?'1':'';d.dataset.okf=o.okf||'';
   d.innerHTML=`<textarea class="pd-t" rows="2" placeholder="Ej.: enviar cotización de Cal Agrícola al GAD; volver con muestras">${esc(o.t||'')}</textarea>
    <div class="pd-r"><label>Fecha límite</label><input type="date" class="pd-fe" value="${esc(o.f||'')}"><button type="button" class="xp" title="Quitar">×</button></div>`;
@@ -1248,7 +1255,7 @@ function pintarInicio(){{const h=hoy(),n=cache.filter(v=>v.fecha===h&&!v.importa
     irA(k)});
   const h=hoy(),vh=cache.filter(v=>v.fecha===h&&!v.importado),ah=acts.filter(a=>a.fecha===h);
   const filas=[['Visitas de campo',vh.filter(v=>!v.remota).length],['Recetas a distancia',vh.filter(v=>v.remota).length],...Object.keys(MODS).map(k=>[MODS[k].t,ah.filter(a=>a.mod===k).length]).filter(x=>x[1])];
-  const min=vh.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+ah.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
+  const min=vh.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+ah.reduce((s,a)=>s+minAct(a),0);
   borrTodos().then(L=>{const box=$('#pendRes');if(!box)return;L=L.filter(d=>d.k.startsWith('m-')||d.util);
     box.hidden=!L.length;box.innerHTML=L.length?'<h3>Sin terminar</h3>'+L.map(d=>{const t=d.k==='v-visita'?'Nueva visita':d.k==='v-remota'?'Receta a distancia':(MODS[d.k.slice(2)]||{}).t;
       const det=d.campos?d.campos.productor:(d.vals&&(d.vals.tema||d.vals.nombre||d.vals.titulo||d.vals.prods||d.vals.sucursal))||'';
@@ -1334,7 +1341,7 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
   $('#modForm').querySelectorAll('.nm-add').forEach(b=>b.onclick=()=>{const c=$('#'+b.dataset.for);const f=filaNombre(c,'',c.dataset.ph);f.querySelector('input').focus()});
   const deps=()=>$('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);
     w.hidden=!(s&&(s.classList.contains('chk')?[...s.querySelectorAll('input:checked')].some(x=>x.value===w.dataset.dv):s.value===w.dataset.dv))});
-  $('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);if(s)s.addEventListener('change',deps)});deps();
+  $('#modForm').querySelectorAll('.mdep').forEach(w=>{const s=$('#m_'+w.dataset.dk);if(s)s.addEventListener('change',()=>{deps();reqKits()})});deps();reqKits();
   if($('#m_jornada')){const hj=()=>{const td=$('#m_jornada').value==='Todo el día',h=$('#m_hi').closest('.horas');[h,h&&h.nextElementSibling,$('#ocupM')].forEach(e=>{if(e)e.hidden=td})};$('#m_jornada').addEventListener('change',hj);hj()}
   const om=()=>pintarOcup($('#ocupM'),$('#m_fecha').value,{k:'a',id:modEdit||-1});if($('#m_fecha')){$('#m_fecha').addEventListener('change',om);om()}
   $('#mGuardar').onclick=guardarMod;if(ed)$('#mCancelar').onclick=()=>{borrBorrar('m-'+modK);nuevoMod();verVista('hist')};
@@ -1344,20 +1351,22 @@ function nuevoMod(a){const m=MODS[modK];const ed=!!(a&&a.id);modEdit=ed?a.id:nul
   $('#segHist').textContent=`Historial (${acts.filter(x=>x.mod===modK).length})`}
 function pintarMFotos(){const b=$('#mFotos');if(!b)return;b.innerHTML=modFotos.map((s,i)=>`<div><img src="${s}" alt=""><button type="button" data-i="${i}">×</button></div>`).join('');
   b.querySelectorAll('button').forEach(x=>x.onclick=()=>{modFotos.splice(+x.dataset.i,1);pintarMFotos()})}
-async function guardarMod(){const m=MODS[modK],f=$('#fm');if(!f.reportValidity())return;
+async function guardarMod(){const m=MODS[modK],f=$('#fm');reqKits();if(!f.reportValidity())return;
   if($('#ensTrats')&&!leerEnsTrats().some(t=>t.productos.length))return dialogo('Faltan tratamientos','Agregue al menos un tratamiento con el producto a evaluar.',[['Entendido']]);
   const r={id:modEdit||Date.now(),mod:modK};
   m.campos.forEach(c=>{if(c.ty==='ens'){r[c.k]=leerEnsTrats();return}r[c.k]=leerCampoMod(c)});
   if(r.mod==='percha'&&!(r.acts||[]).includes('Kits agrícolas')){r.kit_hi='';r.kit_hf='';r.kit_acomp='';r.kit_lugar=''}
   if(r.mod==='evento'){if(r.tipoE!=='Reunión con empresa o institución')r.entidad='';if(!r.asist&&(r.personas||[]).length)r.asist=String(r.personas.length)}
   if(r.productor)r.productor=nombrePropio(r.productor);
-  if(r.mod!=='imprev'&&r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi))r.hf=ahora();
-  if(r.mod!=='imprev'&&!validarHorario(r.fecha,r.hi,r.hf,{k:'a',id:modEdit||-1}))return;
+  if(r.mod!=='imprev'&&r.hi&&!r.hf&&r.fecha===hoy()&&!modEdit&&aMin(ahora())>aMin(r.hi)&&aMin(ahora())-aMin(r.hi)<=180)r.hf=ahora();
+  if(esKit(r)&&r.kit_hi&&!r.hi){r.hi=r.kit_hi;r.hf=r.kit_hf}
+  if(r.mod!=='imprev'&&!validarHorario(r.fecha,hAct(r)[0],hAct(r)[1],{k:'a',id:modEdit||-1}))return;
   if(r.mod==='imprev'&&r.jornada==='Todo el día'){r.hi='';r.hf=''}
   if(m.fotos)r.fotos=modFotos.slice();r.actualizado=new Date().toISOString();
   try{await guardarA(r);await recargarA();borrBorrar('m-'+modK);toast(modEdit?'Registro actualizado ✔':'Registro guardado ✔');nuevoMod();verVista('hist')}catch(e){alert('Error al guardar: '+e.message)}}
 function resumenAct(a,sinPend){const m=MODS[a.mod];if(!m)return'';const x=[];
-  if(a.mod==='percha'){const kd='Kits agrícolas'+(a.kit_hi?' '+a.kit_hi+(a.kit_hf?'–'+a.kit_hf:''):'')+(a.kit_lugar?' en '+a.kit_lugar:'')+(a.kit_acomp?' con '+a.kit_acomp:'');if((a.acts||[]).length)x.push(a.acts.map(z=>z==='Kits agrícolas'?kd:z).join(', '));if(a.clientes)x.push(a.clientes+' clientes');if(a.consultas)x.push(a.consultas+' consultas');
+  if(a.mod==='percha'){const solo=(a.acts||[]).length===1&&esKit(a);const kd=solo?[a.kit_lugar?'Lugar: '+a.kit_lugar:'',a.kit_acomp?'Acompañante: '+a.kit_acomp:''].filter(Boolean).join(' · '):'Kits agrícolas'+(a.kit_lugar?' en '+a.kit_lugar:'')+(a.kit_acomp?' con '+a.kit_acomp:'');
+    if((a.acts||[]).length){const t=a.acts.map(z=>z==='Kits agrícolas'?kd:z).filter(Boolean).join(', ');if(t)x.push(t)}if(a.clientes)x.push(a.clientes+' clientes');if(a.consultas)x.push(a.consultas+' consultas');
 }
   if(a.mod==='charla'){x.push(a.lugar);if(a.cultivo)x.push(a.cultivo);if(a.asist)x.push(a.asist+' asistentes');if(a.org)x.push(a.org)}
   if(a.mod==='ensayo'){if(a.productor)x.push(a.productor);if(a.cultivo)x.push(a.cultivo);x.push(tratsEnsayo(a).map(t=>t.testigo?t.nombre+(/testigo/i.test(t.nombre)?'':' (testigo)'):t.nombre+': '+(t.productos.map(p=>p.nom+(p.dosis?' '+p.dosis:'')+(p.para?' '+p.para.replace('para ','/ '):'')).join(' + '))).join(' · '));if(a.estado)x.push(a.estado)}
@@ -1368,9 +1377,9 @@ function resumenAct(a,sinPend){const m=MODS[a.mod];if(!m)return'';const x=[];
     if((a.personas||[]).length)x.push('Asistentes: '+a.personas.join(', '));if((a.acomps||[]).length)x.push('Acompañantes: '+a.acomps.join(', '))}
   return x.filter(Boolean).join(' · ')}
 function pintarHist(){const L=acts.filter(a=>a.mod===modK),m=MODS[modK];
-  $('#modHist').innerHTML=L.length?L.map(a=>{const dm=minutos(a.hi,a.hf);return`<div class="card modcard" style="margin-top:14px">
+  $('#modHist').innerHTML=L.length?L.map(a=>{const[ahi,ahf]=hAct(a);const dm=minutos(ahi,ahf);return`<div class="card modcard" style="margin-top:14px">
    <p class="tit2">${esc(m.titulo(a))}${m.estado&&a[m.estado]?`<span class="estado">${esc(a[m.estado])}</span>`:''}</p>
-   <div class="m">${fmtF(a.fecha)}${a.hi?' · '+esc(a.hi)+(a.hf?' – '+esc(a.hf):''):''}${dm?' ('+fmtDur(dm)+')':''}${a.sucursal&&modK!=='percha'?' · '+esc(a.sucursal):''}</div>
+   <div class="m">${fmtF(a.fecha)}${ahi?' · '+esc(ahi)+(ahf?' – '+esc(ahf):''):''}${dm?' ('+fmtDur(dm)+')':''}${a.sucursal&&modK!=='percha'?' · '+esc(a.sucursal):''}</div>
    <div class="det">${esc(resumenAct(a))}</div>${a.obs||a.resultado?`<div class="m" style="margin-top:4px">${esc(a.obs||a.resultado)}</div>`:''}
    ${(a.fotos||[]).length?`<div class="fotos">${a.fotos.slice(0,4).map(s=>`<img src="${s}" alt="" style="width:64px;height:64px">`).join('')}</div>`:''}
    <div class="iacc" style="grid-template-columns:repeat(4,1fr)">
@@ -1523,7 +1532,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='6.2';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='6.3';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -1900,7 +1909,7 @@ const TIPOS_AG={vis:['Visita de campo','#3B7550'],rem:['Receta a distancia','#1F
 function itemsAgenda(){const L=[];
   cache.filter(v=>!v.importado).forEach(v=>L.push({k:v.remota?'rem':'vis',f:v.fecha,hi:v.horaInicio||'',hf:v.horaFin||'',suc:v.sucursal,tit:v.productor,
     det:[(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · '),v}));
-  acts.forEach(a=>{const m=MODS[a.mod];if(!m)return;L.push({k:a.mod,f:a.fecha,hi:a.hi||'',hf:a.hf||'',suc:a.sucursal,tit:m.titulo(a),det:resumenAct(a),a})});
+  acts.forEach(a=>{const m=MODS[a.mod];if(!m)return;const[h1,h2]=hAct(a);L.push({k:a.mod,tipo:tAct(a),f:a.fecha,hi:h1,hf:h2,suc:a.sucursal,tit:esKit(a)?'Kits agrícolas'+(a.kit_lugar?' · '+a.kit_lugar:''):m.titulo(a),det:resumenAct(a),a})});
   return L}
 ['#aTipo','#aDia','#aDe','#aHa'].forEach(x=>{$(x).onchange=pintarActs});
 $('#aPer').onchange=()=>{const t=$('#aPer').value;$('#aDiaW').hidden=t!=='dia';$('#aRgW').hidden=t!=='rango';
@@ -1918,7 +1927,7 @@ function pintarActs(){const[d1,d2,etq]=rangoPer($('#aPer').value,$('#aDia').valu
   $('#aLista').innerHTML=L.length?Object.entries(porDia).map(([f,I])=>`<div class="ag-dia"><h4><span>${nomDia(f)}</span><span>${I.length}</span></h4>
     ${I.slice().sort((a,b)=>(a.hi||'99').localeCompare(b.hi||'99')).map(x=>`<div class="ag-it" data-k="${x.k}" data-id="${(x.v||x.a).id}" role="button" tabindex="0">
       <div class="h">${esc(x.hi||'—')}${x.hf?`<small>${esc(x.hf)}</small>`:''}</div>
-      <div><span class="t" style="background:${colT(x.k)}">${esc(nomT(x.k))}</span><b>${esc(x.tit||'')}</b><p>${esc([x.suc,x.det].filter(Boolean).join(' · '))}</p></div></div>`).join('')}</div>`).join('')
+      <div><span class="t" style="background:${colT(x.k)}">${esc(x.tipo||nomT(x.k))}</span><b>${esc(x.tit||'')}</b><p>${esc([x.suc,x.det].filter(Boolean).join(' · '))}</p></div></div>`).join('')}</div>`).join('')
    :`<div class="vacio">${$('#aPer').value==='hoy'?'Aún no hay actividades registradas hoy.<br>Para ver otros días, cambie el filtro <b>Hoy</b>.':'No hay actividades en esas fechas.'}</div>`;
   $('#aLista').querySelectorAll('.ag-it').forEach(e=>e.onclick=async()=>{const k=e.dataset.k,id=+e.dataset.id;
     if(k==='vis'||k==='rem'){const v=cache.find(x=>x.id===id);if(v)ficha(v);return}
@@ -2075,11 +2084,11 @@ const perDe=m=>typeof m==='string'?(m.length===7?{d:m+'-01',h:m+'-31'}:{d:m,h:m}
 const enPer=(f,P)=>{f=String(f||'').slice(0,10);return f.length===10&&f>=P.d&&f<=P.h};
 function datosMes(mes){const P=perDe(mes);const T=cache.filter(v=>enPer(v.fecha,P)&&!v.importado),V=T.filter(v=>!v.remota),R=T.filter(v=>v.remota),A=acts.filter(a=>enPer(a.fecha,P));
   const suc={};const add=(s,k,min)=>{s=s||'Sin sucursal';suc[s]=suc[s]||{percha:0,mperc:0,nueva:0,remota:0,charla:0,ensayo:0,activ:0,evento:0,min:0};suc[s][k]++;suc[s].min+=min;if(k==='percha')suc[s].mperc+=min};
-  V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minutos(a.hi,a.hf)));
+  V.forEach(v=>add(v.sucursal,'nueva',minutos(v.horaInicio,v.horaFin)));R.forEach(v=>add(v.sucursal,'remota',0));A.forEach(a=>add(a.sucursal,a.mod,minAct(a)));
   const dias=new Set([...V.map(v=>v.fecha),...A.map(a=>a.fecha)]);
-  const min=V.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+A.reduce((s,a)=>s+minutos(a.hi,a.hf),0);
+  const min=V.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+A.reduce((s,a)=>s+minAct(a),0);
   const n=k=>A.filter(a=>a.mod===k);
-  return{V,R,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minutos(a.hi,a.hf),0),
+  return{V,R,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minAct(a),0),
     charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length,imprev:n('imprev'),clientesP:n('percha').reduce((s,a)=>s+(+a.clientes||0),0),kits:n('percha').filter(a=>(a.acts||[]).includes('Kits agrícolas')).length}}
 function tablaSuc(D,full){const e=Object.entries(D.suc).sort((a,b)=>b[1].min-a[1].min);
   if(!e.length)return'<p class="nota">Sin registros este mes.</p>';
@@ -2128,7 +2137,7 @@ $('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.t==='mes'?
   if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese periodo');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
   const filas=[...D.R.map(v=>[v.fecha,'','','','Receta a distancia',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', '),v.comunidad,v.obsGen]),...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
-    ...D.A.map(a=>[a.fecha,a.hi,a.hf,minutos(a.hi,a.hf)||'',MODS[a.mod]?MODS[a.mod].t:a.mod,a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
+    ...D.A.map(a=>[a.fecha,hAct(a)[0],hAct(a)[1],minAct(a)||'',tAct(a)||a.mod,a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
     .sort((a,b)=>(a[0]+(a[1]||'')).localeCompare(b[0]+(b[1]||''))).map(r=>{r[0]=fmtF(r[0]);return r.map(q).join(';')});
   const cab=['Fecha','Hora inicio','Hora fin','Minutos','Actividad','Sucursal','Productor / título','Detalle','Lugar / comunidad','Observaciones'];
   descargar(`Actividades_AGROLEON_${m}.csv`,'﻿'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')};
@@ -2151,7 +2160,7 @@ function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:n
   Object.entries(area).forEach(([k,ha])=>{const c=k.split('|')[1];if(cul[c])cul[c].ha+=ha});
   // registro diario
   const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
-    ...D.A.map(a=>({f:a.fecha,hi:a.hi,hf:a.hf,tipo:MODS[a.mod]?MODS[a.mod].t:'',suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
+    ...D.A.map(a=>({f:a.fecha,hi:hAct(a)[0],hf:hAct(a)[1],tipo:tAct(a),suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
   const nomDia=f=>{const d=new Date(f+'T12:00:00');const n=DIAS[d.getDay()];return n[0].toUpperCase()+n.slice(1)+' '+fmtF(f)};
