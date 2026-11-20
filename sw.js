@@ -1,5 +1,5 @@
 // Visitas AGROLEON – funcionamiento sin conexión
-const C='agroleon-v75';
+const C='agroleon-v76';
 const BASE=new URL('./',self.location).href;
 const ARCH=['','index.html','manifest.json','icon-192.png','icon-512.png','apple-touch-icon.png'].map(f=>BASE+f);
 

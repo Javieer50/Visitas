@@ -1181,7 +1181,7 @@ const MODS={
    {k:'pends',l:'Acuerdos o pendientes',ty:'pends'},{k:'obs',l:'Resultados / observaciones',ty:'area'}]},
  evento:{t:'Eventos varios',g:'evento',c:'#C2410C,#9A3412',titulo:a=>a.titulo||'Evento',fotos:1,
   campos:[...F_FH,{k:'titulo',l:'Nombre del evento',ty:'text',req:1},
-   {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Reunión con productores','Reunión con empresa o institución','Reunión interna / empresa','Capacitación recibida','Otro']},{k:'asist',l:'N.º de asistentes',ty:'num',ph:'Se cuenta solo si agrega los nombres abajo'},
+   {k:'tipoE',l:'Tipo',ty:'sel',op:['Feria agropecuaria','Día de campo','Kits agrícolas','Reunión con productores','Reunión con empresa o institución','Reunión interna / empresa','Capacitación recibida','Otro']},{k:'asist',l:'N.º de asistentes',ty:'num',ph:'Se cuenta solo si agrega los nombres abajo'},
    {k:'entidad',l:'Empresa o institución',ty:'text',ph:'Ej.: MAG, GAD Municipal, INIAP, Asociación…',dep:{k:'tipoE',v:'Reunión con empresa o institución'}},
    {k:'sucursal',l:'Sucursal',ty:'suc'},{k:'lugar',l:'Lugar',ty:'text'},
    {k:'personas',l:'Personas asistentes',ty:'nombres',add:'Agregar asistente',ph:'Nombre y cargo. Ej.: Juan Pérez – técnico MAG'},
@@ -1532,7 +1532,7 @@ async function importarGE(){const sucD=$('#impSuc').value,culD=$('#impCul').valu
   dialogo('Importación lista',`${nuevos} productor${nuevos!==1?'es':''} nuevo${nuevos!==1?'s':''}${act?` y ${act} ya registrado${act!==1?'s':''} actualizado${act!==1?'s':''}`:''}. Cuando los visite, sus datos se cargarán solos.`,[['Entendido']])}
 $('#mImp').onclick=e=>{if(e.target.id==='mImp')e.target.style.display='none'};
 
-const VERSION='6.3';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
+const VERSION='6.4';document.querySelectorAll('.vers').forEach(x=>x.textContent=VERSION);
 /* ---------- Mi perfil ---------- */
 const PERFIL_DEF={nombre:'Javier Enrique Rivas Cañar',titulo:'Ing.',profesion:'Ingeniero Agrónomo',cargo:'Promotor de Mostrador',empresa:'ECUAQUIMICA',cliente:'AGROLEON',
   telefono:'0959014370',correo:'jrivas@ecuaquimica.com.ec',base:'Sucúa (Matriz)',sucursales:['Sucúa (Matriz)','Tena','Puyo','Macas','Logroño','Méndez','Limón Indanza','Gualaquiza'],foto:'',meta:''};
@@ -2089,7 +2089,7 @@ function datosMes(mes){const P=perDe(mes);const T=cache.filter(v=>enPer(v.fecha,
   const min=V.reduce((s,v)=>s+minutos(v.horaInicio,v.horaFin),0)+A.reduce((s,a)=>s+minAct(a),0);
   const n=k=>A.filter(a=>a.mod===k);
   return{V,R,A,suc,dias:dias.size,min,mperc:n('percha').reduce((s,a)=>s+minAct(a),0),
-    charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length,imprev:n('imprev'),clientesP:n('percha').reduce((s,a)=>s+(+a.clientes||0),0),kits:n('percha').filter(a=>(a.acts||[]).includes('Kits agrícolas')).length}}
+    charlas:n('charla').length,asist:n('charla').reduce((s,a)=>s+(+a.asist||0),0),ensayos:n('ensayo').length,activ:n('activ').length,eventos:n('evento').length,percha:n('percha').length,imprev:n('imprev'),clientesP:n('percha').reduce((s,a)=>s+(+a.clientes||0),0),kits:n('percha').filter(a=>(a.acts||[]).includes('Kits agrícolas')).length+n('evento').filter(a=>a.tipoE==='Kits agrícolas').length}}
 function tablaSuc(D,full){const e=Object.entries(D.suc).sort((a,b)=>b[1].min-a[1].min);
   if(!e.length)return'<p class="nota">Sin registros este mes.</p>';
   return`<div class="tw" style="overflow-x:auto"><table><tr><th>Sucursal</th><th class="n">Atención (h)</th><th class="n">Visitas</th><th class="n">Recetas dist.</th><th class="n">Charlas</th>${full?'<th class="n">Ensayos</th><th class="n">Activ.</th><th class="n">Eventos</th>':''}<th class="n">Horas</th></tr>
@@ -2137,7 +2137,7 @@ $('#btnCsvMes').onclick=()=>{const P=periodo();if(!P)return;const m=P.t==='mes'?
   if(!D.V.length&&!D.A.length&&!D.R.length)return toast('No hay registros en ese periodo');
   const q=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';
   const filas=[...D.R.map(v=>[v.fecha,'','','','Receta a distancia',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)).join(', '),v.comunidad,v.obsGen]),...D.V.map(v=>[v.fecha,v.horaInicio,v.horaFin,minutos(v.horaInicio,v.horaFin)||'','Visita de campo',v.sucursal,v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),v.comunidad,v.obsGen]),
-    ...D.A.map(a=>[a.fecha,hAct(a)[0],hAct(a)[1],minAct(a)||'',tAct(a)||a.mod,a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
+    ...D.A.map(a=>[a.fecha,hAct(a)[0],hAct(a)[1],minAct(a)||'',a.mod==='evento'?(a.titulo||'Evento'):(tAct(a)||a.mod),a.sucursal,MODS[a.mod]?MODS[a.mod].titulo(a):'',resumenAct(a),a.lugar||'',a.obs||a.resultado||''])]
     .sort((a,b)=>(a[0]+(a[1]||'')).localeCompare(b[0]+(b[1]||''))).map(r=>{r[0]=fmtF(r[0]);return r.map(q).join(';')});
   const cab=['Fecha','Hora inicio','Hora fin','Minutos','Actividad','Sucursal','Productor / título','Detalle','Lugar / comunidad','Observaciones'];
   descargar(`Actividades_AGROLEON_${m}.csv`,'﻿'+[cab.map(q).join(';'),...filas].join('\r\n'),'text/csv;charset=utf-8');toast('Archivo Excel generado')};
@@ -2160,7 +2160,7 @@ function informe(mes){const P=typeof mes==='string'?{...perDe(mes),t:'mes',txt:n
   Object.entries(area).forEach(([k,ha])=>{const c=k.split('|')[1];if(cul[c])cul[c].ha+=ha});
   // registro diario
   const items=[...D.V.map(v=>({f:v.fecha,hi:v.horaInicio,hf:v.horaFin,tipo:'Visita de campo',suc:v.sucursal,det:[v.productor,(v.cultivos||[]).map(c=>nomCult(c)+(c.area?' '+fmtArea(c):'')).join(', '),(v.comunidad||'').split('\n')[0]].filter(Boolean).join(' · ')})),
-    ...D.A.map(a=>({f:a.fecha,hi:hAct(a)[0],hf:hAct(a)[1],tipo:tAct(a),suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
+    ...D.A.map(a=>({f:a.fecha,hi:hAct(a)[0],hf:hAct(a)[1],tipo:a.mod==='evento'?(a.titulo||'Evento'):tAct(a),suc:a.sucursal,det:[MODS[a.mod]&&a.mod!=='percha'&&a.mod!=='evento'?MODS[a.mod].titulo(a):'',resumenAct(a)].filter(Boolean).join(' · ')}))]
     .sort((a,b)=>(a.f+(a.hi||'')).localeCompare(b.f+(b.hi||'')));
   const porDia={};items.forEach(x=>(porDia[x.f]=porDia[x.f]||[]).push(x));
   const nomDia=f=>{const d=new Date(f+'T12:00:00');const n=DIAS[d.getDay()];return n[0].toUpperCase()+n.slice(1)+' '+fmtF(f)};
